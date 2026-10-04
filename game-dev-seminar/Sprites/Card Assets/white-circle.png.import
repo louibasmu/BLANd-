@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bddymiv4rv8kw"
-path="res://.godot/imported/white-circle.png-21cb030b7b2f9ee56f41470823aada71.ctex"
+path="res://.godot/imported/white-circle.png-ed41806ad4779fd81a00547b388310db.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/white-circle.png"
-dest_files=["res://.godot/imported/white-circle.png-21cb030b7b2f9ee56f41470823aada71.ctex"]
+source_file="res://Sprites/Card Assets/white-circle.png"
+dest_files=["res://.godot/imported/white-circle.png-ed41806ad4779fd81a00547b388310db.ctex"]
 
 [params]
 

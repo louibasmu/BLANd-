@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b7bqw6bmwwqwt"
-path="res://.godot/imported/card_diamonds_A.png-9a79efcd859c3810f1f4f959ea07f3af.ctex"
+path="res://.godot/imported/card_diamonds_A.png-b20eda0c0631c249df3f7a8c7a3a4e08.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/card_diamonds_A.png"
-dest_files=["res://.godot/imported/card_diamonds_A.png-9a79efcd859c3810f1f4f959ea07f3af.ctex"]
+source_file="res://Sprites/Card Assets/card_diamonds_A.png"
+dest_files=["res://.godot/imported/card_diamonds_A.png-b20eda0c0631c249df3f7a8c7a3a4e08.ctex"]
 
 [params]
 

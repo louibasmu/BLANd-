@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cm23e3dq3t4nw"
-path="res://.godot/imported/card_shake.png-2819e7acc8dba81871894dff8e33a286.ctex"
+path="res://.godot/imported/card_shake.png-9ac73ed1fcae687de38c21b2862f73c5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/card_shake.png"
-dest_files=["res://.godot/imported/card_shake.png-2819e7acc8dba81871894dff8e33a286.ctex"]
+source_file="res://Sprites/Card Assets/card_shake.png"
+dest_files=["res://.godot/imported/card_shake.png-9ac73ed1fcae687de38c21b2862f73c5.ctex"]
 
 [params]
 
