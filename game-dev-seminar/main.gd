@@ -4,16 +4,27 @@ const SUITS := ["Clubs", "Diamonds", "Hearts", "Spades"]
 const RANKS := ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
 const PLAYER_COUNT := 3
 
+@export_group("Table Layout")
+@export var computer_cards_area := Rect2(0.1, 0.18, 0.8, 0.18)
+@export var cards_to_pick_area := Rect2(0.04, 0.43, 0.92, 0.22)
+@export var player_hand_area := Rect2(0.03, 0.7, 0.94, 0.29)
+
+@export_group("Computer Name Positions")
+@export var computer_1_name_area := Rect2(0.1, 0.17, 0.4, 0.04)
+@export var computer_2_name_area := Rect2(0.5, 0.17, 0.4, 0.04)
+
 var players: Array[Dictionary] = []
 var current_player := 0
 var round_over := false
 var status_label: Label
 var turn_label: Label
 var opponents_row: HBoxContainer
-var draw_cards: HFlowContainer
+var draw_cards: Control
 var draw_title: Label
-var hand_cards: HFlowContainer
+var hand_cards: Control
 var hand_title: Label
+var computer_1_name_label: Label
+var computer_2_name_label: Label
 var new_round_button: Button
 var player_anchors: Array[Control] = []
 
@@ -36,20 +47,13 @@ func _build_ui() -> void:
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shade)
 
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 28)
-	margin.add_theme_constant_override("margin_right", 28)
-	margin.add_theme_constant_override("margin_top", 20)
-	margin.add_theme_constant_override("margin_bottom", 20)
-	add_child(margin)
-
-	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 12)
-	margin.add_child(layout)
-
 	var header := HBoxContainer.new()
-	layout.add_child(header)
+	header.anchor_right = 1.0
+	header.offset_left = 34
+	header.offset_top = 18
+	header.offset_right = -34
+	header.offset_bottom = 66
+	add_child(header)
 
 	var heading := Label.new()
 	heading.text = "JOKER"
@@ -68,82 +72,77 @@ func _build_ui() -> void:
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.add_theme_font_size_override("font_size", 20)
 	status_label.add_theme_color_override("font_color", Color.WHITE)
-	layout.add_child(status_label)
+	status_label.anchor_left = 0.1
+	status_label.anchor_top = 0.05
+	status_label.anchor_right = 0.9
+	status_label.anchor_bottom = 0.15
+	add_child(status_label)
 
 	turn_label = Label.new()
 	turn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	turn_label.add_theme_color_override("font_color", Color(0.88, 0.94, 0.86))
-	layout.add_child(turn_label)
+	turn_label.anchor_left = 0.1
+	turn_label.anchor_top = 0.15
+	turn_label.anchor_right = 0.9
+	turn_label.anchor_bottom = 0.19
+	add_child(turn_label)
 
 	opponents_row = HBoxContainer.new()
+	opponents_row.name = "ComputerCardsArea"
 	opponents_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	opponents_row.add_theme_constant_override("separation", 40)
-	layout.add_child(opponents_row)
+	_set_area_anchors(opponents_row, computer_cards_area)
+	add_child(opponents_row)
 
-	var draw_panel := _make_panel()
-	draw_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	layout.add_child(draw_panel)
+	computer_1_name_label = Label.new()
+	computer_1_name_label.name = "Computer1NameLabel"
+	computer_1_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	computer_1_name_label.add_theme_color_override("font_color", Color.WHITE)
+	_set_area_anchors(computer_1_name_label, computer_1_name_area)
+	add_child(computer_1_name_label)
 
-	var draw_layout := VBoxContainer.new()
-	draw_layout.add_theme_constant_override("separation", 8)
-	draw_panel.add_child(draw_layout)
+	computer_2_name_label = Label.new()
+	computer_2_name_label.name = "Computer2NameLabel"
+	computer_2_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	computer_2_name_label.add_theme_color_override("font_color", Color.WHITE)
+	_set_area_anchors(computer_2_name_label, computer_2_name_area)
+	add_child(computer_2_name_label)
 
 	draw_title = Label.new()
+	draw_title.name = "CardsToPickLabel"
 	draw_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	draw_title.add_theme_font_size_override("font_size", 17)
-	draw_layout.add_child(draw_title)
-
-	var draw_scroll := ScrollContainer.new()
-	draw_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	draw_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	draw_layout.add_child(draw_scroll)
-
-	draw_cards = HFlowContainer.new()
-	draw_cards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	draw_cards.alignment = FlowContainer.ALIGNMENT_CENTER
-	draw_cards.add_theme_constant_override("h_separation", 7)
-	draw_cards.add_theme_constant_override("v_separation", 7)
-	draw_scroll.add_child(draw_cards)
-
-	var hand_panel := _make_panel()
-	hand_panel.custom_minimum_size = Vector2(0, 190)
-	layout.add_child(hand_panel)
-
-	var hand_layout := VBoxContainer.new()
-	hand_layout.add_theme_constant_override("separation", 8)
-	hand_panel.add_child(hand_layout)
+	draw_title.add_theme_font_size_override("font_size", 16)
+	draw_title.anchor_left = 0.1
+	draw_title.anchor_top = 0.34
+	draw_title.anchor_right = 0.9
+	draw_title.anchor_bottom = 0.43
+	add_child(draw_title)
 
 	hand_title = Label.new()
+	hand_title.name = "PlayerHandLabel"
 	hand_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hand_title.add_theme_font_size_override("font_size", 17)
-	hand_layout.add_child(hand_title)
+	hand_title.add_theme_font_size_override("font_size", 16)
+	hand_title.anchor_left = 0.1
+	hand_title.anchor_top = 0.65
+	hand_title.anchor_right = 0.9
+	hand_title.anchor_bottom = 0.7
+	add_child(hand_title)
 
-	var hand_scroll := ScrollContainer.new()
-	hand_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	hand_layout.add_child(hand_scroll)
+	draw_cards = Control.new()
+	draw_cards.name = "CardsToPickArea"
+	_set_area_anchors(draw_cards, cards_to_pick_area)
+	add_child(draw_cards)
 
-	hand_cards = HFlowContainer.new()
-	hand_cards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hand_cards.alignment = FlowContainer.ALIGNMENT_CENTER
-	hand_cards.add_theme_constant_override("h_separation", 7)
-	hand_cards.add_theme_constant_override("v_separation", 7)
-	hand_scroll.add_child(hand_cards)
+	hand_cards = Control.new()
+	hand_cards.name = "PlayerHandArea"
+	_set_area_anchors(hand_cards, player_hand_area)
+	add_child(hand_cards)
 
 
-func _make_panel() -> PanelContainer:
-	var panel := PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.02, 0.08, 0.05, 0.74)
-	style.border_color = Color(0.72, 0.52, 0.25, 0.8)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(12)
-	style.content_margin_left = 12
-	style.content_margin_right = 12
-	style.content_margin_top = 10
-	style.content_margin_bottom = 10
-	panel.add_theme_stylebox_override("panel", style)
-	return panel
+func _set_area_anchors(area: Control, layout: Rect2) -> void:
+	area.anchor_left = layout.position.x
+	area.anchor_top = layout.position.y
+	area.anchor_right = layout.position.x + layout.size.x
+	area.anchor_bottom = layout.position.y + layout.size.y
 
 
 func _start_round() -> void:
@@ -447,67 +446,140 @@ func _refresh_ui() -> void:
 	_clear_children(opponents_row)
 	for player_index in range(1, PLAYER_COUNT):
 		var opponent := VBoxContainer.new()
+		opponent.name = "Computer%dArea" % player_index
 		opponent.alignment = BoxContainer.ALIGNMENT_CENTER
-		opponent.add_theme_constant_override("separation", 4)
 		opponents_row.add_child(opponent)
 
-		var name_label := Label.new()
-		name_label.text = "%s  •  %d cards" % [
-			players[player_index]["name"],
-			players[player_index]["hand"].size(),
-		]
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.add_theme_color_override("font_color", Color.WHITE)
-		opponent.add_child(name_label)
-
-		var backs := HBoxContainer.new()
-		backs.alignment = BoxContainer.ALIGNMENT_CENTER
-		backs.add_theme_constant_override("separation", -22)
+		var backs := Control.new()
+		backs.name = "Computer%dFaceDownCards" % player_index
+		backs.custom_minimum_size = Vector2(360, 80)
 		opponent.add_child(backs)
+		var back_cards: Array[Button] = []
 		for card_index in range(mini(5, players[player_index]["hand"].size())):
 			var back := _make_card_button("◆", false)
 			back.custom_minimum_size = Vector2(48, 64)
-			back.disabled = true
+			back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			backs.add_child(back)
+			back_cards.append(back)
+		_layout_card_fan(backs, back_cards, Vector2(48, 64), 5, 28, 5)
 		player_anchors[player_index] = backs
+
+	computer_1_name_label.text = "COMPUTER 1  •  %d CARDS" % players[1]["hand"].size()
+	computer_2_name_label.text = "COMPUTER 2  •  %d CARDS" % players[2]["hand"].size()
 
 	_clear_children(draw_cards)
 	if not round_over and current_player == 0:
 		var target_index := _next_player_with_cards(0)
 		if target_index != -1:
+			var available_cards: Array[Button] = []
 			for card_index in range(players[target_index]["hand"].size()):
 				var button := _make_card_button("?", false)
-				button.custom_minimum_size = Vector2(56, 76)
+				button.custom_minimum_size = Vector2(70, 96)
 				button.tooltip_text = "Pick this face-down card"
 				button.pressed.connect(_on_human_picked.bind(card_index))
 				draw_cards.add_child(button)
+				available_cards.append(button)
+			_layout_card_fan(
+				draw_cards,
+				available_cards,
+				Vector2(70, 96),
+				get_viewport_rect().size.x * 0.92,
+				28,
+				2
+			)
 
 	_clear_children(hand_cards)
 	var human_hand: Array = players[0]["hand"]
 	hand_title.text = "Your hand  •  %d cards" % human_hand.size()
+	var hand_buttons: Array[Button] = []
 	for card in human_hand:
 		var button := _make_card_button(_card_text(card), card["suit"] == "Hearts" or card["suit"] == "Diamonds")
-		button.custom_minimum_size = Vector2(70, 92)
-		button.disabled = true
+		button.custom_minimum_size = Vector2(64, 90)
+		button.add_theme_font_size_override("font_size", 18)
+		button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		hand_cards.add_child(button)
+		hand_buttons.append(button)
+	_layout_card_grid(hand_cards, hand_buttons, Vector2(64, 90), 6, 7)
+
+
+func _layout_card_fan(
+	container: Control,
+	cards: Array[Button],
+	card_size: Vector2,
+	available_width: float,
+	max_rotation: float,
+	arc_height: float
+) -> void:
+	if cards.is_empty():
+		return
+
+	var step := card_size.x * 0.55
+	if cards.size() > 1:
+		step = minf(step, (available_width - card_size.x) / float(cards.size() - 1))
+	var fan_width := card_size.x + step * (cards.size() - 1)
+	var start_x := (available_width - fan_width) * 0.5
+
+	for card_index in range(cards.size()):
+		var t := float(card_index) / maxf(1.0, cards.size() - 1)
+		var card := cards[card_index]
+		card.size = card_size
+		card.position = Vector2(
+			start_x + step * card_index,
+			absf(t - 0.5) * arc_height
+		)
+		card.rotation_degrees = lerpf(-max_rotation, max_rotation, t)
+		card.z_index = card_index
+
+
+func _layout_card_grid(
+	container: Control,
+	cards: Array[Button],
+	card_size: Vector2,
+	horizontal_gap: float,
+	vertical_gap: float
+) -> void:
+	if cards.is_empty():
+		return
+
+	var available_width := get_viewport_rect().size.x * 0.94
+	var cards_per_row := maxi(1, int((available_width + horizontal_gap) / (card_size.x + horizontal_gap)))
+	for card_index in range(cards.size()):
+		var row := int(card_index / cards_per_row)
+		var row_start := row * cards_per_row
+		var cards_in_row := mini(cards_per_row, cards.size() - row_start)
+		var column := card_index - row_start
+		var row_width := cards_in_row * card_size.x + (cards_in_row - 1) * horizontal_gap
+		var start_x := (available_width - row_width) * 0.5
+		var card := cards[card_index]
+		card.size = card_size
+		card.position = Vector2(
+			start_x + column * (card_size.x + horizontal_gap),
+			row * (card_size.y + vertical_gap)
+		)
 
 
 func _make_card_button(card_text: String, is_red: bool) -> Button:
 	var button := Button.new()
 	button.text = card_text
 	button.add_theme_font_size_override("font_size", 22)
+	var is_back := card_text == "?" or card_text == "◆"
 	button.add_theme_color_override(
 		"font_color",
-		Color(0.72, 0.12, 0.16) if is_red else Color(0.08, 0.12, 0.16)
+		Color(0.9, 0.82, 0.58) if is_back else (
+			Color(0.72, 0.12, 0.16) if is_red else Color(0.08, 0.12, 0.16)
+		)
 	)
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.96, 0.94, 0.86) if card_text != "?" and card_text != "◆" else Color(0.12, 0.23, 0.47)
-	style.border_color = Color(0.75, 0.62, 0.39)
+	style.bg_color = Color(0.12, 0.23, 0.47) if is_back else Color(0.98, 0.97, 0.91)
+	style.border_color = Color(0.82, 0.69, 0.43) if is_back else Color(0.24, 0.19, 0.12)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(7)
+	style.shadow_color = Color(0.01, 0.03, 0.02, 0.55)
+	style.shadow_size = 5
+	style.shadow_offset = Vector2(1, 4)
 	button.add_theme_stylebox_override("normal", style)
 	var hover_style := style.duplicate() as StyleBoxFlat
-	hover_style.bg_color = Color(1.0, 0.88, 0.59) if card_text == "?" else style.bg_color
+	hover_style.bg_color = Color(0.22, 0.36, 0.64) if is_back else style.bg_color
 	button.add_theme_stylebox_override("hover", hover_style)
 	button.add_theme_stylebox_override("pressed", hover_style)
 	return button
