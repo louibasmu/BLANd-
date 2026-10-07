@@ -9,12 +9,21 @@ extends RefCounted
 ##   SPECIAL_DRAWN -> play the special just drawn, or keep it (ends the turn)
 ##   VISION_DECIDE -> take or leave the peeked card
 ## Making a pair puts the bot back in PLAY_OR_DRAW, so it simply steps again.
+##
+## Everything here is static: BotBrain holds no state of its own. It reads the BlandGame it
+## is given and acts by calling the same public functions the human's buttons call.
+## `p` is always the bot's seat number and `style` is a GameSettings.BotStyle.
 
 
+## Tries to play a special card from the bot's hand, if it wants to. Returns "none" if it
+## played nothing (so the caller should draw or keep the card), "vision" if it peeked at a
+## card (a take-or-leave decision is now pending), or "played" for any other special.
 static func try_play_special(game: BlandGame, p: int, style: int) -> String:
+	# Not allowed to play right now (wrong phase, or just used Skip/Reverse): do nothing.
 	if not game.can_play_specials(p):
 		return "none"
 	var me := game.players[p]
+	# Only consider specials that can legally be played this turn.
 	var playable: Array[BlandCard] = []
 	for c in me.specials():
 		if game.can_play(p, c):
@@ -22,6 +31,8 @@ static func try_play_special(game: BlandGame, p: int, style: int) -> String:
 	if playable.is_empty():
 		return "none"
 
+	# Decide WHAT to play and on WHOM ("the plan"), then carry it out. Splitting planning
+	# from doing keeps the two bot styles easy to tell apart.
 	var plan: Dictionary
 	if style == GameSettings.BotStyle.RANDOM:
 		plan = _random_plan(game, p, playable)
@@ -33,6 +44,7 @@ static func try_play_special(game: BlandGame, p: int, style: int) -> String:
 
 
 ## Called after a Vision peek. Returns whether the bot took the card.
+## RANDOM flips a coin. BASIC takes everything except a Joker (nobody wants the Joker).
 static func decide_vision(game: BlandGame, p: int, style: int) -> bool:
 	if game.last_peek.is_empty():
 		return false
@@ -47,7 +59,10 @@ static func decide_vision(game: BlandGame, p: int, style: int) -> bool:
 
 
 ## Picks who to draw from and which card. Returns {"src", "index"} or {} if nobody has cards.
+## By default it is random; BASIC then uses what a Vision peek revealed this turn:
+## grab the peeked card if it makes a pair, and steer away from it if it was the Joker.
 static func choose_draw(game: BlandGame, p: int, style: int) -> Dictionary:
+	# Default choice: a random opponent and a random card in their hand.
 	var targets := game.draw_targets(p)
 	if targets.is_empty():
 		return {}
@@ -72,6 +87,7 @@ static func choose_draw(game: BlandGame, p: int, style: int) -> Dictionary:
 	return {"src": src, "index": idx}
 
 
+## Performs a draw using choose_draw(). If there is nobody to draw from, passing -1 lets the game end the turn.
 static func draw(game: BlandGame, p: int, style: int) -> void:
 	var pick := choose_draw(game, p, style)
 	if pick.is_empty():
@@ -81,6 +97,8 @@ static func draw(game: BlandGame, p: int, style: int) -> void:
 
 
 ## Plays a whole turn instantly (used by tools/simulate.gd).
+## Keeps taking steps while it is still this bot's turn (making a pair gives it another go).
+## `guard` prevents an endless loop if something goes wrong.
 static func play_full_turn(game: BlandGame, p: int, style: int) -> void:
 	var guard := 0
 	while guard < 100 and game.current == p and is_acting(game, p):
@@ -88,12 +106,15 @@ static func play_full_turn(game: BlandGame, p: int, style: int) -> void:
 		step(game, p, style)
 
 
+## True while the game is waiting on this bot: either its turn to draw/play, or a Vision take-or-leave decision.
 static func is_acting(game: BlandGame, p: int) -> bool:
 	return game.current == p and (game.is_turn_of(p) or game.phase == BlandGame.Phase.VISION_DECIDE)
 
 
 ## One decision. (The table splits PLAY_OR_DRAW draws into aim + take so the
 ## player can see which card is about to be taken; see game_table.gd.)
+## What it does depends on the phase: decide on a peeked card; or try to play a special
+## and otherwise keep it (SPECIAL_DRAWN) / draw a card (PLAY_OR_DRAW).
 static func step(game: BlandGame, p: int, style: int) -> void:
 	match game.phase:
 		BlandGame.Phase.VISION_DECIDE:
@@ -107,7 +128,11 @@ static func step(game: BlandGame, p: int, style: int) -> void:
 
 
 # ---------------------------------------------------------------- planning
+# A "plan" is a Dictionary: {"card": the special to play, "target": a seat number (optional),
+# "gift": the card to give away (only for Give)}. An empty Dictionary means "play nothing".
 
+# RANDOM style: usually (70% / 50% right after drawing a special) plays something, picking a random
+# playable special and a random legal target. Never uses information; good as a baseline to compare against.
 static func _random_plan(game: BlandGame, p: int, playable: Array[BlandCard]) -> Dictionary:
 	if randf() < (0.5 if game.phase == BlandGame.Phase.SPECIAL_DRAWN else 0.3):
 		return {}
@@ -119,6 +144,14 @@ static func _random_plan(game: BlandGame, p: int, playable: Array[BlandCard]) ->
 	return plan
 
 
+# BASIC style: a handful of rules of thumb, checked in priority order. `by_type` maps each
+# playable special type to a card, so we can ask "do I have a Freeze?".
+#   1. Holding a Joker and a Give card -> give the Joker to whoever leads on score.
+#   2. Vision (60%)  - peek at a random opponent.
+#   3. Freeze (35%)  - freeze the leader.
+#   4. Angel  (25%)  - check a random opponent for the Joker.
+#   5. Skip   (30%)  and  6. Reverse (20%) - used occasionally.
+# The percentages are just tuning numbers so bots don't spend all their specials at once.
 static func _basic_plan(game: BlandGame, p: int, playable: Array[BlandCard]) -> Dictionary:
 	var me := game.players[p]
 	var by_type := {}
@@ -150,6 +183,8 @@ static func _basic_plan(game: BlandGame, p: int, playable: Array[BlandCard]) -> 
 	return {}
 
 
+# Carries out a plan by calling the matching play_* function. Returns "played", "vision"
+# (a peek happened, so a decision is pending) or "none" (the play was impossible).
 static func _execute(game: BlandGame, p: int, plan: Dictionary) -> String:
 	var card: BlandCard = plan["card"]
 	var target: int = plan.get("target", -1)
@@ -175,6 +210,7 @@ static func _execute(game: BlandGame, p: int, plan: Dictionary) -> String:
 	return "played"
 
 
+# Picks a random card from the bot's hand other than `exclude` (so Give can't try to give itself away).
 static func _random_other_card(me: BlandPlayer, exclude: BlandCard) -> BlandCard:
 	var options: Array[BlandCard] = []
 	for c in me.hand:
@@ -184,6 +220,7 @@ static func _random_other_card(me: BlandPlayer, exclude: BlandCard) -> BlandCard
 
 
 ## Highest-scoring player among `candidates` (ties broken randomly). -1 if none.
+## The bots treat the score leader as the biggest threat, so Freeze and Joker gifts go there.
 static func _leader(game: BlandGame, candidates: Array[int]) -> int:
 	var best: Array[int] = []
 	var best_score := -999999

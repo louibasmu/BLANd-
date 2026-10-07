@@ -2,30 +2,55 @@ extends Control
 ## The table: draws the game state and turns clicks into BlandGame calls.
 ## The whole UI is built in code so it's easy to restyle later (Ash's art can
 ## replace the placeholder colours / card_empty specials without touching rules).
+##
+## Division of labour: BlandGame decides what is legal and what happens; this script only
+##   (1) draws the current state (_refresh), (2) turns the human's clicks into BlandGame calls,
+##   (3) paces the bots with a timer so the human can follow, and (4) shows pop-ups.
+## It reacts to the signals BlandGame emits (connected in _ready) rather than being told directly.
 
+# Scene to load when the player quits to the main menu.
 const MENU_SCENE := "res://BaseGame/main_menu.tscn"
+# Folder holding the card pictures; _tex() loads them from here by file name.
 const CARD_DIR := "res://Sprites/Card Assets/"
+# Card sizes in pixels: big for the human's own hand, small for the opponents' face-down cards.
 const BIG_CARD := Vector2(78, 111)
 const SMALL_CARD := Vector2(40, 57)
+# Seat number of the human player (always 0).
 const HUMAN := 0
 
+# What the human is in the middle of choosing. Many actions need several clicks, and this
+# remembers which step we are on:
+#   NONE                - nothing selected
+#   CHOOSE_TARGET       - picked a special, now pick which opponent it affects
+#   CHOOSE_GIVE_CARD    - playing Give, now pick which card from your hand to give away
+#   CHOOSE_VISION_INDEX - playing Vision, now pick which card of the target to peek at
+#   CHOOSE_DRAW_INDEX   - chose a player to draw from, now pick the card
 enum UiMode { NONE, CHOOSE_TARGET, CHOOSE_GIVE_CARD, CHOOSE_VISION_INDEX, CHOOSE_DRAW_INDEX }
 
+# The rules object. All game state lives in here; this script only displays it.
 var game: BlandGame
 var ui_mode: UiMode = UiMode.NONE
+# Half-finished choices while ui_mode != NONE: the special being played, the card to give,
+# and the player being aimed at. _clear_selection() resets them.
 var pending_special: BlandCard = null
 var pending_gift: BlandCard = null
 var pending_target: int = -1
+# Cache of loaded card pictures so each file is only loaded once.
 var _tex_cache: Dictionary = {}
 
+# Bots act on a timer. _bot_player is the bot we are waiting on, and _bot_pick is the card it has
+# highlighted and will take on the next tick.
 var _bot_timer: Timer
 var _bot_player: int = -1
 var _bot_pick: Dictionary = {}     # {src, index} the bot is about to take (highlighted)
+# True while the pause menu is open; the bot timer ignores ticks during a pause.
 var _paused: bool = false
 
+# UI nodes that are updated later; they are created in _build_ui() and kept in variables.
 # UI nodes
 var _status_label: Label
 var _compass: TurnCompass
+# Last direction shown, so the compass only "pulses" when the direction actually flips.
 var _last_direction: int = 1
 var _log: RichTextLabel
 var _prompt: Label
@@ -33,13 +58,18 @@ var _cancel_btn: Button
 var _shuffle_btn: Button
 var _start_btn: Button
 var _keep_btn: Button
+# Index of the card the player has picked up while arranging their hand (-1 = none).
 var _arrange_sel: int = -1        # card picked up while arranging (click-to-move)
+# Per-seat UI parts, filled in by _make_seat(): the panel, labels, card row and buttons.
 var _seats: Dictionary = {}      # player index -> {panel, name, info, cards, target}
+# The pop-up dialog currently open (null = none). Only one is shown at a time.
 var _modal: Control = null
 var _toast_box: VBoxContainer      # pop-up alerts when a bot's move hits you
 var _pause_modal: Control = null
 
 
+# Godot calls this when the scene loads: build the interface, create the bot timer, create the game,
+# connect the game's signals to the handlers below, and deal the first round.
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_build_ui()
@@ -50,6 +80,7 @@ func _ready() -> void:
 	add_child(_bot_timer)
 
 	game = BlandGame.new(GameSettings.num_rounds)
+	# `changed` can fire several times for one action, so it goes through _queue_refresh to redraw only once.
 	game.changed.connect(_queue_refresh)   # many changes in one action -> one redraw
 	game.log_message.connect(_add_log)
 	game.private_info.connect(func(t: String) -> void: _add_log("[color=#ffe27a]" + t + "[/color]"))
@@ -63,6 +94,8 @@ func _ready() -> void:
 	game.start_round()
 
 
+# Keyboard shortcuts: T opens the card tracker. Esc (ui_cancel) cancels a half-finished selection if there
+# is one, and otherwise opens / closes the pause menu.
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_T:
 		if _modal == null:
@@ -76,6 +109,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 # ================================================================ layout
+# The screen is made of Godot container nodes created in code, laid out as:
+#   top bar (status + buttons) / top bot / [left bot | turn compass + log | right bot] /
+#   prompt row (instructions + buttons) / the human's seat at the bottom.
 
 func _build_ui() -> void:
 	var bg := ColorRect.new()
@@ -151,6 +187,7 @@ func _build_ui() -> void:
 	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_prompt.add_theme_font_size_override("font_size", 17)
 	_prompt.add_theme_color_override("font_color", Color(1, 0.92, 0.55))
+	# Wraps long prompts so they never push the buttons off-screen.
 	_prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART   # long prompts wrap instead of pushing buttons off-screen
 	_prompt.custom_minimum_size = Vector2(200, 0)
 	prompt_row.add_child(_prompt)
@@ -160,6 +197,8 @@ func _build_ui() -> void:
 	prompt_row.add_child(_cancel_btn)
 	_shuffle_btn = Button.new()
 	_shuffle_btn.text = "Shuffle my hand"
+	# The "Shuffle my hand" and "Lock hand & start round" buttons only appear in the ARRANGE phase,
+	# "Keep it & end turn" only right after drawing a special; _refresh() decides which are visible.
 	_shuffle_btn.pressed.connect(func() -> void:
 		_arrange_sel = -1
 		game.shuffle_hand(HUMAN))
@@ -197,6 +236,11 @@ func _build_ui() -> void:
 	top.add_child(_toast_box)
 
 
+# Builds the panel for one seat: name, "PLAYING"/"NEXT" badge, score line, the pairs they have made,
+# a "Choose" button for targeting them, and a container for their cards (a row for the
+# human's big overlapping cards, a wrapping flow for opponents' small ones).
+# `i` is the seat number; `min_width` stops the opponents' panels from collapsing.
+# Everything needed to update the seat later is stored in _seats[i].
 func _make_seat(i: int, min_width: float) -> Control:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = Vector2(min_width, 0)
@@ -235,6 +279,7 @@ func _make_seat(i: int, min_width: float) -> Control:
 	var target_btn := Button.new()
 	target_btn.text = "Choose"
 	target_btn.visible = false
+	# `.bind(i)` makes the button call _on_target_chosen(i) so it knows which seat was clicked.
 	target_btn.pressed.connect(_on_target_chosen.bind(i))
 	row2.add_child(target_btn)
 
@@ -259,6 +304,7 @@ func _make_seat(i: int, min_width: float) -> Control:
 	return panel
 
 
+# Helper that makes a rounded coloured panel style (used for seats, the log and pop-ups).
 func _box(fill: Color, border: Color, width: int = 0) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = fill
@@ -274,6 +320,8 @@ func _box(fill: Color, border: Color, width: int = 0) -> StyleBoxFlat:
 
 # ================================================================ cards
 
+# Loads a card picture the first time it is asked for and remembers it. Returns null if the file
+# doesn't exist yet (e.g. art that hasn't been added), instead of crashing.
 func _tex(file: String) -> Texture2D:
 	if not _tex_cache.has(file):
 		var path := CARD_DIR + file
@@ -282,6 +330,10 @@ func _tex(file: String) -> Texture2D:
 
 
 ## One card. `card == null` or face_down draws the back.
+## Builds the little widget for one card: the picture (face up or the card back), the "special" overlay if needed,
+## the number underneath (the position opponents pick from), and highlight / hover effects.
+## `on_click` is a Callable to run when it is clicked; an invalid (empty) Callable means the card is not clickable.
+## `highlight` raises and tints the card (used when a bot is about to take it, or for a card you just drew).
 func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_click: Callable, highlight: bool = false) -> Control:
 	var holder := VBoxContainer.new()
 	holder.add_theme_constant_override("separation", 0)
@@ -293,9 +345,11 @@ func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_cl
 	btn.custom_minimum_size = size
 	holder.add_child(btn)
 
+	# Specials have no finished art yet, so a coloured band with the card's name is drawn on top of a blank card.
 	if face_up and card.is_special():
 		_add_special_overlay(btn, card, size)
 
+	# Clickable cards get a pointer cursor and light up / lift when the mouse is over them.
 	if on_click.is_valid():
 		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn.pressed.connect(on_click)
@@ -307,6 +361,7 @@ func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_cl
 			btn.self_modulate = Color(1, 1, 0.8)
 			btn.position.y = 0)
 		btn.tooltip_text = _card_tooltip(card) if face_up else "Card #%d" % (index + 1)
+	# Not clickable: ignore the mouse entirely for face-down cards, but let face-up ones show their tooltip.
 	else:
 		btn.mouse_filter = Control.MOUSE_FILTER_IGNORE if not face_up else Control.MOUSE_FILTER_PASS
 		if face_up:
@@ -330,6 +385,8 @@ func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_cl
 	return holder
 
 
+# Draws the placeholder look of a special card: a coloured band, the name in capitals, and a border whose colour shows its rarity.
+# Font and border sizes scale with the card size so it looks right on both big and small cards.
 func _add_special_overlay(btn: Control, card: BlandCard, size: Vector2) -> void:
 	var col: Color = BlandCard.SPECIAL_COLORS[card.special]
 	var band := ColorRect.new()
@@ -362,6 +419,7 @@ func _add_special_overlay(btn: Control, card: BlandCard, size: Vector2) -> void:
 	btn.add_child(frame)
 
 
+# Text shown when hovering a card: name, rarity and description for specials, plain name otherwise.
 func _card_tooltip(card: BlandCard) -> String:
 	if card.is_special():
 		return "%s  (%s)\n%s" % [card.special_name(), GameSettings.rarity_name(card.special),
@@ -393,6 +451,7 @@ func _pair_chip(a: BlandCard, b: BlandCard) -> Control:
 	return chip
 
 
+# A small faint label (used for "none yet").
 func _small_label(text: String) -> Label:
 	var l := Label.new()
 	l.text = text
@@ -402,6 +461,8 @@ func _small_label(text: String) -> Label:
 
 
 # ================================================================ refresh
+# The table never edits the display piece by piece. Whenever anything changes it simply
+# redraws everything from the BlandGame state in _refresh().
 
 var _refresh_queued: bool = false
 
@@ -418,6 +479,8 @@ func _flush_refresh() -> void:
 	_refresh()
 
 
+# Redraws the whole screen from the current game state: the status line, the turn compass, every seat,
+# which buttons are visible, and the instruction text.
 func _refresh() -> void:
 	if game == null:
 		return
@@ -430,6 +493,7 @@ func _refresh() -> void:
 	_status_label.text = "Round %d / %d   •   Jokers: %d   •   Pairs left: %d   •   Play: %s%s" % [
 		game.round_number, game.total_rounds, game.jokers_this_round, game.pairs_left(), dir, next_text]
 
+	# Flags for the compass: who is safe (out of cards) and who is frozen.
 	var safe_flags := []
 	var frozen_flags := []
 	for pl in game.players:
@@ -441,6 +505,7 @@ func _refresh() -> void:
 		_last_direction = game.direction
 		_compass.pulse()
 
+	# True when it is the human's turn and they are free to act.
 	var human_turn := game.current == HUMAN and game.is_turn_of(HUMAN)
 
 	for i in game.players.size():
@@ -454,6 +519,9 @@ func _refresh() -> void:
 	_prompt.text = _prompt_text(human_turn)
 
 
+# Redraws one seat panel: name, PLAYING / NEXT badge, score and cards-left text, the border colour
+# (gold = their turn, blue = frozen, orange = someone is drawing from them), the pairs they have made,
+# the "Choose" button when they can be targeted, and finally their cards.
 func _refresh_seat(i: int, human_turn: bool) -> void:
 	var p := game.players[i]
 	var seat: Dictionary = _seats[i]
@@ -474,6 +542,7 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 		info += "   •   SAFE (out of cards)"
 	seat["info"].text = info
 
+	# Border colour priority: current player, then frozen, then "being drawn from".
 	var is_current := game.current == i and game.phase != BlandGame.Phase.ROUND_OVER \
 		and game.phase != BlandGame.Phase.GAME_OVER
 	var border := Color(1, 0.85, 0.2) if is_current else Color(0, 0, 0, 0)
@@ -486,6 +555,8 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 	seat["panel"].add_theme_stylebox_override("panel", _box(Color(0, 0, 0, 0.3), border, 3))
 
 	# Target button (Freeze / Angel / Give / Vision)
+	# Shown on an opponent's panel in two cases: (a) a special is waiting for a target, or (b) it is
+	# the human's turn to draw and this opponent can be drawn from.
 	var tb: Button = seat["target"]
 	tb.visible = false
 	if ui_mode == UiMode.CHOOSE_TARGET and pending_special != null and i != HUMAN:
@@ -497,6 +568,7 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 		tb.visible = not (ui_mode == UiMode.CHOOSE_DRAW_INDEX and pending_target == i)
 		tb.text = "Draw from %s" % p.display_name
 
+	# Pairs are rebuilt from scratch each refresh (old chips are freed), sorted by rank so they read in order.
 	var pbox: Container = seat["pairs"]
 	for c in pbox.get_children():
 		c.queue_free()
@@ -507,10 +579,14 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 	if pairs.is_empty():
 		pbox.add_child(_small_label("none yet"))
 
+	# Likewise the cards in the hand are rebuilt each time.
 	var box: Container = seat["cards"]
 	for c in box.get_children():
 		c.queue_free()
 
+	# The human's own cards are face up. What clicking a card does depends on the situation:
+	#   arranging -> pick up / drop it; your turn -> play it if it is a special you can play;
+	#   choosing a card for Give -> give it away.
 	if i == HUMAN:
 		var arranging := game.phase == BlandGame.Phase.ARRANGE
 		for idx in p.hand.size():
@@ -528,6 +604,8 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 			if arranging:
 				_enable_drag(view.get_child(0), idx)
 			box.add_child(view)
+	# Opponents' cards are face down, and only clickable when we are choosing a card to draw or to peek at.
+	# The card a bot is about to take is highlighted (hl), as is the one a bot peeked at with Vision.
 	else:
 		for idx in p.hand.size():
 			var cb := Callable()
@@ -543,6 +621,8 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 			box.add_child(_card_view(p.hand[idx], false, SMALL_CARD, idx, cb, hl))
 
 
+# Works out the instruction line shown above the buttons, based on the phase, what the human is
+# choosing, and what the bots are doing. It is plain text only; it never changes game state.
 func _prompt_text(human_turn: bool) -> String:
 	match game.phase:
 		BlandGame.Phase.ARRANGE:
@@ -583,13 +663,16 @@ func _prompt_text(human_turn: bool) -> String:
 	return "%s: choose a player to draw from." % lead
 
 
+# Adds a line to the on-screen game log (RichTextLabel understands [b], [color] etc. BBCode tags).
 func _add_log(text: String) -> void:
 	_log.append_text(text + "\n")
 
 
 # ================================================================ human input
+# Everything below runs when the human clicks something and then calls the matching BlandGame function.
 
 ## Arranging, click version: first click picks a card up, second click puts it there.
+## Clicking the same card again cancels the pick-up.
 func _on_arrange_click(idx: int) -> void:
 	if game.phase != BlandGame.Phase.ARRANGE:
 		return
@@ -606,6 +689,9 @@ func _on_arrange_click(idx: int) -> void:
 
 
 ## Arranging, drag version: drop a card onto another card to move it to that spot.
+## set_drag_forwarding lets us attach drag-and-drop behaviour to the button using three small functions:
+## one that starts a drag (and makes the floating preview image), one that says whether a drop is
+## allowed, and one that does the move when the card is dropped.
 func _enable_drag(btn: Control, idx: int) -> void:
 	btn.mouse_filter = Control.MOUSE_FILTER_STOP
 	btn.set_drag_forwarding(
@@ -624,6 +710,8 @@ func _enable_drag(btn: Control, idx: int) -> void:
 			game.move_card(HUMAN, data["arrange_from"], idx))
 
 
+# The human clicked one of their special cards. Skip and Reverse need no target, so they play
+# immediately. Give first needs a card to give away, and everything else needs a target player.
 func _on_my_special(card: BlandCard) -> void:
 	match card.special:
 		BlandCard.Special.SKIP:
@@ -640,12 +728,16 @@ func _on_my_special(card: BlandCard) -> void:
 			_refresh()
 
 
+# The human picked which card to give; next they must pick who gets it.
 func _on_gift_chosen(card: BlandCard) -> void:
 	pending_gift = card
 	ui_mode = UiMode.CHOOSE_TARGET
 	_refresh()
 
 
+# Called when the human clicks a "Choose" button on an opponent. With nothing selected (or while
+# choosing a card) this is step 1 of an ordinary draw: remember the player and ask for a card.
+# Otherwise it finishes the special that is waiting for a target.
 func _on_target_chosen(target: int) -> void:
 	if ui_mode == UiMode.NONE or ui_mode == UiMode.CHOOSE_DRAW_INDEX:
 		pending_target = target           # step 1 of drawing done
@@ -656,6 +748,8 @@ func _on_target_chosen(target: int) -> void:
 	var gift := pending_gift
 	if special == null:
 		return
+	# What happens depends on which special is pending. Vision still needs a card position, so it moves
+	# on to that step; the other three can now be played. Angel's answer is shown in a pop-up.
 	match special.special:
 		BlandCard.Special.VISION:
 			pending_target = target
@@ -675,6 +769,7 @@ func _on_target_chosen(target: int) -> void:
 			game.play_give(HUMAN, special, gift, target)
 
 
+# The human chose which card to peek at. The card is revealed in a pop-up with Take / Leave buttons.
 func _on_vision_index(index: int) -> void:
 	var special := pending_special
 	var target := pending_target
@@ -691,17 +786,20 @@ func _on_vision_index(index: int) -> void:
 	])
 
 
+# Step 2 of an ordinary draw: take the chosen card from the chosen player.
 func _on_draw(index: int) -> void:
 	var src := pending_target
 	_clear_selection()
 	game.draw_card(HUMAN, src, index)
 
 
+# Abandons whatever the human was in the middle of choosing (Cancel button or Esc).
 func _cancel_selection() -> void:
 	_clear_selection()
 	_refresh()
 
 
+# Forgets any half-finished choice and returns to the normal state.
 func _clear_selection() -> void:
 	ui_mode = UiMode.NONE
 	pending_special = null
@@ -710,7 +808,10 @@ func _clear_selection() -> void:
 
 
 # ================================================================ bots
+# Bots are not instant. A one-shot Timer fires _on_bot_timer after a delay, the bot does ONE step,
+# and the timer is restarted while that bot is still acting. This gives the human time to read the log.
 
+# A new turn began. For a human, just redraw. For a bot, remember who it is and start the timer.
 func _on_turn_started(p: int) -> void:
 	_clear_selection()
 	_bot_pick = {}
@@ -742,6 +843,10 @@ func _on_special_drawn(p: int, card: BlandCard) -> void:
 	])
 
 
+# One bot step per timer tick. Ignored if paused or if it's no longer that bot's turn.
+# If the bot already highlighted a card on the previous tick, take it now. Otherwise decide what to
+# do for the current phase (see BotBrain.step): decide on a Vision peek, play or keep a drawn special,
+# or play a special / aim at a card to draw.
 func _on_bot_timer() -> void:
 	if _paused or _bot_player < 0 or _bot_player != game.current or game.players[_bot_player].is_human:
 		return
@@ -776,6 +881,7 @@ func _on_bot_timer() -> void:
 
 
 ## Highlight the card the bot is about to take, then take it after a pause.
+## Showing the target first (next tick takes it) lets the human see which of their cards is about to be taken.
 func _bot_aim(p: int, style: int) -> void:
 	var pick := BotBrain.choose_draw(game, p, style)
 	if pick.is_empty():
@@ -789,12 +895,15 @@ func _bot_aim(p: int, style: int) -> void:
 # ================================================================ alerts
 
 ## Once you're out of cards the rest of the round plays out quickly.
+## Returns the pause between bot actions: the speed chosen on the menu, or the fast-forward delay.
 func _bot_delay() -> float:
 	if game != null and game.players[HUMAN].finished:
 		return GameSettings.FAST_FORWARD_DELAY
 	return GameSettings.bot_delay
 
 
+# Shows a banner when someone finishes. The human sees their own news always, and others' news
+# only while they are still in the round.
 func _on_player_finished(p: int) -> void:
 	if p == HUMAN and game.phase != BlandGame.Phase.ROUND_OVER:
 		_toast("You're out of cards: safe from the Joker! Fast-forwarding the rest of the round.")
@@ -802,12 +911,15 @@ func _on_player_finished(p: int) -> void:
 		_toast("%s is out of cards and safe." % game.players[p].display_name)
 
 
+# Only show an alert when another player's move hit the human.
 func _on_affected(target: int, actor: int, text: String) -> void:
 	if target == HUMAN and actor != HUMAN and actor >= 0:
 		_toast(text)
 
 
 ## A pop-up banner at the top of the screen that fades out after a few seconds.
+## At most 4 are shown at once (the oldest is removed). Each stays for a time based on the bot speed, then
+## fades out via a Tween (an animation helper) and deletes itself.
 func _toast(text: String) -> void:
 	while _toast_box.get_child_count() >= 4:
 		var oldest := _toast_box.get_child(0)
@@ -834,6 +946,8 @@ func _toast(text: String) -> void:
 
 # ================================================================ rounds / game over
 
+# The round ended: stop the bots, clear alerts and selections, then show a results table in a pop-up.
+# Its button starts the next round (or shows the final results after the last one).
 func _on_round_over(summary: Array) -> void:
 	_bot_timer.stop()
 	_bot_pick = {}
@@ -856,6 +970,7 @@ func _on_round_over(summary: Array) -> void:
 		[["See final results" if last else "Next round", func() -> void: game.next_round()]])
 
 
+# The whole game ended: show the final standings (sorted by BlandGame) and offer Play again / Main menu.
 func _on_game_over(standings: Array) -> void:
 	var grid := GridContainer.new()
 	grid.columns = 3
@@ -874,6 +989,7 @@ func _on_game_over(standings: Array) -> void:
 	])
 
 
+# A table cell (a Label), optionally highlighted in gold.
 func _cell(text: String, bold: bool = false) -> Label:
 	var l := Label.new()
 	l.text = text
@@ -885,6 +1001,8 @@ func _cell(text: String, bold: bool = false) -> Label:
 # ================================================================ modals / pause
 
 ## buttons: Array of [label, Callable]. Any button closes the modal first.
+## A "modal" is a pop-up that dims the screen and blocks the table underneath. `body` can be plain text or a
+## ready-made Control (like a table). `card` optionally shows a large picture of a card above the text.
 func _show_modal(title: String, body, card: BlandCard, buttons: Array) -> void:
 	_close_modal()
 	_modal = _make_overlay()
@@ -926,6 +1044,8 @@ func _show_modal(title: String, body, card: BlandCard, buttons: Array) -> void:
 	add_child(_modal)
 
 
+# Builds the dimmed full-screen backdrop with a bordered panel in the middle. The empty box inside
+# is stored as metadata ("content") so the caller can fill it with whatever it needs.
 func _make_overlay() -> Control:
 	var dim := ColorRect.new()
 	dim.color = Color(0, 0, 0, 0.6)
@@ -944,6 +1064,7 @@ func _make_overlay() -> Control:
 	return dim
 
 
+# Closes the current pop-up and redraws, so the table shows any change made by the button.
 func _close_modal() -> void:
 	if _modal != null:
 		_modal.queue_free()
@@ -951,6 +1072,8 @@ func _close_modal() -> void:
 	_refresh()
 
 
+# Opens or closes the pause menu (Esc / Pause button). While paused the bot timer is stopped; on resume
+# it is restarted if it was a bot's turn, so the game carries on from where it left off.
 func _toggle_pause() -> void:
 	if _pause_modal != null:
 		_pause_modal.queue_free()
@@ -980,6 +1103,8 @@ func _toggle_pause() -> void:
 
 
 ## Which cards are gone and which are still out there, rank by rank.
+## There are 4 of each rank, so cards still hidden in opponents' hands = 4 - already paired - in your hand.
+## A green number means you hold a card of that rank and a match for it is still out there.
 func _show_tracker() -> void:
 	var paired := game.paired_count_by_rank()
 	var mine := {}
@@ -1024,6 +1149,7 @@ func _show_tracker() -> void:
 	_show_modal("Card Tracker — Round %d" % game.round_number, v, null, [["Close", Callable()]])
 
 
+# The rules pop-up (same text as the main menu's How to Play).
 func _show_rules() -> void:
 	_close_modal()
 	_modal = _make_overlay()
