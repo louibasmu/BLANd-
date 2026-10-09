@@ -1,2 +1,2 @@
 # BLANd-
-COMP 480 490 BLANd group's repository 
+COMP 480/490 BLANd group's repository 
