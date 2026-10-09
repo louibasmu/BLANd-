@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://4akk6x12e2ma"]
+
+[ext_resource type="Texture2D" uid="uid://bnpfq6edp6cmm" path="res://Sprites/Card Assets/card_clubs_A.png" id="1_1av66"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5asqp"]
+size = Vector2(164, 235)
+
+[node name="AceClubs" type="Node2D" unique_id=1795664708]
+position = Vector2(464, 303)
+
+[node name="CardClubsA" type="Sprite2D" parent="." unique_id=899941410]
+texture = ExtResource("1_1av66")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=753957095]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=521756713]
+position = Vector2(1, -0.5)
+shape = SubResource("RectangleShape2D_5asqp")
