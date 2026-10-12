@@ -3,8 +3,7 @@
 # ---------------------------------------------------------------
 
 # Godot 4 editor cache (rebuilt automatically when the project opens)
-.godot/
-
+.godot/ 
 # Godot 3 cache (in case anyone opens an old copy)
 .import/
 
