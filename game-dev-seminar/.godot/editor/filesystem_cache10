@@ -1,22 +1,22 @@
 78098b89c88a74ebe8c20117b8754620
-::res://::1791819352
-main.gd::GDScript::3811114195839747757::1791561378::0::1::::<>Control<><>0<>0<><>::
-main.tscn::PackedScene::696338618717247588::1791561378::0::1::::<><><>0<>0<><>::uid://bukeq2b766ru0::::res://main.gd
-::res://BaseGame/::1791559536
-bland_card.gd::GDScript::8185802159010576003::1791559326::0::1::::BlandCard<>RefCounted<><>0<>0<><>::
-bland_game.gd::GDScript::7287133100293068841::1791559326::0::1::::BlandGame<>RefCounted<><>0<>0<><>::
-bland_player.gd::GDScript::1312214650742740323::1791559326::0::1::::BlandPlayer<>RefCounted<><>0<>0<><>::
-bot_brain.gd::GDScript::1005535912077590591::1791559326::0::1::::BotBrain<>RefCounted<><>0<>0<><>::
+::res://::1791822484
+main.tscn::PackedScene::696338618717247588::1791822490::0::1::::<><><>0<>0<><>::uid://bukeq2b766ru0::::res://BaseGame/2. CoreMechanics/main.gd
+::res://BaseGame/::1791822484
+::res://BaseGame/2. CoreMechanics/::1791822138
+::res://BaseGame/2. MainMenu/::1791822484
 game_settings.gd::GDScript::8052892945593566571::1791559326::0::1::::GameSettings<>RefCounted<><>0<>0<><>::
-game_table.gd::GDScript::444658904521834771::1791559326::0::1::::<>Control<><>0<>0<><>::
-game_table.tscn::PackedScene::-1::1791559326::0::1::::<><><>0<>0<><>::res://BaseGame/game_table.gd
-IDEAS.md::TextFile::-1::1791559326::0::1::::<><><>0<>0<><>::
 main_menu.gd::GDScript::1282082110655088943::1791559326::0::1::::<>Control<><>0<>0<><>::
-main_menu.tscn::PackedScene::-1::1791559326::0::1::::<><><>0<>0<><>::res://BaseGame/main_menu.gd
+main_menu.tscn::PackedScene::1578456622095874534::1791822484::0::1::::<><><>0<>0<><>::uid://sjbx8bg7qwgl::::res://BaseGame/2. MainMenu/main_menu.gd
+::res://BaseGame/3. Player/::1791821921
+bland_player.gd::GDScript::1312214650742740323::1791559326::0::1::::BlandPlayer<>RefCounted<><>0<>0<><>::
+::res://BaseGame/4. Bots/::1791821687
+bot_brain.gd::GDScript::1005535912077590591::1791559326::0::1::::BotBrain<>RefCounted<><>0<>0<><>::
+::res://BaseGame/5. CardTable/::1791822356
+game_table.gd::GDScript::444658904521834771::1791559326::0::1::::<>Control<><>0<>0<><>::
+game_table.tscn::PackedScene::7763271110868961448::1791822356::0::1::::<><><>0<>0<><>::uid://glnp5crqn7w6::::res://BaseGame/5. CardTable/game_table.gd
+::res://Brainstrm_GameDesc/::1791822209
+IDEAS.md::TextFile::-1::1791559326::0::1::::<><><>0<>0<><>::
 README.md::TextFile::-1::1791559326::0::1::::<><><>0<>0<><>::
-turn_compass.gd::GDScript::8198779009373649154::1791559326::0::1::::TurnCompass<>Control<><>0<>0<><>::
-::res://BaseGame/tools/::1791559536
-simulate.gd::GDScript::4165381598891634604::1791559326::0::1::::<>SceneTree<><>0<>0<><>::
 ::res://Scripts/::1791559536
 CardManager.gd::GDScript::211781970525360062::1791559326::0::1::::<>Node2D<><>0<>0<><>::
 ::res://Sprites/::1791562595
