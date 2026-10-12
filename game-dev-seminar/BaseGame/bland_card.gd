@@ -1,6 +1,7 @@
 class_name BlandCard
 extends RefCounted
-## One card: a pair card (A-10), a special card, or a Joker.
+
+## One card: a pair card (A-10), a special card, or a Joker
 ##
 ## Cards are plain data objects (not scene nodes). The game logic (bland_game.gd)
 ## moves BlandCard instances between hands, and the table (game_table.gd) turns them into
