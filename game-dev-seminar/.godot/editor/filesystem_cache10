@@ -1,5 +1,5 @@
 78098b89c88a74ebe8c20117b8754620
-::res://::1791562543
+::res://::1791819352
 main.gd::GDScript::3811114195839747757::1791561378::0::1::::<>Control<><>0<>0<><>::
 main.tscn::PackedScene::696338618717247588::1791561378::0::1::::<><><>0<>0<><>::uid://bukeq2b766ru0::::res://main.gd
 ::res://BaseGame/::1791559536
@@ -19,11 +19,11 @@ turn_compass.gd::GDScript::8198779009373649154::1791559326::0::1::::TurnCompass<
 simulate.gd::GDScript::4165381598891634604::1791559326::0::1::::<>SceneTree<><>0<>0<><>::
 ::res://Scripts/::1791559536
 CardManager.gd::GDScript::211781970525360062::1791559326::0::1::::<>Node2D<><>0<>0<><>::
-::res://Sprites/::1791562281
+::res://Sprites/::1791562595
 AceClub.tscn::PackedScene::2036103158341599700::1791559326::0::1::::<><><>0<>0<><>::uid://bnpfq6edp6cmm::::res://Sprites/Card Assets/card_clubs_A.png
 main.tscn::PackedScene::8261552197599797607::1791559326::0::1::::<><><>0<>0<><>::uid://dauau652vvl3::::res://Scripts/CardManager.gd<>uid://4akk6x12e2ma::::res://Sprites/AceClub.tscn
 PokerTable.png::CompressedTexture2D::4436890500511252118::1791559326::1791562281::1::::<><><>0<>0<>d3931538850c1f512bb38fa9b42356b8<>res://.godot/imported/PokerTable.png-374b1f8a288ba8a2be7c88772ac7ac93.ctex::
-table_sprite.tscn::PackedScene::1628090898644698597::1791559326::0::1::::<><><>0<>0<><>::uid://b4hi65xfta6w5::::res://Sprites/PokerTable.png<>uid://4akk6x12e2ma::::res://Sprites/AceClub.tscn
+table_sprite.tscn::PackedScene::1628090898644698597::1791562595::0::1::::<><><>0<>0<><>::uid://b4hi65xfta6w5::::res://Sprites/PokerTable.png<>uid://4akk6x12e2ma::::res://Sprites/AceClub.tscn
 ::res://Sprites/Card Assets/::1791562277
 1x1_#ffffffff.png::CompressedTexture2D::3459261939148629028::1791559326::1791562277::1::::<><><>0<>0<>857ff082ad14b2e0b79b2415d175c6a9<>res://.godot/imported/1x1_#ffffffff.png-b07375727b1637704f489f730502574d.ctex::
 card_attack.png::CompressedTexture2D::479867189594117907::1791559326::1791562277::1::::<><><>0<>0<>dd04f495025dbff8a94b7faf1fe12370<>res://.godot/imported/card_attack.png-15b5b40b46c396e7db8d2a9c0f437158.ctex::
