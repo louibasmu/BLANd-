@@ -11,7 +11,11 @@ config_version=5
 [application]
 
 config/name="BLANdevelopers"
+<<<<<<< HEAD
 run/main_scene="res://main.tscn"
+=======
+run/main_scene="res://BaseGame/main_menu.tscn"
+>>>>>>> Ben's-Branch
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
