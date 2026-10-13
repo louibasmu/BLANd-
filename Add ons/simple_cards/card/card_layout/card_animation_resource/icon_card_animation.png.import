@@ -3,15 +3,24 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dlme71gg5pusd"
+<<<<<<< HEAD
+path="res://.godot/imported/icon_card_animation.png-934420888f4da1568143b224e90c14e1.ctex"
+=======
 path="res://.godot/imported/icon_card_animation.png-efc3de688a9ae55e514e5339d5cc1cea.ctex"
+>>>>>>> Ben's-Branch
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
+<<<<<<< HEAD
+source_file="res://Add ons/simple_cards/card/card_layout/card_animation_resource/icon_card_animation.png"
+dest_files=["res://.godot/imported/icon_card_animation.png-934420888f4da1568143b224e90c14e1.ctex"]
+=======
 source_file="res://addons/simple_cards/card/card_layout/card_animation_resource/icon_card_animation.png"
 dest_files=["res://.godot/imported/icon_card_animation.png-efc3de688a9ae55e514e5339d5cc1cea.ctex"]
+>>>>>>> Ben's-Branch
 
 [params]
 

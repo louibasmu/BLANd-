@@ -3,15 +3,24 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://u56pws80lkxh"
+<<<<<<< HEAD
+path="res://.godot/imported/icon_card_deck.png-3c38df9e52e8d00011310460d7ca2da9.ctex"
+=======
 path="res://.godot/imported/icon_card_deck.png-bc7ee01a5f287cd3c8c488be25794182.ctex"
+>>>>>>> Ben's-Branch
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
+<<<<<<< HEAD
+source_file="res://Add ons/simple_cards/deck/icon_card_deck.png"
+dest_files=["res://.godot/imported/icon_card_deck.png-3c38df9e52e8d00011310460d7ca2da9.ctex"]
+=======
 source_file="res://addons/simple_cards/deck/icon_card_deck.png"
 dest_files=["res://.godot/imported/icon_card_deck.png-bc7ee01a5f287cd3c8c488be25794182.ctex"]
+>>>>>>> Ben's-Branch
 
 [params]
 
