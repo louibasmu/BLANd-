@@ -3,15 +3,24 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b5yeseh7avtmy"
+<<<<<<< HEAD
+path="res://.godot/imported/icon_card_hand.png-806e770e686e14c8f1105cc2c2b418f5.ctex"
+=======
 path="res://.godot/imported/icon_card_hand.png-f9b6fd27a5a28345da05f1ecebfaed26.ctex"
+>>>>>>> Ben's-Branch
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
+<<<<<<< HEAD
+source_file="res://Add ons/simple_cards/containers/hand/icon_card_hand.png"
+dest_files=["res://.godot/imported/icon_card_hand.png-806e770e686e14c8f1105cc2c2b418f5.ctex"]
+=======
 source_file="res://addons/simple_cards/containers/hand/icon_card_hand.png"
 dest_files=["res://.godot/imported/icon_card_hand.png-f9b6fd27a5a28345da05f1ecebfaed26.ctex"]
+>>>>>>> Ben's-Branch
 
 [params]
 
