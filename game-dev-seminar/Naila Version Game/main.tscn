@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bqfi5r0fhd6yd"]
+
+[ext_resource type="Script" uid="uid://bukeq2b766ru0" path="res://Naila Version Game/main.gd" id="1_k2ki7"]
+
+[node name="JokerGame" type="Control" unique_id=191490707]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_k2ki7")
+computer_cards_area = Rect2(0.23, 0.18, 0.8, 0.18)
+computer_1_name_area = Rect2(0.1, 0.15, 0.4, 0.04)
+computer_2_name_area = Rect2(0.5, 0.15, 0.4, 0.04)

@@ -6,7 +6,7 @@ extends Control
 ## pressed, because this scene is thrown away when the table scene loads.
 
 # Scene file to load when the player presses Start Game.
-const TABLE_SCENE := "res://BaseGame/game_table.tscn"
+const TABLE_SCENE := "res://BaseGame/5. CardTable/game_table.tscn"
 
 # Controls that later functions need to read or update, so they are kept as member variables.
 var _rounds_option: OptionButton
