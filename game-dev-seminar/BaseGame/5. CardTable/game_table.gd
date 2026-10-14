@@ -9,9 +9,9 @@ extends Control
 ## It reacts to the signals BlandGame emits (connected in _ready) rather than being told directly.
 
 # Scene to load when the player quits to the main menu.
-const MENU_SCENE := "res://BaseGame/main_menu.tscn"
+const MENU_SCENE := "res://BaseGame/2. MainMenu/main_menu.tscn"
 # Folder holding the card pictures; _tex() loads them from here by file name.
-const CARD_DIR := "res://Sprites/Card Assets/"
+const CARD_DIR := "res://Card Assets/"
 # Card sizes in pixels: big for the human's own hand, small for the opponents' face-down cards.
 const BIG_CARD := Vector2(78, 111)
 const SMALL_CARD := Vector2(40, 57)
