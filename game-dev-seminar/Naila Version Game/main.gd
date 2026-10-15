@@ -35,7 +35,7 @@ func _ready() -> void:
 
 
 func _build_ui() -> void:
-	var table_scene := load("res://Sprites/table_sprite.tscn") as PackedScene
+	var table_scene := load("res://Naila Version Game/Sprites/table_sprite.tscn") as PackedScene
 	var table := table_scene.instantiate() as Node2D
 	table.position = get_viewport_rect().size / 2.0
 	table.scale = Vector2.ONE * 0.22
