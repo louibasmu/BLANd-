@@ -51,6 +51,10 @@ var _paused: bool = false
 # UI nodes that are updated later; they are created in _build_ui() and kept in variables.
 # UI nodes
 var _status_label: Label
+var _menu_button: Button
+var _menu_popup: PopupPanel
+var _ui_scale: float = 1.0
+var _side_card_size: Vector2 = SIDE_CARD
 var _compass: TurnCompass
 # Last direction shown, so the compass only "pulses" when the direction actually flips.
 var _last_direction: int = 1
@@ -73,8 +77,10 @@ var _pause_modal: Control = null
 # Godot calls this when the scene loads: build the interface, create the bot timer, create the game,
 # connect the game's signals to the handlers below, and deal the first round.
 func _ready() -> void:
+	get_window().min_size = Vector2i(1280, 720)
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_build_ui()
+	get_viewport().size_changed.connect(_on_viewport_resized)
 
 	_bot_timer = Timer.new()
 	_bot_timer.one_shot = true
@@ -98,9 +104,17 @@ func _ready() -> void:
 
 # Keyboard shortcuts: T opens the card tracker. Esc (ui_cancel) cancels a half-finished selection if there
 # is one, and otherwise opens / closes the pause menu.
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and _menu_popup != null and _menu_popup.visible:
+		_menu_popup.hide()
+		get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_T:
 		if _modal == null:
+			if _menu_popup != null:
+				_menu_popup.hide()
 			_show_tracker()
 		return
 	if event.is_action_pressed("ui_cancel"):
@@ -123,7 +137,7 @@ func _build_ui() -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 8)
+		margin.add_theme_constant_override("margin_" + side, 16 if side == "top" or side == "right" else 8)
 	add_child(margin)
 
 	var root := VBoxContainer.new()
@@ -133,24 +147,47 @@ func _build_ui() -> void:
 
 	# --- top bar
 	var bar := HBoxContainer.new()
+	bar.add_theme_constant_override("separation", 12)
 	root.add_child(bar)
 	_status_label = Label.new()
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_status_label.clip_text = true
 	_status_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	bar.add_child(_status_label)
-	var tracker_btn := Button.new()
-	tracker_btn.text = "Card Tracker (T)"
-	tracker_btn.pressed.connect(_show_tracker)
-	bar.add_child(tracker_btn)
-	var rules_btn := Button.new()
-	rules_btn.text = "Rules"
-	rules_btn.pressed.connect(_show_rules)
-	bar.add_child(rules_btn)
-	var pause_btn := Button.new()
-	pause_btn.text = "Pause (Esc)"
-	pause_btn.pressed.connect(_toggle_pause)
-	bar.add_child(pause_btn)
+	_menu_button = Button.new()
+	_menu_button.custom_minimum_size = Vector2(44, 44)
+	_menu_button.text = "☰"
+	_menu_button.add_theme_font_size_override("font_size", 26)
+	_menu_button.tooltip_text = "Menu"
+	_menu_button.pressed.connect(_toggle_menu_popup)
+	_menu_button.add_theme_stylebox_override("normal", _top_button_style(Color(0.12, 0.32, 0.25)))
+	_menu_button.add_theme_stylebox_override("hover", _top_button_style(Color(0.18, 0.43, 0.32)))
+	_menu_button.add_theme_stylebox_override("pressed", _top_button_style(Color(0.08, 0.23, 0.18)))
+	_menu_button.add_theme_stylebox_override("focus", _top_button_style(Color(0.18, 0.43, 0.32)))
+	bar.add_child(_menu_button)
+
+	_menu_popup = PopupPanel.new()
+	_menu_popup.size = Vector2i(260, 240)
+	_menu_popup.exclusive = true
+	_menu_popup.transient = true
+	_menu_popup.close_requested.connect(_menu_popup.hide)
+	_menu_popup.add_theme_stylebox_override("panel", _box(Color(0.08, 0.16, 0.13), Color(0.3, 0.5, 0.4), 1))
+	var menu_items := VBoxContainer.new()
+	menu_items.set_anchors_preset(Control.PRESET_FULL_RECT)
+	menu_items.offset_left = 6
+	menu_items.offset_top = 6
+	menu_items.offset_right = -6
+	menu_items.offset_bottom = -6
+	menu_items.add_theme_constant_override("separation", 2)
+	_menu_popup.add_child(menu_items)
+	_add_menu_item(menu_items, "Card Tracker", "T", _on_menu_tracker)
+	_add_menu_item(menu_items, "Rules / How to play", "", _on_menu_rules)
+	_add_menu_item(menu_items, "Pause", "Esc", _on_menu_pause)
+	var menu_separator := HSeparator.new()
+	menu_items.add_child(menu_separator)
+	_add_menu_item(menu_items, "Restart game", "", _on_menu_restart)
+	_add_menu_item(menu_items, "Main menu", "", _on_menu_main_menu)
+	add_child(_menu_popup)
 
 	# --- top bot (seat 2)
 	var top_row := CenterContainer.new()
@@ -226,7 +263,9 @@ func _build_ui() -> void:
 	prompt_row.add_child(_keep_btn)
 
 	# --- you (seat 0)
-	root.add_child(_make_seat(0, 0))
+	var human_seat := _make_seat(0, 0)
+	human_seat.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.add_child(human_seat)
 
 	# --- alert pop-ups (own layer so they show above everything)
 	var layer := CanvasLayer.new()
@@ -243,6 +282,128 @@ func _build_ui() -> void:
 	_toast_box.add_theme_constant_override("separation", 6)
 	_toast_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	top.add_child(_toast_box)
+	_apply_responsive_scale()
+
+
+func _top_button_style(fill: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = Color(1, 1, 1, 0.28)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(7)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 6
+	style.content_margin_bottom = 6
+	return style
+
+
+func _add_menu_item(container: VBoxContainer, title: String, shortcut: String, action: Callable) -> void:
+	var button := Button.new()
+	button.custom_minimum_size = Vector2(248, 40)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.add_theme_stylebox_override("normal", _top_button_style(Color(0.08, 0.16, 0.13, 0)))
+	button.add_theme_stylebox_override("hover", _top_button_style(Color(0.18, 0.34, 0.26)))
+	button.add_theme_stylebox_override("pressed", _top_button_style(Color(0.12, 0.25, 0.19)))
+	var row := HBoxContainer.new()
+	row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	row.offset_left = 10
+	row.offset_right = -10
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(row)
+	var title_label := Label.new()
+	title_label.text = title
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(title_label)
+	if not shortcut.is_empty():
+		var shortcut_label := Label.new()
+		shortcut_label.text = shortcut
+		shortcut_label.add_theme_font_size_override("font_size", 12)
+		shortcut_label.modulate = Color(1, 1, 1, 0.6)
+		shortcut_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		shortcut_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(shortcut_label)
+	button.pressed.connect(func() -> void:
+		_menu_popup.hide()
+		action.call())
+	container.add_child(button)
+
+
+func _toggle_menu_popup() -> void:
+	if _menu_popup.visible:
+		_menu_popup.hide()
+		return
+	var button_rect := _menu_button.get_global_rect()
+	var popup_position := Vector2i(
+		int(button_rect.end.x - _menu_popup.size.x),
+		int(button_rect.end.y + 4.0)
+	)
+	_menu_popup.popup(Rect2i(popup_position, _menu_popup.size))
+
+
+func _on_menu_tracker() -> void:
+	_show_tracker()
+
+
+func _on_menu_rules() -> void:
+	_show_rules()
+
+
+func _on_menu_pause() -> void:
+	_toggle_pause()
+
+
+func _on_menu_restart() -> void:
+	_confirm_action("Restart game?", "Your current game will be lost.",
+		func() -> void: get_tree().reload_current_scene())
+
+
+func _on_menu_main_menu() -> void:
+	_confirm_action("Return to main menu?", "Your current game will be lost.",
+		func() -> void: get_tree().change_scene_to_file(MENU_SCENE))
+
+
+func _confirm_action(title: String, message: String, action: Callable) -> void:
+	_show_modal(title, message, null, [
+		["Yes", action],
+		["Cancel", Callable()]
+	])
+
+
+func _on_viewport_resized() -> void:
+	_apply_responsive_scale()
+	if game != null:
+		_queue_refresh()
+
+
+func _apply_responsive_scale() -> void:
+	if _status_label == null:
+		return
+	var viewport_size := get_viewport_rect().size
+	var scale := 1.0
+	if viewport_size.x < 1500.0 or viewport_size.y < 850.0:
+		scale = 0.88
+	elif viewport_size.x < 1900.0 or viewport_size.y < 1050.0:
+		scale = 0.94
+	_ui_scale = scale
+	_side_card_size = SIDE_CARD * scale
+	_set_scaled_font_size(_status_label, 16, scale)
+	if _prompt != null:
+		_set_scaled_font_size(_prompt, 17, scale)
+	if _log != null:
+		_log.add_theme_font_size_override("normal_font_size", roundi(13.0 * scale))
+		_log.add_theme_font_size_override("bold_font_size", roundi(13.0 * scale))
+	for seat in _seats.values():
+		_set_scaled_font_size(seat["name"], 14, scale)
+		_set_scaled_font_size(seat["badge"], 10, scale)
+		_set_scaled_font_size(seat["info"], 10, scale)
+		if seat["card_area"] != null:
+			seat["card_area"].custom_minimum_size.y = BIG_CARD.y * scale + 13.0
+func _set_scaled_font_size(control: Control, base_size: int, scale: float) -> void:
+	control.add_theme_font_size_override("font_size", roundi(base_size * scale))
 
 
 # Builds the panel for one seat: name, "PLAYING"/"NEXT" badge, score line, the pairs they have made,
@@ -292,7 +453,7 @@ func _make_seat(i: int, min_width: float) -> Control:
 	info_l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	info_l.add_theme_font_size_override("font_size", 10)
 	info_l.modulate = Color(1, 1, 1, 0.8)
-	head.add_child(info_l)
+	v.add_child(info_l)
 
 	# Keep the action button on its own row so it never competes with the pairs.
 	var row2 := HBoxContainer.new()
@@ -325,10 +486,13 @@ func _make_seat(i: int, min_width: float) -> Control:
 	pairs_row.add_child(pairs_box)
 
 	var cards: Control
+	var card_area: Control = null
 	if i == HUMAN:
 		var c := CenterContainer.new()
 		c.custom_minimum_size = Vector2(0, BIG_CARD.y + 13)
+		c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		v.add_child(c)
+		card_area = c
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", -14)   # overlap a little
 		c.add_child(row)
@@ -336,14 +500,13 @@ func _make_seat(i: int, min_width: float) -> Control:
 	elif i == 1 or i == 3:
 		cards = side_cards
 	else:
-		var flow := HFlowContainer.new()
-		flow.add_theme_constant_override("h_separation", 2)
-		flow.add_theme_constant_override("v_separation", 2)
-		v.add_child(flow)
-		cards = flow
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 2)
+		v.add_child(row)
+		cards = row
 
-	_seats[i] = {"panel": panel, "name": name_l, "badge": badge, "info": info_l, "cards": cards, "target": target_btn,
-		"pairs": pairs_box}
+	_seats[i] = {"panel": panel, "name": name_l, "badge": badge, "info": info_l, "cards": cards,
+		"card_area": card_area, "target": target_btn, "pairs": pairs_box}
 	return panel
 
 
@@ -384,11 +547,11 @@ func _layout_side_cards(cards: Control) -> void:
 		return
 	var step := 0.0
 	if count > 1:
-		step = minf(SIDE_CARD.y, maxf(13.0, (cards.size.y - SIDE_CARD.y) / float(count - 1)))
+		step = minf(_side_card_size.y, maxf(13.0, (cards.size.y - _side_card_size.y) / float(count - 1)))
 	for idx in count:
 		var card: Control = cards.get_child(idx)
-		card.size = SIDE_CARD
-		card.position = Vector2((cards.size.x - SIDE_CARD.x) / 2.0, idx * step)
+		card.size = _side_card_size
+		card.position = Vector2((cards.size.x - _side_card_size.x) / 2.0, idx * step)
 
 
 ## One card. `card == null` or face_down draws the back.
@@ -569,8 +732,9 @@ func _refresh() -> void:
 	var next_text := ""
 	if playing and upcoming >= 0:
 		next_text = "   •   Next up: %s" % game.players[upcoming].display_name
-	_status_label.text = "Round %d / %d   •   Jokers: %d   •   Pairs left: %d   •   Play: %s%s" % [
-		game.round_number, game.total_rounds, game.jokers_this_round, game.pairs_left(), dir, next_text]
+	var base_status := "Round %d / %d   •   Jokers: %d   •   Pairs left: %d" % [
+		game.round_number, game.total_rounds, game.jokers_this_round, game.pairs_left()]
+	_status_label.text = _fit_status_text(base_status, dir, next_text)
 
 	# Flags for the compass: who is safe (out of cards) and who is frozen.
 	var safe_flags := []
@@ -596,6 +760,23 @@ func _refresh() -> void:
 	_start_btn.visible = arranging
 	_keep_btn.visible = game.current == HUMAN and game.phase == BlandGame.Phase.SPECIAL_DRAWN
 	_prompt.text = _prompt_text(human_turn)
+
+
+func _fit_status_text(base: String, direction: String, next_text: String) -> String:
+	var available_width := _status_label.size.x
+	if available_width <= 0.0:
+		available_width = get_viewport_rect().size.x - 60.0
+	var font: Font = _status_label.get_theme_font("font")
+	var font_size := _status_label.get_theme_font_size("font_size")
+	var candidates := [
+		base + "   •   Play: " + direction + next_text,
+		base + next_text,
+		base
+	]
+	for candidate in candidates:
+		if font.get_string_size(candidate, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x <= available_width:
+			return candidate
+	return base
 
 
 # Redraws one seat panel: name, PLAYING / NEXT badge, score and cards-left text, the border colour
@@ -650,6 +831,7 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 	# Pairs are rebuilt from scratch each refresh (old chips are freed), sorted by rank so they read in order.
 	var pbox: Container = seat["pairs"]
 	for c in pbox.get_children():
+		pbox.remove_child(c)
 		c.queue_free()
 	var pairs := p.paired_cards.duplicate()
 	pairs.sort_custom(func(x: Array, y: Array) -> bool: return x[0].rank < y[0].rank)
@@ -669,6 +851,17 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 	#   choosing a card for Give -> give it away.
 	if i == HUMAN:
 		var arranging := game.phase == BlandGame.Phase.ARRANGE
+		var card_size := BIG_CARD * _ui_scale
+		var card_area: Control = seat["card_area"]
+		card_area.custom_minimum_size.y = card_size.y + 13.0
+		var hand_count := p.hand.size()
+		if hand_count > 1:
+			var available_width := card_area.size.x
+			if available_width <= 0.0:
+				available_width = get_viewport_rect().size.x - 32.0
+			var visible_step := minf(card_size.x,
+				(available_width - card_size.x) / float(hand_count - 1))
+			box.add_theme_constant_override("separation", floori(maxf(8.0, visible_step) - card_size.x))
 		for idx in p.hand.size():
 			var card := p.hand[idx]
 			var cb := Callable()
@@ -680,7 +873,7 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 				cb = _on_gift_chosen.bind(card)
 			# Your own cards show their position too: that's what opponents pick from.
 			var just_drawn := game.phase == BlandGame.Phase.SPECIAL_DRAWN and card == game.drawn_special
-			var view := _card_view(card, true, BIG_CARD, idx, cb, (arranging and idx == _arrange_sel) or just_drawn)
+			var view := _card_view(card, true, card_size, idx, cb, (arranging and idx == _arrange_sel) or just_drawn)
 			if arranging:
 				_enable_drag(view.get_child(0), idx)
 			box.add_child(view)
@@ -688,7 +881,12 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 	# The card a bot is about to take is highlighted (hl), as is the one a bot peeked at with Vision.
 	else:
 		var side_hand := i == 1 or i == 3
-		var card_size := SIDE_CARD if side_hand else SMALL_CARD
+		var card_size := _side_card_size if side_hand else SMALL_CARD * _ui_scale
+		if i == 2 and p.hand.size() > 1:
+			var avail: float = seat["panel"].size.x - 24.0
+			var step := minf(card_size.x + 2.0,
+				(avail - card_size.x) / float(p.hand.size() - 1))
+			box.add_theme_constant_override("separation", floori(step - card_size.x))
 		for idx in p.hand.size():
 			var cb := Callable()
 			if game.can_draw(HUMAN) and ui_mode == UiMode.CHOOSE_DRAW_INDEX and i == pending_target:
@@ -701,7 +899,7 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 					and game.last_peek["index"] == idx:
 				hl = true
 			var back_texture := "card_back_side.png" if side_hand else "card_back.png"
-			box.add_child(_card_view(p.hand[idx], false, card_size, idx, cb, hl, back_texture, side_hand))
+			box.add_child(_card_view(p.hand[idx], false, card_size, idx, cb, hl, back_texture, side_hand or i == 2))
 		if side_hand:
 			_layout_side_cards(box)
 
@@ -1177,8 +1375,12 @@ func _toggle_pause() -> void:
 	t.add_theme_font_size_override("font_size", 28)
 	v.add_child(t)
 	for entry in [["Resume", _toggle_pause],
-			["Restart game", func() -> void: get_tree().reload_current_scene()],
-			["Main menu", func() -> void: get_tree().change_scene_to_file(MENU_SCENE)]]:
+			["Restart game", func() -> void:
+				_confirm_action("Restart game?", "Your current game will be lost.",
+					func() -> void: get_tree().reload_current_scene())],
+			["Main menu", func() -> void:
+				_confirm_action("Return to main menu?", "Your current game will be lost.",
+					func() -> void: get_tree().change_scene_to_file(MENU_SCENE))]]:
 		var b := Button.new()
 		b.text = entry[0]
 		b.custom_minimum_size = Vector2(220, 38)
