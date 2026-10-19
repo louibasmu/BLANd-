@@ -33,7 +33,7 @@ Open the project in Godot 4.7 and press Play. The main scene is now `BaseGame/ma
 - Specials (default counts): Skip ×3, Reverse ×3, Give ×2, Freeze ×2 (target misses 2 turns), Angel ×1 (yes/no Joker check), Vision ×1 (peek at a card position, then take it or leave it).
 - **Special Cards Setup** (main menu) sets how many of each special go in the deck (0–6). Jokers aren't affected.
 - **Rarity** follows the count: 1 = Rare (purple border), 2 = Uncommon (green), 3+ = Common (light blue). It's shown on the card border, the tooltip and the "You drew…" popup.
-- Opponents' cards show position numbers (1, 2, 3…) so Vision can name a card.
+- Opponents' cards show position numbers (1, 2, 3…) so Vision can name a card. Bot 1 and Bot 3 use a landscape card back in a single vertical column, with card overlap calculated to fit their panel; Bot 2 and the player keep the standard card back.
 - A player who empties their hand is **out for the round and safe from the Joker**. They can't be given cards, targeted, or drawn from, and they don't rejoin until the next round. If a Give empties your hand, your turn ends with no draw.
 - Once **you** are out of cards, the rest of the round fast-forwards (`FAST_FORWARD_DELAY`).
 - The round ends when every pair card has been matched. Each Joker still in a hand costs **4 points**.
@@ -76,5 +76,5 @@ It prints average turns per round, how many players get stuck with a Joker per r
 
 ## Art hooks
 
-Card faces come from `res://Sprites/Card Assets/` (`card_<suit>_<A|02..10>.png`, `card_joker_black.png`, `card_back.png`).
+Card faces come from `res://Sprites/Card Assets/` (`card_<suit>_<A|02..10>.png`, `card_joker_black.png`, `card_back.png`, `card_back_side.png`).
 For now, special cards use `card_empty.png` with a coloured label. Swap in real art by changing `BlandCard.texture_file()`.
