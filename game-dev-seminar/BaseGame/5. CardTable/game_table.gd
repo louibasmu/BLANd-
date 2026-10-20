@@ -452,7 +452,7 @@ func _make_seat(i: int, min_width: float) -> Control:
 	var score_l := Label.new()
 	score_l.add_theme_font_size_override("font_size", 16)
 	score_l.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
-	head.add_child(score_l)
+	v.add_child(score_l)
 	var info_l := Label.new()
 	info_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info_l.clip_text = true
@@ -804,12 +804,15 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 		badge.text = "  NEXT"
 		badge.add_theme_color_override("font_color", Color(1, 0.6, 0.2))
 	seat["score"].text = "Score: %d" % p.total_score
-	var info := "%d card%s" % [p.hand.size(), "" if p.hand.size() == 1 else "s"]
+	var info := ""
 	if p.frozen_turns > 0:
-		info += "   •   FROZEN (%d)" % p.frozen_turns
+		info = "FROZEN (%d)" % p.frozen_turns
 	if p.finished:
-		info += "   •   SAFE (out of cards)"
+		if not info.is_empty():
+			info += "   •   "
+		info += "SAFE (out of cards)"
 	seat["info"].text = info
+	seat["info"].visible = not info.is_empty()
 
 	# Border colour priority: current player, then frozen, then "being drawn from".
 	var is_current := game.current == i and game.phase != BlandGame.Phase.ROUND_OVER \
