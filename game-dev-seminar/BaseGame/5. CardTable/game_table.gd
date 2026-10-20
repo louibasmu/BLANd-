@@ -171,6 +171,7 @@ func _build_ui() -> void:
 	_menu_popup.exclusive = true
 	_menu_popup.transient = true
 	_menu_popup.close_requested.connect(_menu_popup.hide)
+	_menu_popup.popup_hide.connect(_on_menu_popup_hidden)
 	_menu_popup.add_theme_stylebox_override("panel", _box(Color(0.08, 0.16, 0.13), Color(0.3, 0.5, 0.4), 1))
 	var menu_items := VBoxContainer.new()
 	menu_items.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -182,7 +183,6 @@ func _build_ui() -> void:
 	_menu_popup.add_child(menu_items)
 	_add_menu_item(menu_items, "Card Tracker", "T", _on_menu_tracker)
 	_add_menu_item(menu_items, "Rules / How to play", "", _on_menu_rules)
-	_add_menu_item(menu_items, "Pause", "Esc", _on_menu_pause)
 	var menu_separator := HSeparator.new()
 	menu_items.add_child(menu_separator)
 	_add_menu_item(menu_items, "Restart game", "", _on_menu_restart)
@@ -336,6 +336,7 @@ func _toggle_menu_popup() -> void:
 	if _menu_popup.visible:
 		_menu_popup.hide()
 		return
+	_set_paused(true)
 	var button_rect := _menu_button.get_global_rect()
 	var popup_position := Vector2i(
 		int(button_rect.end.x - _menu_popup.size.x),
@@ -344,16 +345,16 @@ func _toggle_menu_popup() -> void:
 	_menu_popup.popup(Rect2i(popup_position, _menu_popup.size))
 
 
+func _on_menu_popup_hidden() -> void:
+	_set_paused(false)
+
+
 func _on_menu_tracker() -> void:
 	_show_tracker()
 
 
 func _on_menu_rules() -> void:
 	_show_rules()
-
-
-func _on_menu_pause() -> void:
-	_toggle_pause()
 
 
 func _on_menu_restart() -> void:
@@ -399,7 +400,8 @@ func _apply_responsive_scale() -> void:
 	for seat in _seats.values():
 		_set_scaled_font_size(seat["name"], 14, scale)
 		_set_scaled_font_size(seat["badge"], 10, scale)
-		_set_scaled_font_size(seat["info"], 10, scale)
+		_set_scaled_font_size(seat["score"], 16, scale)
+		_set_scaled_font_size(seat["info"], 11, scale)
 		if seat["card_area"] != null:
 			seat["card_area"].custom_minimum_size.y = BIG_CARD.y * scale + 13.0
 func _set_scaled_font_size(control: Control, base_size: int, scale: float) -> void:
@@ -447,11 +449,15 @@ func _make_seat(i: int, min_width: float) -> Control:
 	var badge := Label.new()   # "PLAYING" / "NEXT"
 	badge.add_theme_font_size_override("font_size", 10)
 	head.add_child(badge)
+	var score_l := Label.new()
+	score_l.add_theme_font_size_override("font_size", 16)
+	score_l.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
+	head.add_child(score_l)
 	var info_l := Label.new()
 	info_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info_l.clip_text = true
 	info_l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	info_l.add_theme_font_size_override("font_size", 10)
+	info_l.add_theme_font_size_override("font_size", 11)
 	info_l.modulate = Color(1, 1, 1, 0.8)
 	v.add_child(info_l)
 
@@ -471,19 +477,21 @@ func _make_seat(i: int, min_width: float) -> Control:
 		row2.add_child(target_spacer)
 		row2.add_child(target_btn)
 
-	# Pairs occupy a separate row and wrap only when their panel runs out of width.
-	var pairs_row := HBoxContainer.new()
-	v.add_child(pairs_row)
-	var pairs_l := Label.new()
-	pairs_l.text = "Pairs made:"
-	pairs_l.add_theme_font_size_override("font_size", 12)
-	pairs_l.modulate = Color(1, 1, 1, 0.7)
-	pairs_row.add_child(pairs_l)
-	var pairs_box := HFlowContainer.new()
-	pairs_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	pairs_box.add_theme_constant_override("h_separation", 3)
-	pairs_box.add_theme_constant_override("v_separation", 3)
-	pairs_row.add_child(pairs_box)
+	var pairs_box: HFlowContainer = null
+	if i == HUMAN:
+		# Keep the human's pairs visible; bots show their score without exposing their pairs.
+		var pairs_row := HBoxContainer.new()
+		v.add_child(pairs_row)
+		var pairs_l := Label.new()
+		pairs_l.text = "Pairs made:"
+		pairs_l.add_theme_font_size_override("font_size", 12)
+		pairs_l.modulate = Color(1, 1, 1, 0.7)
+		pairs_row.add_child(pairs_l)
+		pairs_box = HFlowContainer.new()
+		pairs_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		pairs_box.add_theme_constant_override("h_separation", 3)
+		pairs_box.add_theme_constant_override("v_separation", 3)
+		pairs_row.add_child(pairs_box)
 
 	var cards: Control
 	var card_area: Control = null
@@ -505,8 +513,8 @@ func _make_seat(i: int, min_width: float) -> Control:
 		v.add_child(row)
 		cards = row
 
-	_seats[i] = {"panel": panel, "name": name_l, "badge": badge, "info": info_l, "cards": cards,
-		"card_area": card_area, "target": target_btn, "pairs": pairs_box}
+	_seats[i] = {"panel": panel, "name": name_l, "badge": badge, "score": score_l, "info": info_l,
+		"cards": cards, "card_area": card_area, "target": target_btn, "pairs": pairs_box}
 	return panel
 
 
@@ -780,7 +788,7 @@ func _fit_status_text(base: String, direction: String, next_text: String) -> Str
 
 
 # Redraws one seat panel: name, PLAYING / NEXT badge, score and cards-left text, the border colour
-# (gold = their turn, blue = frozen, orange = someone is drawing from them), the pairs they have made,
+# (gold = their turn, blue = frozen, orange = someone is drawing from them), the human's pairs,
 # the "Choose" button when they can be targeted, and finally their cards.
 func _refresh_seat(i: int, human_turn: bool) -> void:
 	var p := game.players[i]
@@ -795,7 +803,8 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 	elif in_play and game.upcoming_player() == i:
 		badge.text = "  NEXT"
 		badge.add_theme_color_override("font_color", Color(1, 0.6, 0.2))
-	var info := "  Score %d  %d card%s" % [p.total_score, p.hand.size(), "" if p.hand.size() == 1 else "s"]
+	seat["score"].text = "Score: %d" % p.total_score
+	var info := "%d card%s" % [p.hand.size(), "" if p.hand.size() == 1 else "s"]
 	if p.frozen_turns > 0:
 		info += "   •   FROZEN (%d)" % p.frozen_turns
 	if p.finished:
@@ -828,17 +837,18 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 		tb.visible = not (ui_mode == UiMode.CHOOSE_DRAW_INDEX and pending_target == i)
 		tb.text = "Draw from %s" % p.display_name
 
-	# Pairs are rebuilt from scratch each refresh (old chips are freed), sorted by rank so they read in order.
-	var pbox: Container = seat["pairs"]
-	for c in pbox.get_children():
-		pbox.remove_child(c)
-		c.queue_free()
-	var pairs := p.paired_cards.duplicate()
-	pairs.sort_custom(func(x: Array, y: Array) -> bool: return x[0].rank < y[0].rank)
-	for pr in pairs:
-		pbox.add_child(_pair_chip(pr[0], pr[1]))
-	if pairs.is_empty():
-		pbox.add_child(_small_label("none yet"))
+	if i == HUMAN:
+		# Rebuild the human's pairs from scratch each refresh, sorted by rank.
+		var pbox: Container = seat["pairs"]
+		for c in pbox.get_children():
+			pbox.remove_child(c)
+			c.queue_free()
+		var pairs := p.paired_cards.duplicate()
+		pairs.sort_custom(func(x: Array, y: Array) -> bool: return x[0].rank < y[0].rank)
+		for pr in pairs:
+			pbox.add_child(_pair_chip(pr[0], pr[1]))
+		if pairs.is_empty():
+			pbox.add_child(_small_label("none yet"))
 
 	# Likewise the cards in the hand are rebuilt each time.
 	var box: Control = seat["cards"]
@@ -1361,12 +1371,9 @@ func _toggle_pause() -> void:
 	if _pause_modal != null:
 		_pause_modal.queue_free()
 		_pause_modal = null
-		_paused = false
-		if _bot_timer.is_stopped() and _bot_player == game.current and not game.players[game.current].is_human:
-			_bot_timer.start(_bot_delay())
+		_set_paused(false)
 		return
-	_paused = true
-	_bot_timer.stop()
+	_set_paused(true)
 	_pause_modal = _make_overlay()
 	var v: VBoxContainer = _pause_modal.get_meta("content")
 	var t := Label.new()
@@ -1387,6 +1394,16 @@ func _toggle_pause() -> void:
 		b.pressed.connect(entry[1])
 		v.add_child(b)
 	add_child(_pause_modal)
+
+
+func _set_paused(paused: bool) -> void:
+	if _paused == paused:
+		return
+	_paused = paused
+	if paused:
+		_bot_timer.stop()
+	elif _bot_timer.is_stopped() and _bot_player == game.current and not game.players[game.current].is_human:
+		_bot_timer.start(_bot_delay())
 
 
 ## Which cards are gone and which are still out there, rank by rank.

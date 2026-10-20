@@ -23,7 +23,7 @@ Open the project in Godot 4.7 and press Play. The main scene is now `BaseGame/ma
 
 - 4 players always (you + 3 bots). Nobody is knocked out between rounds.
 - Deck = 40 pair cards (A–10 × 4 suits) + 12 specials + that round's Jokers. Everything is dealt.
-- Starting pairs are discarded and scored right away. Each pair is worth 1 point.
+- Starting pairs are discarded and scored right away. Each pair is worth 1 point and scores update immediately; Joker penalties are applied when the round ends.
 - On your turn you either **draw** a face-down card from **any other player who still has cards** (click "Draw from <player>", then the card), or **play a special** from your hand.
   - **Make a pair → go again.**
   - **Draw a special** → you may play it right away, or keep it (keeping it ends your turn).
@@ -55,7 +55,7 @@ Open the project in Godot 4.7 and press Play. The main scene is now `BaseGame/ma
 - Bot speed is chosen on the menu: Slow / Normal / Fast (`BOT_SPEEDS`). Before a bot draws, the card it's taking is highlighted for a moment.
 - When a bot's move affects you (takes your card, gives you a card, freezes or skips you, uses Angel or Vision on you, reverses play), an alert pops up in the middle of the screen. Alerts come from the `affected` signal in `bland_game.gd`.
 - **Turn direction:** a compass next to the log shows the four seats laid out like the table, with arrows pointing the way play is moving (it pulses when someone plays Reverse). Gold = playing now, orange ring = next. Each box also shows a PLAYING / NEXT tag, and the top bar says "Next up: …" (taking a pending Skip into account).
-- Each player's box shows the pairs they've made this round ("Pairs made: 7 7, A A…"). Each number is coloured like its card: red for hearts/diamonds, black for clubs/spades. Hover a chip to see the exact cards.
+- Your box shows the pairs you've made this round ("Pairs made: 7 7, A A…"); bot boxes show their scores without listing their pairs. Each number is coloured like its card: red for hearts/diamonds, black for clubs/spades. Hover a chip to see the exact cards.
 - **Card Tracker** (button or the T key): for each rank A–10, shows how many have been paired, how many you hold, and how many are still in opponents' hands. It also shows how many special cards have been played.
 
 ## Bots (for the "questions for later")

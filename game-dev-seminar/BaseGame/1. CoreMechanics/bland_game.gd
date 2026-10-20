@@ -197,14 +197,14 @@ func _discard_starting_pairs(p: BlandPlayer) -> void:
 			"" if made.size() == 1 else "s", ", ".join(made)])
 
 
-# Moves a matched pair out of the hand into the discard pile and records it for scoring and
-# for the pair display on the table. It does not add points yet; that happens in _finish_round().
+# Moves a matched pair out of the hand into the discard pile and records its points immediately.
 func _discard_pair(p: BlandPlayer, a: BlandCard, b: BlandCard) -> void:
 	p.hand.erase(a)
 	p.hand.erase(b)
 	discard_pile.append(a)
 	discard_pile.append(b)
 	p.round_pairs += 1
+	p.total_score += GameSettings.POINTS_PER_PAIR
 	p.paired_ranks.append(a.rank)
 	p.paired_cards.append([a, b])
 
@@ -226,7 +226,7 @@ func _finish_round() -> void:
 		var jokers := p.joker_count()
 		p.round_penalty = jokers * GameSettings.JOKER_PENALTY
 		var gained := p.round_pairs * GameSettings.POINTS_PER_PAIR - p.round_penalty
-		p.total_score += gained
+		p.total_score -= p.round_penalty
 		summary.append({
 			"name": p.display_name, "pairs": p.round_pairs, "jokers": jokers,
 			"penalty": p.round_penalty, "round_points": gained, "total": p.total_score,
