@@ -14,8 +14,8 @@ Open the project in Godot 4.7 and press Play. The main scene is now `BaseGame/ma
 | `bland_game.gd` | The rules engine. No UI code, so it can run headless. |
 | `bot_brain.gd` | Bot decisions. Two styles: **Random** and **Basic strategy**. |
 | `main_menu.gd/.tscn` | Start menu: number of rounds, bot style, how-to-play. |
-| `game_table.gd/.tscn` | The table UI (built in code), log, prompts, popups, pause menu. |
-| `turn_compass.gd` | The turn-direction diagram next to the log. |
+| `game_table.gd/.tscn` | The table UI (built in code), prompts, popups, pause menu. |
+| `turn_compass.gd` | The turn-direction diagram between the side seats. |
 | `tools/simulate.gd` | Plays thousands of bot-only games for balancing. |
 | `IDEAS.md` | Side list of possible future cards and mechanics. |
 
@@ -54,8 +54,8 @@ Open the project in Godot 4.7 and press Play. The main scene is now `BaseGame/ma
 
 - Bot speed is chosen on the menu: Slow / Normal / Fast (`BOT_SPEEDS`). Before a bot draws, the card it's taking is highlighted for a moment.
 - When a bot's move affects you (takes your card, gives you a card, freezes or skips you, uses Angel or Vision on you, reverses play), an alert pops up in the middle of the screen. Alerts come from the `affected` signal in `bland_game.gd`.
-- **Turn direction:** a compass next to the log shows the four seats laid out like the table, with arrows pointing the way play is moving (it pulses when someone plays Reverse). Gold = playing now, orange ring = next. Each box also shows a PLAYING / NEXT tag, and the top bar says "Next up: …" (taking a pending Skip into account).
-- Your box shows the pairs you've made this round ("Pairs made: 7 7, A A…"); bot boxes show their scores without listing their pairs. Each number is coloured like its card: red for hearts/diamonds, black for clubs/spades. Hover a chip to see the exact cards.
+- **Turn direction:** a compass between the side seats shows the four seats laid out like the table, with arrows pointing the way play is moving (it pulses when someone plays Reverse). Gold = playing now, orange ring = next. Each box also shows a PLAYING / NEXT tag, and the top bar says "Next up: …" (taking a pending Skip into account).
+- Your box shows the pairs you've made this round. When anyone makes a pair, its cards appear on screen and animate toward that player's panel. Your pair chips are coloured like their cards: red for hearts/diamonds, black for clubs/spades. Hover a chip to see the exact cards.
 - **Card Tracker** (button or the T key): for each rank A–10, shows how many have been paired, how many you hold, and how many are still in opponents' hands. It also shows how many special cards have been played.
 
 ## Bots (for the "questions for later")

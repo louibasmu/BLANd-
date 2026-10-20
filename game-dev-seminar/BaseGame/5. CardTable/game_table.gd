@@ -58,7 +58,6 @@ var _side_card_size: Vector2 = SIDE_CARD
 var _compass: TurnCompass
 # Last direction shown, so the compass only "pulses" when the direction actually flips.
 var _last_direction: int = 1
-var _log: RichTextLabel
 var _prompt: Label
 var _cancel_btn: Button
 var _shuffle_btn: Button
@@ -72,6 +71,9 @@ var _seats: Dictionary = {}      # player index -> {panel, name, info, cards, ta
 var _modal: Control = null
 var _toast_box: VBoxContainer      # pop-up alerts when a bot's move hits you
 var _pause_modal: Control = null
+var _pair_animation_layer: Control
+var _pair_animation_queue: Array[Dictionary] = []
+var _pair_animation_running: bool = false
 
 
 # Godot calls this when the scene loads: build the interface, create the bot timer, create the game,
@@ -90,8 +92,8 @@ func _ready() -> void:
 	game = BlandGame.new(GameSettings.num_rounds)
 	# `changed` can fire several times for one action, so it goes through _queue_refresh to redraw only once.
 	game.changed.connect(_queue_refresh)   # many changes in one action -> one redraw
-	game.log_message.connect(_add_log)
-	game.private_info.connect(func(t: String) -> void: _add_log("[color=#ffe27a]" + t + "[/color]"))
+	game.private_info.connect(_on_private_info)
+	game.pair_made.connect(_on_pair_made)
 	game.turn_started.connect(_on_turn_started)
 	game.turn_continued.connect(_on_turn_continued)
 	game.special_drawn.connect(_on_special_drawn)
@@ -194,7 +196,7 @@ func _build_ui() -> void:
 	root.add_child(top_row)
 	top_row.add_child(_make_seat(2, 620))
 
-	# --- middle: left bot, log, right bot
+	# --- middle: left bot, turn compass, right bot
 	var mid_slot := Control.new()
 	mid_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	mid_slot.clip_contents = true
@@ -206,23 +208,12 @@ func _build_ui() -> void:
 	mid_slot.resized.connect(_layout_middle.bind(mid_slot, mid))
 	_layout_middle(mid_slot, mid)
 	mid.add_child(_make_seat(1, 300))
-	var log_panel := PanelContainer.new()
-	log_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	log_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	log_panel.add_theme_stylebox_override("panel", _box(Color(0, 0, 0, 0.35), Color(0, 0, 0, 0)))
-	mid.add_child(log_panel)
-	var log_row := HBoxContainer.new()
-	log_row.add_theme_constant_override("separation", 6)
-	log_panel.add_child(log_row)
+	var compass_center := CenterContainer.new()
+	compass_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	compass_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	mid.add_child(compass_center)
 	_compass = TurnCompass.new()   # which way play is going + who's up next
-	log_row.add_child(_compass)
-	_log = RichTextLabel.new()
-	_log.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_log.bbcode_enabled = true
-	_log.scroll_following = true
-	_log.add_theme_font_size_override("normal_font_size", 13)
-	_log.add_theme_font_size_override("bold_font_size", 13)
-	log_row.add_child(_log)
+	compass_center.add_child(_compass)
 	mid.add_child(_make_seat(3, 300))
 
 	# --- prompt
@@ -282,6 +273,14 @@ func _build_ui() -> void:
 	_toast_box.add_theme_constant_override("separation", 6)
 	_toast_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	top.add_child(_toast_box)
+
+	var pair_canvas := CanvasLayer.new()
+	pair_canvas.layer = 20
+	add_child(pair_canvas)
+	_pair_animation_layer = Control.new()
+	_pair_animation_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_pair_animation_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pair_canvas.add_child(_pair_animation_layer)
 	_apply_responsive_scale()
 
 
@@ -394,9 +393,6 @@ func _apply_responsive_scale() -> void:
 	_set_scaled_font_size(_status_label, 16, scale)
 	if _prompt != null:
 		_set_scaled_font_size(_prompt, 17, scale)
-	if _log != null:
-		_log.add_theme_font_size_override("normal_font_size", roundi(13.0 * scale))
-		_log.add_theme_font_size_override("bold_font_size", roundi(13.0 * scale))
 	for seat in _seats.values():
 		_set_scaled_font_size(seat["name"], 14, scale)
 		_set_scaled_font_size(seat["badge"], 10, scale)
@@ -479,7 +475,6 @@ func _make_seat(i: int, min_width: float) -> Control:
 
 	var pairs_box: HFlowContainer = null
 	if i == HUMAN:
-		# Keep the human's pairs visible; bots show their score without exposing their pairs.
 		var pairs_row := HBoxContainer.new()
 		v.add_child(pairs_row)
 		var pairs_l := Label.new()
@@ -701,6 +696,72 @@ func _pair_chip(a: BlandCard, b: BlandCard) -> Control:
 	return chip
 
 
+func _on_pair_made(player_index: int, card_a: BlandCard, card_b: BlandCard) -> void:
+	_pair_animation_queue.append({
+		"player": player_index,
+		"card_a": card_a,
+		"card_b": card_b,
+	})
+	_play_next_pair_animation.call_deferred()
+
+
+func _play_next_pair_animation() -> void:
+	if _pair_animation_running or _pair_animation_queue.is_empty():
+		return
+	_pair_animation_running = true
+	await get_tree().process_frame
+
+	var pair: Dictionary = _pair_animation_queue.pop_front()
+	var player_index: int = pair["player"]
+	var player: BlandPlayer = game.players[player_index]
+	var center := _pair_animation_layer.size / 2.0
+	var title := Label.new()
+	title.text = "%s made a pair!" % player.display_name
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 26)
+	title.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
+	title.position = center + Vector2(-200, -115)
+	title.size = Vector2(400, 40)
+	_pair_animation_layer.add_child(title)
+
+	var card_size := Vector2(72, 102)
+	var moving_cards: Array[Control] = []
+	for i in 2:
+		var card: BlandCard = pair["card_a"] if i == 0 else pair["card_b"]
+		var card_view := _card_view(card, true, card_size, -1, Callable())
+		card_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for child in card_view.get_children():
+			if child is Control:
+				child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card_view.position = center + Vector2(-78 + i * 84, -62)
+		card_view.size = card_size
+		card_view.scale = Vector2.ONE
+		_pair_animation_layer.add_child(card_view)
+		moving_cards.append(card_view)
+
+	await get_tree().create_timer(0.9).timeout
+
+	var destination_control: Control = _seats[player_index]["pairs"] \
+		if player_index == HUMAN else _seats[player_index]["score"]
+	var target: Vector2 = destination_control.get_global_rect().get_center()
+	var tween := create_tween()
+	tween.set_parallel(true)
+	for i in moving_cards.size():
+		var card_view := moving_cards[i]
+		var target_offset := Vector2(-7 if i == 0 else 7, 0)
+		tween.tween_property(card_view, "position", target + target_offset, 1.1) \
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		tween.tween_property(card_view, "scale", Vector2(0.2, 0.2), 1.1)
+		tween.tween_property(card_view, "modulate:a", 0.0, 1.1)
+	tween.tween_property(title, "modulate:a", 0.0, 0.85)
+	await tween.finished
+	title.queue_free()
+	for card_view in moving_cards:
+		card_view.queue_free()
+	_pair_animation_running = false
+	_play_next_pair_animation.call_deferred()
+
+
 # A small faint label (used for "none yet").
 func _small_label(text: String) -> Label:
 	var l := Label.new()
@@ -787,8 +848,8 @@ func _fit_status_text(base: String, direction: String, next_text: String) -> Str
 	return base
 
 
-# Redraws one seat panel: name, PLAYING / NEXT badge, score and cards-left text, the border colour
-# (gold = their turn, blue = frozen, orange = someone is drawing from them), the human's pairs,
+# Redraws one seat panel: name, PLAYING / NEXT badge, score and status, the border colour
+# (gold = their turn, blue = frozen, orange = someone is drawing from them), their pairs,
 # the "Choose" button when they can be targeted, and finally their cards.
 func _refresh_seat(i: int, human_turn: bool) -> void:
 	var p := game.players[i]
@@ -841,7 +902,7 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 		tb.text = "Draw from %s" % p.display_name
 
 	if i == HUMAN:
-		# Rebuild the human's pairs from scratch each refresh, sorted by rank.
+		# Show the human's pairs, sorted by rank; bot pairs are only shown in the animation.
 		var pbox: Container = seat["pairs"]
 		for c in pbox.get_children():
 			pbox.remove_child(c)
@@ -959,9 +1020,9 @@ func _prompt_text(human_turn: bool) -> String:
 	return "%s: choose a player to draw from." % lead
 
 
-# Adds a line to the on-screen game log (RichTextLabel understands [b], [color] etc. BBCode tags).
-func _add_log(text: String) -> void:
-	_log.append_text(text + "\n")
+# Keep private game information visible after removing the center log.
+func _on_private_info(text: String) -> void:
+	_toast(text)
 
 
 # ================================================================ human input
