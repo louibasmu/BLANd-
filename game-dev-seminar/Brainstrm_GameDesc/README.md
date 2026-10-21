@@ -52,7 +52,7 @@ Open the project in Godot 4.7 and press Play. The main scene is now `BaseGame/ma
 
 ## Following along
 
-- Bot speed is chosen on the menu: Slow / Normal / Fast (`BOT_SPEEDS`). Before a bot draws, the card it's taking is highlighted for a moment.
+- Bot speed can be set on the main menu or changed during a game from the dropdown: Slow / Normal / Fast (`BOT_SPEEDS`). A speed change applies when bot play resumes. Before a bot draws, the card it's taking is highlighted for a moment.
 - When a bot's move affects you (takes your card, gives you a card, freezes or skips you, uses Angel or Vision on you, reverses play), an alert pops up in the middle of the screen. Alerts come from the `affected` signal in `bland_game.gd`.
 - **Turn direction:** a compass between the side seats shows the four seats laid out like the table, with arrows pointing the way play is moving (it pulses when someone plays Reverse). Gold = playing now, orange ring = next. Each box also shows a PLAYING / NEXT tag, and the top bar says "Next up: …" (taking a pending Skip into account).
 - Your box shows the pairs you've made this round. When anyone makes a pair, its cards appear on screen and animate toward that player's panel. Your pair chips are coloured like their cards: red for hearts/diamonds, black for clubs/spades. Hover a chip to see the exact cards.

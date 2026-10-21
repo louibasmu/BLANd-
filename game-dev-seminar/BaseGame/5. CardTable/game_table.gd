@@ -53,6 +53,8 @@ var _paused: bool = false
 var _status_label: Label
 var _menu_button: Button
 var _menu_popup: PopupPanel
+var _menu_jokers_label: Label
+var _menu_speed_option: OptionButton
 var _ui_scale: float = 1.0
 var _side_card_size: Vector2 = SIDE_CARD
 var _compass: TurnCompass
@@ -169,7 +171,7 @@ func _build_ui() -> void:
 	bar.add_child(_menu_button)
 
 	_menu_popup = PopupPanel.new()
-	_menu_popup.size = Vector2i(260, 240)
+	_menu_popup.size = Vector2i(320, 350)
 	_menu_popup.exclusive = true
 	_menu_popup.transient = true
 	_menu_popup.close_requested.connect(_menu_popup.hide)
@@ -183,8 +185,32 @@ func _build_ui() -> void:
 	menu_items.offset_bottom = -6
 	menu_items.add_theme_constant_override("separation", 2)
 	_menu_popup.add_child(menu_items)
+	_menu_jokers_label = Label.new()
+	_menu_jokers_label.custom_minimum_size = Vector2(248, 34)
+	_menu_jokers_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_menu_jokers_label.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
+	menu_items.add_child(_menu_jokers_label)
+	menu_items.add_child(HSeparator.new())
 	_add_menu_item(menu_items, "Card Tracker", "T", _on_menu_tracker)
 	_add_menu_item(menu_items, "Rules / How to play", "", _on_menu_rules)
+	_add_menu_item(menu_items, "Special card roles", "", _on_menu_special_roles)
+	var speed_row := HBoxContainer.new()
+	speed_row.custom_minimum_size.y = 40
+	speed_row.add_theme_constant_override("separation", 8)
+	var speed_label := Label.new()
+	speed_label.text = "Bot speed"
+	speed_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	speed_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	speed_row.add_child(speed_label)
+	_menu_speed_option = OptionButton.new()
+	_menu_speed_option.custom_minimum_size.x = 120
+	for speed_name in GameSettings.BOT_SPEEDS:
+		_menu_speed_option.add_item(speed_name)
+		if is_equal_approx(GameSettings.BOT_SPEEDS[speed_name], GameSettings.bot_delay):
+			_menu_speed_option.select(_menu_speed_option.item_count - 1)
+	_menu_speed_option.item_selected.connect(_on_menu_bot_speed_selected)
+	speed_row.add_child(_menu_speed_option)
+	menu_items.add_child(speed_row)
 	var menu_separator := HSeparator.new()
 	menu_items.add_child(menu_separator)
 	_add_menu_item(menu_items, "Restart game", "", _on_menu_restart)
@@ -336,6 +362,7 @@ func _toggle_menu_popup() -> void:
 		_menu_popup.hide()
 		return
 	_set_paused(true)
+	_menu_jokers_label.text = "Jokers this round: %d" % game.jokers_this_round
 	var button_rect := _menu_button.get_global_rect()
 	var popup_position := Vector2i(
 		int(button_rect.end.x - _menu_popup.size.x),
@@ -354,6 +381,20 @@ func _on_menu_tracker() -> void:
 
 func _on_menu_rules() -> void:
 	_show_rules()
+
+
+func _on_menu_special_roles() -> void:
+	var roles: PackedStringArray = []
+	for special in BlandCard.SPECIAL_NAMES:
+		roles.append("%s: %s" % [BlandCard.SPECIAL_NAMES[special], BlandCard.SPECIAL_HELP[special]])
+	_show_modal("Special card roles", "\n".join(roles), null, [["Close", Callable()]])
+
+
+func _on_menu_bot_speed_selected(index: int) -> void:
+	var speed_name := _menu_speed_option.get_item_text(index)
+	GameSettings.bot_delay = GameSettings.BOT_SPEEDS[speed_name]
+	if not _paused and not _bot_timer.is_stopped():
+		_bot_timer.start(_bot_delay())
 
 
 func _on_menu_restart() -> void:
@@ -801,8 +842,8 @@ func _refresh() -> void:
 	var next_text := ""
 	if playing and upcoming >= 0:
 		next_text = "   •   Next up: %s" % game.players[upcoming].display_name
-	var base_status := "Round %d / %d   •   Jokers: %d   •   Pairs left: %d" % [
-		game.round_number, game.total_rounds, game.jokers_this_round, game.pairs_left()]
+	var base_status := "Round %d / %d   •   Pairs left: %d" % [
+		game.round_number, game.total_rounds, game.pairs_left()]
 	_status_label.text = _fit_status_text(base_status, dir, next_text)
 
 	# Flags for the compass: who is safe (out of cards) and who is frozen.
