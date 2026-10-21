@@ -13,9 +13,9 @@ var is_human: bool = false
 # The cards this player currently holds. Order matters: new cards go on the end.
 var hand: Array[BlandCard] = []
 
-# Running score across all rounds (pairs earn points, Jokers at round end lose points).
+# Running score across all rounds (pair points are added immediately; Joker penalties are applied at round end).
 var total_score: int = 0
-# Pairs made so far this round (points are added to total_score when the round ends).
+# Pairs made so far this round (also used to calculate the round summary).
 var round_pairs: int = 0
 var paired_ranks: Array[int] = []   # ranks this player has paired this round (shown on the table)
 var paired_cards: Array = []        # [card_a, card_b] for each pair, so the table can show suit colours

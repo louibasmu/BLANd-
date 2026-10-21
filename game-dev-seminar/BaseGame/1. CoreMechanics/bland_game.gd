@@ -14,6 +14,7 @@ extends RefCounted
 signal changed                              # anything on the table changed
 signal log_message(text: String)            # public event, everyone sees it
 signal private_info(text: String)           # only the human should see this
+signal pair_made(player_index: int, card_a: BlandCard, card_b: BlandCard)
 signal turn_started(player_index: int)
 signal turn_continued(player_index: int)                 # made a pair, so the same player goes again
 signal special_drawn(player_index: int, card: BlandCard) # drew a special: may play it right away
@@ -182,29 +183,24 @@ func _build_deck(jokers: int) -> Array[BlandCard]:
 # loop starts scanning again (`found` flag) until no matching cards remain. Handles a hand that holds all four of one rank.
 func _discard_starting_pairs(p: BlandPlayer) -> void:
 	var found := true
-	var made: PackedStringArray = []
 	while found:
 		found = false
 		for a in p.hand:
 			var b := p.find_match_for(a)
 			if b != null:
 				_discard_pair(p, a, b)
-				made.append(a.rank_plural())
 				found = true
 				break
-	if made.size() > 0:
-		_log("%s starts with %d pair%s (%s)." % [p.display_name, made.size(),
-			"" if made.size() == 1 else "s", ", ".join(made)])
 
 
-# Moves a matched pair out of the hand into the discard pile and records it for scoring and
-# for the pair display on the table. It does not add points yet; that happens in _finish_round().
+# Moves a matched pair out of the hand into the discard pile and records its points immediately.
 func _discard_pair(p: BlandPlayer, a: BlandCard, b: BlandCard) -> void:
 	p.hand.erase(a)
 	p.hand.erase(b)
 	discard_pile.append(a)
 	discard_pile.append(b)
 	p.round_pairs += 1
+	p.total_score += GameSettings.POINTS_PER_PAIR
 	p.paired_ranks.append(a.rank)
 	p.paired_cards.append([a, b])
 
@@ -226,7 +222,7 @@ func _finish_round() -> void:
 		var jokers := p.joker_count()
 		p.round_penalty = jokers * GameSettings.JOKER_PENALTY
 		var gained := p.round_pairs * GameSettings.POINTS_PER_PAIR - p.round_penalty
-		p.total_score += gained
+		p.total_score -= p.round_penalty
 		summary.append({
 			"name": p.display_name, "pairs": p.round_pairs, "jokers": jokers,
 			"penalty": p.round_penalty, "round_points": gained, "total": p.total_score,
@@ -589,7 +585,7 @@ func _check_new_pair(p: int, card: BlandCard) -> bool:
 	var other := players[p].find_match_for(card)
 	if other != null:
 		_discard_pair(players[p], card, other)
-		_log("%s makes a pair of %s! (+%d)" % [_n(p), card.rank_plural(), GameSettings.POINTS_PER_PAIR])
+		pair_made.emit(p, card, other)
 		return true
 	return false
 

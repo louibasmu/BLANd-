@@ -14,8 +14,8 @@ Open the project in Godot 4.7 and press Play. The main scene is now `BaseGame/ma
 | `bland_game.gd` | The rules engine. No UI code, so it can run headless. |
 | `bot_brain.gd` | Bot decisions. Two styles: **Random** and **Basic strategy**. |
 | `main_menu.gd/.tscn` | Start menu: number of rounds, bot style, how-to-play. |
-| `game_table.gd/.tscn` | The table UI (built in code), log, prompts, popups, pause menu. |
-| `turn_compass.gd` | The turn-direction diagram next to the log. |
+| `game_table.gd/.tscn` | The table UI (built in code), prompts, popups, pause menu. |
+| `turn_compass.gd` | The turn-direction diagram between the side seats. |
 | `tools/simulate.gd` | Plays thousands of bot-only games for balancing. |
 | `IDEAS.md` | Side list of possible future cards and mechanics. |
 
@@ -23,7 +23,7 @@ Open the project in Godot 4.7 and press Play. The main scene is now `BaseGame/ma
 
 - 4 players always (you + 3 bots). Nobody is knocked out between rounds.
 - Deck = 40 pair cards (A–10 × 4 suits) + 12 specials + that round's Jokers. Everything is dealt.
-- Starting pairs are discarded and scored right away. Each pair is worth 1 point.
+- Starting pairs are discarded and scored right away. Each pair is worth 1 point and scores update immediately; Joker penalties are applied when the round ends.
 - On your turn you either **draw** a face-down card from **any other player who still has cards** (click "Draw from <player>", then the card), or **play a special** from your hand.
   - **Make a pair → go again.**
   - **Draw a special** → you may play it right away, or keep it (keeping it ends your turn).
@@ -33,7 +33,7 @@ Open the project in Godot 4.7 and press Play. The main scene is now `BaseGame/ma
 - Specials (default counts): Skip ×3, Reverse ×3, Give ×2, Freeze ×2 (target misses 2 turns), Angel ×1 (yes/no Joker check), Vision ×1 (peek at a card position, then take it or leave it).
 - **Special Cards Setup** (main menu) sets how many of each special go in the deck (0–6). Jokers aren't affected.
 - **Rarity** follows the count: 1 = Rare (purple border), 2 = Uncommon (green), 3+ = Common (light blue). It's shown on the card border, the tooltip and the "You drew…" popup.
-- Opponents' cards show position numbers (1, 2, 3…) so Vision can name a card.
+- Opponents' cards show position numbers (1, 2, 3…) so Vision can name a card. Bot 1 and Bot 3 use a landscape card back in a single vertical column, with card overlap calculated to fit their panel; Bot 2 and the player keep the standard card back.
 - A player who empties their hand is **out for the round and safe from the Joker**. They can't be given cards, targeted, or drawn from, and they don't rejoin until the next round. If a Give empties your hand, your turn ends with no draw.
 - Once **you** are out of cards, the rest of the round fast-forwards (`FAST_FORWARD_DELAY`).
 - The round ends when every pair card has been matched. Each Joker still in a hand costs **4 points**.
@@ -52,10 +52,10 @@ Open the project in Godot 4.7 and press Play. The main scene is now `BaseGame/ma
 
 ## Following along
 
-- Bot speed is chosen on the menu: Slow / Normal / Fast (`BOT_SPEEDS`). Before a bot draws, the card it's taking is highlighted for a moment.
+- Bot speed can be set on the main menu or changed during a game from the dropdown: Slow / Normal / Fast (`BOT_SPEEDS`). A speed change applies when bot play resumes. Before a bot draws, the card it's taking is highlighted for a moment.
 - When a bot's move affects you (takes your card, gives you a card, freezes or skips you, uses Angel or Vision on you, reverses play), an alert pops up in the middle of the screen. Alerts come from the `affected` signal in `bland_game.gd`.
-- **Turn direction:** a compass next to the log shows the four seats laid out like the table, with arrows pointing the way play is moving (it pulses when someone plays Reverse). Gold = playing now, orange ring = next. Each box also shows a PLAYING / NEXT tag, and the top bar says "Next up: …" (taking a pending Skip into account).
-- Each player's box shows the pairs they've made this round ("Pairs made: 7 7, A A…"). Each number is coloured like its card: red for hearts/diamonds, black for clubs/spades. Hover a chip to see the exact cards.
+- **Turn direction:** a compass between the side seats shows the four seats laid out like the table, with arrows pointing the way play is moving (it pulses when someone plays Reverse). Gold = playing now, orange ring = next. Each box also shows a PLAYING / NEXT tag, and the top bar says "Next up: …" (taking a pending Skip into account).
+- Your box shows the pairs you've made this round. When anyone makes a pair, its cards appear on screen and animate toward that player's panel. Your pair chips are coloured like their cards: red for hearts/diamonds, black for clubs/spades. Hover a chip to see the exact cards.
 - **Card Tracker** (button or the T key): for each rank A–10, shows how many have been paired, how many you hold, and how many are still in opponents' hands. It also shows how many special cards have been played.
 
 ## Bots (for the "questions for later")
@@ -76,5 +76,5 @@ It prints average turns per round, how many players get stuck with a Joker per r
 
 ## Art hooks
 
-Card faces come from `res://Sprites/Card Assets/` (`card_<suit>_<A|02..10>.png`, `card_joker_black.png`, `card_back.png`).
+Card faces come from `res://Sprites/Card Assets/` (`card_<suit>_<A|02..10>.png`, `card_joker_black.png`, `card_back.png`, `card_back_side.png`).
 For now, special cards use `card_empty.png` with a coloured label. Swap in real art by changing `BlandCard.texture_file()`.
