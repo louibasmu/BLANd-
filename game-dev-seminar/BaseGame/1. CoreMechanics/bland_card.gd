@@ -155,7 +155,7 @@ func texture_file() -> String:
 			var r := "A" if rank == 1 else "%02d" % rank
 			return "card_%s.png" % [r]
 		Kind.SPECIAL:
-			return "card_empty.png"   # text is drawn on top for now
+			return "card_back.png"   # text is drawn on top for now
 		_:
 			return "card_joker_black.png"
 
