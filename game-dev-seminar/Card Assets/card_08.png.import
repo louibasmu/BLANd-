@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d10o8ml6oslf6"
-path="res://.godot/imported/three.png-343760601de7c0eb4828adea9e658443.ctex"
+uid="uid://kqkopmnwasbu"
+path="res://.godot/imported/card_08.png-ea65362839ab94de69fdc7073bd05843.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Card Assets/BLANd Made Cards/three.png"
-dest_files=["res://.godot/imported/three.png-343760601de7c0eb4828adea9e658443.ctex"]
+source_file="res://Card Assets/card_08.png"
+dest_files=["res://.godot/imported/card_08.png-ea65362839ab94de69fdc7073bd05843.ctex"]
 
 [params]
 
