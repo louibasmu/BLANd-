@@ -1,10 +1,13 @@
 extends Control
-
+# "const" is a value that cannot be changed or altered
+# by the application during runtime
 const SUITS := ["Clubs", "Diamonds", "Hearts", "Spades"]
 const RANKS := ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
 const PLAYER_COUNT := 3
 
 @export_group("Table Layout")
+#Rect2(x: float, y: float, width: float, height: float)
+#Could be replaced with container within the main menu scene!
 @export var computer_cards_area := Rect2(0.1, 0.18, 0.8, 0.18)
 @export var cards_to_pick_area := Rect2(0.04, 0.43, 0.92, 0.22)
 @export var player_hand_area := Rect2(0.03, 0.7, 0.94, 0.29)
