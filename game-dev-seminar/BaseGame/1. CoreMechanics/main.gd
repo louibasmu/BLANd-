@@ -30,6 +30,7 @@ var player_anchors: Array[Control] = []
 
 
 func _ready() -> void:
+	
 	_build_ui()
 	_start_round()
 

@@ -1,11 +1,11 @@
 78098b89c88a74ebe8c20117b8754620
-::res://::1791832389
+::res://::1792767778
 main.tscn::PackedScene::696338618717247588::1791822490::0::1::::<><><>0<>0<><>::uid://bukeq2b766ru0::::res://BaseGame/1. CoreMechanics/main.gd
 ::res://BaseGame/::1791822490
-::res://BaseGame/1. CoreMechanics/::1791822138
+::res://BaseGame/1. CoreMechanics/::1791833363
 bland_card.gd::GDScript::8185802159010576003::1791559326::0::1::::BlandCard<>RefCounted<><>0<>0<><>::
 bland_game.gd::GDScript::7287133100293068841::1791559326::0::1::::BlandGame<>RefCounted<><>0<>0<><>::
-main.gd::GDScript::3811114195839747757::1791561378::0::1::::<>Control<><>0<>0<><>::
+main.gd::GDScript::3811114195839747757::1791833363::0::1::::<>Control<><>0<>0<><>::
 simulate.gd::GDScript::4165381598891634604::1791559326::0::1::::<>SceneTree<><>0<>0<><>::
 turn_compass.gd::GDScript::8198779009373649154::1791559326::0::1::::TurnCompass<>Control<><>0<>0<><>::
 ::res://BaseGame/2. MainMenu/::1791822589
