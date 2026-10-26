@@ -146,16 +146,16 @@ func special_name() -> String:
 	return SPECIAL_NAMES.get(special, "")
 
 
-## File name inside res://Sprites/Card Assets/BLANd Made Cards
+## File name inside res://Sprites/Card Assets/
 ## Builds the picture file name. Pair cards map to e.g. card_clubs_04.png (Ace is "A",
 ## other ranks are zero-padded to two digits to match the asset names).
 func texture_file() -> String:
 	match kind:
 		Kind.PAIR:
 			var r := "A" if rank == 1 else "%02d" % rank
-			return "card_%s.png" % [r]
+			return "card_%s_%s.png" % [suit, r]
 		Kind.SPECIAL:
-			return "card_back.png"   # text is drawn on top for now
+			return "card_empty.png"   # text is drawn on top for now
 		_:
 			return "card_joker_black.png"
 

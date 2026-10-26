@@ -3,15 +3,24 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://1jnnt2ovybog"
+<<<<<<<< HEAD:game-dev-seminar/C. Card Assets/card_02.png.import
 path="res://.godot/imported/card_02.png-034613c96f49d80ff3c95bb781aa93fd.ctex"
+========
+path="res://.godot/imported/two.png-acc88ac000d5b8a588b48dfdc244c6d1.ctex"
+>>>>>>>> parent of fc717a3 (Merge pull request #15 from louibasmu/Ben's-Branch):game-dev-seminar/C. Card Assets/BLANd Made Cards/two.png.import
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
+<<<<<<<< HEAD:game-dev-seminar/C. Card Assets/card_02.png.import
 source_file="res://C. Card Assets/card_02.png"
 dest_files=["res://.godot/imported/card_02.png-034613c96f49d80ff3c95bb781aa93fd.ctex"]
+========
+source_file="res://Card Assets/BLANd Made Cards/two.png"
+dest_files=["res://.godot/imported/two.png-acc88ac000d5b8a588b48dfdc244c6d1.ctex"]
+>>>>>>>> parent of fc717a3 (Merge pull request #15 from louibasmu/Ben's-Branch):game-dev-seminar/C. Card Assets/BLANd Made Cards/two.png.import
 
 [params]
 
