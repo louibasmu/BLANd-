@@ -153,9 +153,9 @@ func texture_file() -> String:
 	match kind:
 		Kind.PAIR:
 			var r := "A" if rank == 1 else "%02d" % rank
-			return "card_%s.png" % [r]
+			return "card_%s_%s.png" % [suit, r]
 		Kind.SPECIAL:
-			return "card_back.png"   # text is drawn on top for now
+			return "card_empty.png"   # text is drawn on top for now
 		_:
 			return "card_joker_black.png"
 
