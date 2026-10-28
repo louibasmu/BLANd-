@@ -67,7 +67,8 @@ var _rng := RandomNumberGenerator.new()
 
 # Creates the four seats. Seat 0 is the human ("You"); the rest are bots. The round count is
 # clamped to the allowed range so a bad value can't break the Joker schedule.
-func _init(p_total_rounds: int = 5, names: Array = ["You", "Bot 1", "Bot 2", "Bot 3"]) -> void:
+#func _init(p_total_rounds: int = 5, names: Array = ["You", "Bot 1", "Bot 2", "Bot 3"]) -> void:
+func _init(p_total_rounds: int = 5, names: Array = ["You", "CPU 1", "CPU 2", "CPU 3"]) -> void: #LEAN
 	total_rounds = clampi(p_total_rounds, GameSettings.MIN_ROUNDS, GameSettings.MAX_ROUNDS)
 	_rng.randomize()
 	for i in GameSettings.NUM_PLAYERS:
