@@ -13,3 +13,66 @@ script = ExtResource("1_k2ki7")
 computer_cards_area = Rect2(0.23, 0.18, 0.8, 0.18)
 computer_1_name_area = Rect2(0.1, 0.15, 0.4, 0.04)
 computer_2_name_area = Rect2(0.5, 0.15, 0.4, 0.04)
+
+[node name="draw_cards_control" type="Control" parent="." unique_id=258174923]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="hand_cards_control" type="Control" parent="." unique_id=1157664752]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="status_label" type="Label" parent="." unique_id=1775011749]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="turn_label" type="Label" parent="." unique_id=1319872452]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="turn_label" unique_id=860924885]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="cpu_1_name_label" type="Label" parent="." unique_id=721238880]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="cpu_2_name_label" type="Label" parent="." unique_id=240366000]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="draw_title_label" type="Label" parent="." unique_id=1811161806]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="playerHand_label" type="Label" parent="." unique_id=500099710]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="opponents_rows_container" type="HBoxContainer" parent="." unique_id=1132902639]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="header" type="HBoxContainer" parent="." unique_id=1371143237]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="joker_label" type="Label" parent="header" unique_id=2035558020]
+layout_mode = 2
+text = "THIS IS A TEST FOR JOKER LABEL"
+
+[node name="new_round" type="Button" parent="header" unique_id=246967268]
+layout_mode = 2
+text = "THIS IS NEW ROUND TEST!"
