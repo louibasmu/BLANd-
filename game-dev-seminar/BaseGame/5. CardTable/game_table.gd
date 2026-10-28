@@ -13,10 +13,9 @@ const MENU_SCENE := "res://BaseGame/2. MainMenu/main_menu.tscn"
 # Folder holding the card pictures; _tex() loads them from here by file name.
 const CARD_DIR := "res://Card Assets/"
 # Card sizes in pixels: big for the human's own hand, small for the opponents' face-down cards.
-#5 to 7 ratio on the width and height
-const BIG_CARD := Vector2(90, 126)
-const SMALL_CARD := Vector2(45, 63)
-const SIDE_CARD := Vector2(63, 45)
+const BIG_CARD := Vector2(78, 111)
+const SMALL_CARD := Vector2(40, 57)
+const SIDE_CARD := Vector2(57, 40)
 const MAX_MIDDLE_HEIGHT := 440.0
 # Seat number of the human player (always 0).
 const HUMAN := 0
@@ -584,7 +583,6 @@ func _tex(file: String) -> Texture2D:
 		var path := CARD_DIR + file
 		_tex_cache[file] = load(path) if ResourceLoader.exists(path) else null
 	return _tex_cache[file]
-
 
 
 func _layout_side_cards(cards: Control) -> void:
