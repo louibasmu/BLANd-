@@ -2,34 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://kqkopmnwasbu"
-<<<<<<< HEAD:game-dev-seminar/Card Assets/card_08.png.import
+uid="uid://i0ioq467jds1"
 path="res://.godot/imported/card_08.png-ea65362839ab94de69fdc7073bd05843.ctex"
-=======
-<<<<<<<< HEAD:game-dev-seminar/C. Card Assets/card_08.png.import
-path="res://.godot/imported/card_08.png-cca10888fcf6f0780eb01b782e6186b0.ctex"
-========
-path="res://.godot/imported/eight.png-1ae4ef0d2ec5f466f8aae37ccab8a604.ctex"
->>>>>>>> parent of fc717a3 (Merge pull request #15 from louibasmu/Ben's-Branch):game-dev-seminar/C. Card Assets/BLANd Made Cards/eight.png.import
->>>>>>> main:game-dev-seminar/C. Card Assets/card_08.png.import
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-<<<<<<< HEAD:game-dev-seminar/Card Assets/card_08.png.import
 source_file="res://Card Assets/card_08.png"
 dest_files=["res://.godot/imported/card_08.png-ea65362839ab94de69fdc7073bd05843.ctex"]
-=======
-<<<<<<<< HEAD:game-dev-seminar/C. Card Assets/card_08.png.import
-source_file="res://C. Card Assets/card_08.png"
-dest_files=["res://.godot/imported/card_08.png-cca10888fcf6f0780eb01b782e6186b0.ctex"]
-========
-source_file="res://Card Assets/BLANd Made Cards/eight.png"
-dest_files=["res://.godot/imported/eight.png-1ae4ef0d2ec5f466f8aae37ccab8a604.ctex"]
->>>>>>>> parent of fc717a3 (Merge pull request #15 from louibasmu/Ben's-Branch):game-dev-seminar/C. Card Assets/BLANd Made Cards/eight.png.import
->>>>>>> main:game-dev-seminar/C. Card Assets/card_08.png.import
 
 [params]
 

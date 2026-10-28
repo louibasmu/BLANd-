@@ -2,17 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-<<<<<<< HEAD:game-dev-seminar/C. Card Assets/card_back.png.import
-uid="uid://b6nkvtisrte2s"
-<<<<<<< HEAD:game-dev-seminar/Card Assets/card_back.png.import
+uid="uid://c4ldfuvv7hyaq"
 path="res://.godot/imported/card_back.png-c4db60929e0ec8e48700e4e9e3692a3b.ctex"
-=======
-path="res://.godot/imported/card_back.png-2c316ad441b3a17b8a0e6a157dc5931f.ctex"
-=======
-uid="uid://ben7qqx34vpkq"
-path="res://.godot/imported/card_back.png-c4db60929e0ec8e48700e4e9e3692a3b.ctex"
->>>>>>> parent of fc717a3 (Merge pull request #15 from louibasmu/Ben's-Branch):game-dev-seminar/Card Assets/card_back.png.import
->>>>>>> main:game-dev-seminar/C. Card Assets/card_back.png.import
 metadata={
 "vram_texture": false
 }
