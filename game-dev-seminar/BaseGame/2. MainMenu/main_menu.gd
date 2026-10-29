@@ -30,29 +30,31 @@ var _special_rows: Dictionary = {}   # special -> {spin, rarity}
 func _ready() -> void:
 	# Make this Control fill the whole window.
 	set_anchors_preset(Control.PRESET_FULL_RECT)
-	##The commented lines below have been implemented physically
+	##The commented lines below have been implemented in the menu system
 	#var bg := ColorRect.new()
 	#bg.color = Color(0.06, 0.22, 0.14)
 	#bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	#add_child(bg)
 
-	###The commented lines below have been implemented physically
+	##The commented lines below have been implemented in the menu system
 	#var center := CenterContainer.new()
 	#center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	#add_child(center)
 	
-	##The commented lines below have been implemented physically
+	##The commented lines below have been implemented in the menu system
 	#var box := VBoxContainer.new()
 	#box.add_theme_constant_override("separation", 14)
 	#box.custom_minimum_size = Vector2(460, 0)
 	#center.add_child(box)
 
+	##The commented lines below have been implemented in the menu system
 	#var title := Label.new()
 	#title.text = "BLANd"
 	#title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	#title.add_theme_font_size_override("font_size", 72)
 	#box.add_child(title)
-
+	
+	##The commented lines below have been implemented in the menu system
 	#var sub := Label.new()
 	#sub.text = "Old Maid, with a twist"
 	#sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -62,6 +64,7 @@ func _ready() -> void:
 
 	#box.add_child(HSeparator.new())
 
+	##The commented lines below have been implemented in the menu system
 	# Dropdown of round counts. The item id is the number of rounds, and the dropdown starts on the
 	# value saved from last time (num_rounds - MIN_ROUNDS is that value's position in the list).
 	#_rounds_option = OptionButton.new()
@@ -71,12 +74,14 @@ func _ready() -> void:
 	_rounds_option.item_selected.connect(_on_rounds_changed)
 	#box.add_child(_labeled("Rounds", _rounds_option))#replaced by RoundsOption button
 
+	##The commented lines below have been implemented in the menu system
 	# Shows how many Jokers appear in each round for the chosen round count.
 	#_schedule_label = Label.new()
 	#_schedule_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	#_schedule_label.modulate = Color(1, 0.9, 0.6)
 	#box.add_child(_schedule_label)
 
+	##The commented lines below have been implemented in the menu system
 	# The id of each item matches GameSettings.BotStyle, so the chosen id can be saved straight back.
 	#_style_option = OptionButton.new()
 	#_style_option.add_item("Random (coin-flip decisions)", GameSettings.BotStyle.RANDOM)
@@ -84,6 +89,7 @@ func _ready() -> void:
 	_style_option.select(GameSettings.bot_style)
 	#box.add_child(_labeled("Bots", _style_option))
 
+	##The commented lines below have been implemented in the menu system
 	# Bot speed dropdown: one item per entry of BOT_SPEEDS, preselecting whichever matches the
 	# currently saved delay (compared with is_equal_approx because they are floats).
 	#_speed_option = OptionButton.new()
@@ -94,6 +100,7 @@ func _ready() -> void:
 			_speed_option.select(i)
 	#box.add_child(_labeled("Bot speed", _speed_option))
 
+	##The commented lines below have been implemented in the menu system
 	# "Special Cards Setup..." button that opens the setup pop-up, plus a one-line summary of the deck size below it.
 	#var specials_row := HBoxContainer.new()
 	#var sl := Label.new()
@@ -114,6 +121,7 @@ func _ready() -> void:
 
 	#box.add_child(HSeparator.new())
 
+	##The commented lines below have been implemented in the menu system
 	# Main buttons. The lambdas (func() -> void: ...) are tiny inline functions used as button callbacks.
 	#var start := Button.new()
 	#start.text = "Start Game"
@@ -122,11 +130,13 @@ func _ready() -> void:
 	_start_btn.pressed.connect(_on_start)
 	#box.add_child(start)
 
+	##The commented lines below have been implemented in the menu system
 	#var rules := Button.new()
 	#rules.text = "How to Play"
 	_rules_btn.pressed.connect(func() -> void: _rules_panel.visible = true)
 	#box.add_child(rules)
 
+	##The commented lines below have been implemented in the menu system
 	#var quit := Button.new()
 	#quit.text = "Quit"
 	_quit_btn.pressed.connect(func() -> void: get_tree().quit())
