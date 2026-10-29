@@ -9,15 +9,18 @@ extends Control
 const TABLE_SCENE := "res://BaseGame/5. CardTable/game_table.tscn"
 
 # Controls that later functions need to read or update, so they are kept as member variables.
-var _rounds_option: OptionButton
-var _style_option: OptionButton
-var _speed_option: OptionButton
-var _schedule_label: Label
-var _rules_panel: Control
-var _specials_panel: Control
-var _specials_summary: Label
-# One entry per special card type, pointing at its copies spin box and its rarity label so
-# they can be refreshed when the numbers change.
+# Nodes built in the editor (looked up by their path in the scene tree).
+@onready var _rounds_option: OptionButton = %RoundsOption
+@onready var _style_option: OptionButton = %StyleOption
+@onready var _speed_option: OptionButton = %SpeedOption
+@onready var _schedule_label: Label = %ScheduleLabel
+@onready var _specials_summary: Label = %SpecialsSummary
+@onready var _specials_btn: Button = %SpecialsButton
+@onready var _start_btn: Button = %StartButton
+@onready var _rules_btn: Button = %RulesButton
+@onready var _quit_btn: Button = %QuitButton
+var _rules_panel: Control      
+var _specials_panel: Control   
 var _special_rows: Dictionary = {}   # special -> {spin, rarity}
 
 
@@ -27,104 +30,117 @@ var _special_rows: Dictionary = {}   # special -> {spin, rarity}
 func _ready() -> void:
 	# Make this Control fill the whole window.
 	set_anchors_preset(Control.PRESET_FULL_RECT)
-	var bg := ColorRect.new()
-	bg.color = Color(0.06, 0.22, 0.14)
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(bg)
+	##The commented lines below have been implemented in the menu system
+	#var bg := ColorRect.new()
+	#bg.color = Color(0.06, 0.22, 0.14)
+	#bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	#add_child(bg)
 
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
+	##The commented lines below have been implemented in the menu system
+	#var center := CenterContainer.new()
+	#center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	#add_child(center)
+	
+	##The commented lines below have been implemented in the menu system
+	#var box := VBoxContainer.new()
+	#box.add_theme_constant_override("separation", 14)
+	#box.custom_minimum_size = Vector2(460, 0)
+	#center.add_child(box)
 
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 14)
-	box.custom_minimum_size = Vector2(460, 0)
-	center.add_child(box)
+	##The commented lines below have been implemented in the menu system
+	#var title := Label.new()
+	#title.text = "BLANd"
+	#title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#title.add_theme_font_size_override("font_size", 72)
+	#box.add_child(title)
+	
+	##The commented lines below have been implemented in the menu system
+	#var sub := Label.new()
+	#sub.text = "Old Maid, with a twist"
+	#sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#sub.add_theme_font_size_override("font_size", 20)
+	#sub.modulate = Color(1, 1, 1, 0.75)#unsure about the .75 value 
+	#box.add_child(sub)
 
-	var title := Label.new()
-	title.text = "BLANd"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 72)
-	box.add_child(title)
+	#box.add_child(HSeparator.new())
 
-	var sub := Label.new()
-	sub.text = "Old Maid, with a twist"
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.add_theme_font_size_override("font_size", 20)
-	sub.modulate = Color(1, 1, 1, 0.75)
-	box.add_child(sub)
-
-	box.add_child(HSeparator.new())
-
+	##The commented lines below have been implemented in the menu system
 	# Dropdown of round counts. The item id is the number of rounds, and the dropdown starts on the
 	# value saved from last time (num_rounds - MIN_ROUNDS is that value's position in the list).
-	_rounds_option = OptionButton.new()
+	#_rounds_option = OptionButton.new()
 	for r in range(GameSettings.MIN_ROUNDS, GameSettings.MAX_ROUNDS + 1):
 		_rounds_option.add_item("%d rounds" % r, r)
 	_rounds_option.select(GameSettings.num_rounds - GameSettings.MIN_ROUNDS)
 	_rounds_option.item_selected.connect(_on_rounds_changed)
-	box.add_child(_labeled("Rounds", _rounds_option))
+	#box.add_child(_labeled("Rounds", _rounds_option))#replaced by RoundsOption button
 
+	##The commented lines below have been implemented in the menu system
 	# Shows how many Jokers appear in each round for the chosen round count.
-	_schedule_label = Label.new()
-	_schedule_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_schedule_label.modulate = Color(1, 0.9, 0.6)
-	box.add_child(_schedule_label)
+	#_schedule_label = Label.new()
+	#_schedule_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#_schedule_label.modulate = Color(1, 0.9, 0.6)
+	#box.add_child(_schedule_label)
 
+	##The commented lines below have been implemented in the menu system
 	# The id of each item matches GameSettings.BotStyle, so the chosen id can be saved straight back.
-	_style_option = OptionButton.new()
-	_style_option.add_item("Random (coin-flip decisions)", GameSettings.BotStyle.RANDOM)
-	_style_option.add_item("Basic strategy", GameSettings.BotStyle.BASIC)
+	#_style_option = OptionButton.new()
+	#_style_option.add_item("Random (coin-flip decisions)", GameSettings.BotStyle.RANDOM)
+	#_style_option.add_item("Basic strategy", GameSettings.BotStyle.BASIC)
 	_style_option.select(GameSettings.bot_style)
-	box.add_child(_labeled("Bots", _style_option))
+	#box.add_child(_labeled("Bots", _style_option))
 
+	##The commented lines below have been implemented in the menu system
 	# Bot speed dropdown: one item per entry of BOT_SPEEDS, preselecting whichever matches the
 	# currently saved delay (compared with is_equal_approx because they are floats).
-	_speed_option = OptionButton.new()
+	#_speed_option = OptionButton.new()
 	var names := GameSettings.BOT_SPEEDS.keys()
 	for i in names.size():
 		_speed_option.add_item(names[i], i)
 		if is_equal_approx(GameSettings.BOT_SPEEDS[names[i]], GameSettings.bot_delay):
 			_speed_option.select(i)
-	box.add_child(_labeled("Bot speed", _speed_option))
+	#box.add_child(_labeled("Bot speed", _speed_option))
 
+	##The commented lines below have been implemented in the menu system
 	# "Special Cards Setup..." button that opens the setup pop-up, plus a one-line summary of the deck size below it.
-	var specials_row := HBoxContainer.new()
-	var sl := Label.new()
-	sl.text = "Specials"
-	sl.custom_minimum_size = Vector2(90, 0)
-	specials_row.add_child(sl)
-	var specials_btn := Button.new()
-	specials_btn.text = "Special Cards Setup..."
-	specials_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	specials_btn.pressed.connect(func() -> void: _specials_panel.visible = true)
-	specials_row.add_child(specials_btn)
-	box.add_child(specials_row)
-	_specials_summary = Label.new()
-	_specials_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_specials_summary.modulate = Color(1, 1, 1, 0.7)
-	_specials_summary.add_theme_font_size_override("font_size", 13)
-	box.add_child(_specials_summary)
+	#var specials_row := HBoxContainer.new()
+	#var sl := Label.new()
+	#sl.text = "Specials"
+	#sl.custom_minimum_size = Vector2(90, 0)
+	#specials_row.add_child(sl)
+	#var specials_btn := Button.new()
+	#specials_btn.text = "Special Cards Setup..."
+	#specials_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_specials_btn.pressed.connect(func() -> void: _specials_panel.visible = true)
+	#specials_row.add_child(specials_btn)
+	#box.add_child(specials_row)
+	#_specials_summary = Label.new()
+	#_specials_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#_specials_summary.modulate = Color(1, 1, 1, 0.7)
+	#_specials_summary.add_theme_font_size_override("font_size", 13)
+	#box.add_child(_specials_summary)
 
-	box.add_child(HSeparator.new())
+	#box.add_child(HSeparator.new())
 
+	##The commented lines below have been implemented in the menu system
 	# Main buttons. The lambdas (func() -> void: ...) are tiny inline functions used as button callbacks.
-	var start := Button.new()
-	start.text = "Start Game"
-	start.custom_minimum_size = Vector2(0, 48)
-	start.add_theme_font_size_override("font_size", 22)
-	start.pressed.connect(_on_start)
-	box.add_child(start)
+	#var start := Button.new()
+	#start.text = "Start Game"
+	#start.custom_minimum_size = Vector2(0, 48)
+	#start.add_theme_font_size_override("font_size", 22)
+	_start_btn.pressed.connect(_on_start)
+	#box.add_child(start)
 
-	var rules := Button.new()
-	rules.text = "How to Play"
-	rules.pressed.connect(func() -> void: _rules_panel.visible = true)
-	box.add_child(rules)
+	##The commented lines below have been implemented in the menu system
+	#var rules := Button.new()
+	#rules.text = "How to Play"
+	_rules_btn.pressed.connect(func() -> void: _rules_panel.visible = true)
+	#box.add_child(rules)
 
-	var quit := Button.new()
-	quit.text = "Quit"
-	quit.pressed.connect(func() -> void: get_tree().quit())
-	box.add_child(quit)
+	##The commented lines below have been implemented in the menu system
+	#var quit := Button.new()
+	#quit.text = "Quit"
+	_quit_btn.pressed.connect(func() -> void: get_tree().quit())
+	#box.add_child(quit)
 
 	# Build the pop-up panels now but keep them hidden until a button shows them.
 	_rules_panel = _build_rules_panel()
@@ -138,20 +154,7 @@ func _ready() -> void:
 
 	# Fill in the Jokers-per-round text for the starting selection, and focus Start Game so Enter works immediately.
 	_on_rounds_changed(_rounds_option.selected)
-	start.grab_focus()
-
-
-# Helper that makes a row with a fixed-width text label on the left and the given control stretching
-# to fill the rest, so all the menu options line up neatly.
-func _labeled(text: String, control: Control) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	var l := Label.new()
-	l.text = text
-	l.custom_minimum_size = Vector2(90, 0)
-	row.add_child(l)
-	control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(control)
-	return row
+	_start_btn.grab_focus()
 
 
 # Runs when the rounds dropdown changes: refresh the "Jokers per round" text.
