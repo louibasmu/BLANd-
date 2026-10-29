@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://wqu7ke4cw6du"]
+[gd_scene format=3 uid="uid://cn6hgnd16x23b"]
 
 [ext_resource type="Script" uid="uid://sjbx8bg7qwgl" path="res://BaseGame/2. MainMenu/main_menu.gd" id="1_jiobw"]
 
@@ -10,3 +10,131 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_jiobw")
+
+[node name="bg" type="ColorRect" parent="." unique_id=932837455]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05882353, 0.21960784, 0.14117648, 1)
+
+[node name="Center" type="CenterContainer" parent="." unique_id=537732586]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="box" type="VBoxContainer" parent="Center" unique_id=328039131]
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="title" type="Label" parent="Center/box" unique_id=696690529]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "BLANd"
+horizontal_alignment = 1
+
+[node name="sub" type="Label" parent="Center/box" unique_id=483748069]
+modulate = Color(1, 1, 1, 0.7490196)
+layout_mode = 2
+theme_override_font_sizes/font_size = 72
+text = "Old Maid, with a twist"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Center/box" unique_id=1021888189]
+layout_mode = 2
+
+[node name="RoundsRow" type="HBoxContainer" parent="Center/box" unique_id=2038137664]
+layout_mode = 2
+
+[node name="ScheduleLabel" type="Label" parent="Center/box/RoundsRow" unique_id=1816437823]
+unique_name_in_owner = true
+modulate = Color(1, 0.9019608, 0.6, 1)
+layout_mode = 2
+text = "Jokers per round"
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="Center/box/RoundsRow" unique_id=1458260079]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Rounds"
+
+[node name="RoundsOption" type="OptionButton" parent="Center/box/RoundsRow" unique_id=1015492661]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BotsRow" type="HBoxContainer" parent="Center/box" unique_id=487309281]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Center/box/BotsRow" unique_id=1214064848]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Bots"
+
+[node name="StyleOption" type="OptionButton" parent="Center/box/BotsRow" unique_id=530313808]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 2
+popup/item_0/text = "Random (coin-flip decisions)"
+popup/item_0/id = 0
+popup/item_1/text = "Basic strategy"
+popup/item_1/id = 1
+
+[node name="SpeedRow" type="HBoxContainer" parent="Center/box" unique_id=1148694762]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Center/box/SpeedRow" unique_id=467556617]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Bot Speed"
+
+[node name="SpeedOption" type="OptionButton" parent="Center/box/SpeedRow" unique_id=838294324]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SpecialsRow" type="HBoxContainer" parent="Center/box" unique_id=1858878164]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Center/box/SpecialsRow" unique_id=1840523362]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Specials"
+
+[node name="SpecialsButton" type="Button" parent="Center/box/SpecialsRow" unique_id=63866979]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Special Cards Setup..."
+
+[node name="SpecialsSummary" type="Label" parent="Center/box" unique_id=501649294]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.70000005)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="Center/box" unique_id=1917546215]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Start Game
+"
+
+[node name="RulesButton" type="Button" parent="Center/box" unique_id=1721886319]
+unique_name_in_owner = true
+layout_mode = 2
+text = "How To Play
+"
+
+[node name="QuitButton" type="Button" parent="Center/box" unique_id=1088980942]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Quit
+"
