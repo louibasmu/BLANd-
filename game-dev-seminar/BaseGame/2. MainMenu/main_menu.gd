@@ -51,10 +51,10 @@ func _ready() -> void:
 	_fill_specials_grid()
 	_update_specials_ui()
 
-	# Fill in the Jokers-per-round text for the starting selection, and focus Start Game so Enter works immediately.
+	# Fill in the Jokers-per-round text for the starting selection, 
+	# and focus Start Game so Enter works immediately.
 	_on_rounds_changed(_rounds_option.selected)
 	_start_btn.grab_focus()
-
 
 # Runs when the rounds dropdown changes: refresh the "Jokers per round" text.
 func _on_rounds_changed(i: int) -> void:
@@ -117,11 +117,10 @@ func _update_specials_ui() -> void:
 		var r: Label = _special_rows[sp]["rarity"]
 		r.text = GameSettings.rarity_name(sp)
 		r.add_theme_color_override("font_color", GameSettings.rarity_color(sp))
-	var total := GameSettings.total_specials()
+	var total_special := GameSettings.total_specials()
 	var pair_card_count = GameSettings.pair_card_count
-	#stopped at pairCardCount @8:30 11/1
-	var deck_min := GameSettings.pair_card_count + total + 1
-	_specials_summary.text = "%d special cards in the deck (%d–%d cards total with Jokers)" % [total, deck_min, deck_min + 2]
+	var deck_min := GameSettings.pair_card_count + total_special + 1
+	_specials_summary.text = "%d special cards in the deck (%d–%d cards total with Jokers)" % [total_special, deck_min, deck_min + 2]
 
 #when how to play button pressed it shows the rules
 func _on_rules_pressed() -> void:
