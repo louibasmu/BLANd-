@@ -37,18 +37,12 @@ enum Phase { IDLE, ARRANGE, PLAY_OR_DRAW, SPECIAL_DRAWN, VISION_DECIDE, ROUND_OV
 # Hard cap on turns (and extra "go again" actions) so a bug can never freeze the game in an endless loop.
 const SAFETY_TURN_LIMIT := 2000   # ends a round if something ever loops forever
 
-# --- Game state ---
-var players: Array[BlandPlayer] = []
-# Total rounds picked on the main menu, and which round we are on (1-based once started).
-var total_rounds: int = 5
-var round_number: int = 0
-# Jokers shuffled into this round's deck (grows with the round, see GameSettings.JOKER_SCHEDULE).
-var jokers_this_round: int = 1
+
+#var round_number: int = 0
+
 # Seat whose turn it is.
 var current: int = 0
-var direction: int = 1                     # 1 = clockwise, -1 = counter-clockwise
-# True once someone plays Skip. The skip is applied in _end_turn() to whoever would have played next.
-var skip_pending: bool = false
+
 # Who played the Skip, so the "you lose your turn" alert can name them.
 var _skip_actor: int = -1
 var phase: Phase = Phase.IDLE
@@ -56,28 +50,34 @@ var phase: Phase = Phase.IDLE
 var drawn_special: BlandCard = null       # the special just drawn (SPECIAL_DRAWN phase)
 var actions_this_turn: int = 0            # how many times the current player has gone again
 var draw_only: bool = false               # after Skip/Reverse: you still draw, but can't play another special
-var turns_this_round: int = 0
-# Every pair card that has been matched and removed from play, plus every special that has been played.
-var discard_pile: Array[BlandCard] = []
-# Remembered by Vision so the player (or bot) can then take or leave the card they saw.
-var last_peek: Dictionary = {}             # {player, target, index, card} from Vision this turn
+
+
+
 # Which seat deals/starts the round. It rotates one seat each round so nobody always goes first.
 var _round_starter: int = 0
-# Our own random number generator (instead of the global one) used for shuffling.
-var _rng := RandomNumberGenerator.new()
 
-
+var total_rounds: int = 5# Total rounds picked on the main menu, and which round we are on (1-based once started).
+var _rng := RandomNumberGenerator.new() # Our own random number generator (instead of the global one) used for shuffling.
+var players: Array[BlandPlayer] = [] # --- Game state ---
 # Creates the four seats. Seat 0 is the human ("You"); the rest are bots. The round count is
 # clamped to the allowed range so a bad value can't break the Joker schedule.
-#func _init(p_total_rounds: int = 5, names: Array = ["You", "Bot 1", "Bot 2", "Bot 3"]) -> void:
 func _init(p_total_rounds: int = 5, names: Array = ["You", "CPU 1", "CPU 2", "CPU 3"]) -> void: #LEAN
 	total_rounds = clampi(p_total_rounds, GameSettings.MIN_ROUNDS, GameSettings.MAX_ROUNDS)
 	_rng.randomize()
-	for i in GameSettings.NUM_PLAYERS:
+	for i in GameSettings.NUM_PLAYERS: #const value from 0 - 3 (both values are inclusive)
 		players.append(BlandPlayer.new(i, names[i], i == 0))
-
+# @return?
 
 # ---------------------------------------------------------------- rounds
+# Total rounds picked on the main menu, and which round we are on (1-based once started).
+#var total_rounds: int = 5
+var round_number: int = 0
+var jokers_this_round: int = 1 #Jokers shuffled into this round's deck (grows with the round, see GameSettings.JOKER_SCHEDULE).
+var direction: int = 1 # 1 = clockwise, -1 = counter-clockwise
+var skip_pending = false # True once someone plays Skip. The skip is applied in _end_turn() to whoever would have played next.
+var turns_this_round: int = 0
+var discard_pile: Array[BlandCard] = [] # Every pair card that has been matched and removed from play, plus every special that has been played.
+var last_peek: Dictionary = {} # {player, target, index, card} from Vision this turn remembered by Vision so the player (or bot) can then take or leave the card they saw.
 
 # Sets up and deals a new round: resets everyone, builds and shuffles the deck, deals it
 # out one card at a time round the table, then discards any pairs players were dealt.
@@ -85,15 +85,13 @@ func _init(p_total_rounds: int = 5, names: Array = ["You", "CPU 1", "CPU 2", "CP
 func start_round() -> void:
 	round_number += 1
 	jokers_this_round = GameSettings.jokers_for_round(total_rounds, round_number)
-	# Every round starts clockwise, with no pending Skip.
-	direction = 1
+	direction = 1 	# Every round starts clockwise, with no pending Skip.
 	skip_pending = false
 	turns_this_round = 0
 	discard_pile.clear()
 	last_peek = {}
 	for p in players:
 		p.reset_for_round()
-
 	var deck := _build_deck(jokers_this_round)
 	_shuffle(deck)
 	# Dealing starts from the round's starter and goes round the table, so everyone ends up with
@@ -195,7 +193,6 @@ func _discard_starting_pairs(p: BlandPlayer) -> void:
 				found = true
 				break
 
-
 # Moves a matched pair out of the hand into the discard pile and records its points immediately.
 func _discard_pair(p: BlandPlayer, a: BlandCard, b: BlandCard) -> void:
 	p.hand.erase(a)
@@ -236,7 +233,6 @@ func _finish_round() -> void:
 	_log("[b]Round %d over.[/b]" % round_number)
 	changed.emit()
 	round_over.emit(summary)
-
 
 # ---------------------------------------------------------------- turns
 
@@ -520,7 +516,6 @@ func _draw_after_special() -> void:
 	phase = Phase.PLAY_OR_DRAW
 	changed.emit()
 
-
 ## Called after every draw / special. Making a pair = go again. Anything else ends the turn.
 ## Going again is only allowed if the player still has cards and someone to draw from.
 func _after_action(made_pair: bool) -> void:
@@ -541,10 +536,7 @@ func _after_action(made_pair: bool) -> void:
 		turn_continued.emit(current)
 		return
 	_end_turn()
-
-
 # ---------------------------------------------------------------- drawing
-
 ## Draw the card at `index` from player `src`'s hand.
 ## The drawer may pick ANY other player who still has cards.
 ## Pair -> go again. Drew a special -> may play it now. Otherwise the turn ends.
