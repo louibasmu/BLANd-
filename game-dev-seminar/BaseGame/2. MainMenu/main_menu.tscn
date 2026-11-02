@@ -2,6 +2,22 @@
 
 [ext_resource type="Script" uid="uid://sjbx8bg7qwgl" path="res://BaseGame/2. MainMenu/main_menu.gd" id="1_jiobw"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxlrp"]
+content_margin_left = 18.0
+content_margin_top = 18.0
+content_margin_right = 18.0
+content_margin_bottom = 18.0
+bg_color = Color(0.3491902, 0.38109186, 0.4100209, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.9309246, 0.58383155, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [node name="MainMenu" type="Control" unique_id=909583755]
 layout_mode = 3
 anchors_preset = 15
@@ -138,3 +154,112 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Quit
 "
+
+[node name="RulesPanel" type="ColorRect" parent="." unique_id=342671681]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7019608)
+
+[node name="RulesCenter" type="CenterContainer" parent="RulesPanel" unique_id=290559758]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RulesBody" type="PanelContainer" parent="RulesPanel/RulesCenter" unique_id=541371510]
+custom_minimum_size = Vector2(760, 520)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lxlrp")
+
+[node name="RulesColumn" type="VBoxContainer" parent="RulesPanel/RulesCenter/RulesBody" unique_id=1958222952]
+layout_mode = 2
+
+[node name="RulesText" type="RichTextLabel" parent="RulesPanel/RulesCenter/RulesBody/RulesColumn" unique_id=1950425426]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="CloseButton" type="Button" parent="RulesPanel/RulesCenter/RulesBody/RulesColumn" unique_id=1662010715]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Close"
+
+[node name="SpecialsPanel" type="ColorRect" parent="." unique_id=1943384652]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7490196)
+
+[node name="SpecialsCenter" type="CenterContainer" parent="SpecialsPanel" unique_id=897176388]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="SpecialsPanel/SpecialsCenter" unique_id=801376155]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lxlrp")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SpecialsPanel/SpecialsCenter/PanelContainer" unique_id=1947636564]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="title" type="Label" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer" unique_id=894754568]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Special Cards Setup"
+horizontal_alignment = 1
+
+[node name="hint" type="Label" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer" unique_id=1308695315]
+modulate = Color(1, 1, 1, 0.75000006)
+layout_mode = 2
+text = "How many copies of each special card go in the deck (Jokers are separate).
+Rarity follows the count: 1 = Rare (purple), 2 = Uncommon (green), 3+ = Common (light blue)."
+horizontal_alignment = 1
+
+[node name="SpecialsGrid" type="GridContainer" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer" unique_id=1615091364]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 6
+columns = 4
+
+[node name="PopupButtons" type="HBoxContainer" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer" unique_id=929523693]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="DoneButton" type="Button" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons" unique_id=859327166]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Done"
+
+[node name="ResetButton" type="Button" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons" unique_id=1406148155]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reset to defaults"
+
+[connection signal="pressed" from="Center/box/SpecialsRow/SpecialsButton" to="." method="_on_specials_pressed"]
+[connection signal="pressed" from="Center/box/StartButton" to="." method="_on_start"]
+[connection signal="pressed" from="Center/box/RulesButton" to="." method="_on_rules_pressed"]
+[connection signal="pressed" from="Center/box/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="RulesPanel/RulesCenter/RulesBody/RulesColumn/CloseButton" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons/DoneButton" to="." method="_on_done_button_pressed"]
+[connection signal="pressed" from="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons/ResetButton" to="." method="_on_specials_reset"]

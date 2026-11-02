@@ -11,6 +11,7 @@ enum BotStyle { RANDOM, BASIC }
 
 # Number of rounds picked on the menu (clamped to MIN_ROUNDS..MAX_ROUNDS when a game is created).
 # --- Chosen on the main menu (static so they survive the scene change) ---
+static var pair_card_count: int = 40
 static var num_rounds: int = 5
 static var bot_style: int = BotStyle.BASIC
 # Delay table for the menu's bot-speed choice, in seconds, so the human can follow what the bots do.
