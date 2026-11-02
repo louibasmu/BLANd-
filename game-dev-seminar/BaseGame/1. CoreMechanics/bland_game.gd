@@ -15,6 +15,8 @@ signal changed                              # anything on the table changed
 signal log_message(text: String)            # public event, everyone sees it
 signal private_info(text: String)           # only the human should see this
 signal pair_made(player_index: int, card_a: BlandCard, card_b: BlandCard)
+signal turn_ended(player_index: int)
+signal joker_received(player_index: int)
 signal turn_started(player_index: int)
 signal turn_continued(player_index: int)                 # made a pair, so the same player goes again
 signal special_drawn(player_index: int, card: BlandCard) # drew a special: may play it right away
@@ -277,6 +279,7 @@ func _begin_turn() -> void:
 # is over, then hands over to the next player who still has cards. A pending Skip is applied here:
 # that player's turn is skipped and the one after them plays instead.
 func _end_turn() -> void:
+	turn_ended.emit(current)
 	_update_finished()
 	if _is_round_complete():
 		_finish_round()
@@ -441,6 +444,8 @@ func play_give(p: int, card: BlandCard, gift: BlandCard, target: int) -> void:
 		return
 	players[p].hand.erase(gift)
 	players[target].hand.append(gift)
+	if gift.is_joker():
+		joker_received.emit(target)
 	_log("%s plays [b]Give[/b] and hands a card to %s." % [_n(p), _n(target)])
 	if players[p].is_human:
 		private_info.emit("You gave your %s to %s." % [gift.display_name(), _n(target)])
@@ -561,6 +566,8 @@ func _take_card(p: int, src: int, index: int, via_vision: bool = false) -> void:
 	var card := players[src].hand[index]
 	players[src].hand.remove_at(index)
 	players[p].hand.append(card)
+	if card.is_joker():
+		joker_received.emit(p)
 	_log("%s draws a card from %s." % [_n(p), _n(src)])
 	if players[p].is_human:
 		private_info.emit("You drew the %s." % card.display_name())
