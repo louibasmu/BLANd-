@@ -96,6 +96,8 @@ func _ready() -> void:
 	game.changed.connect(_queue_refresh)   # many changes in one action -> one redraw
 	game.private_info.connect(_on_private_info)
 	game.pair_made.connect(_on_pair_made)
+	game.turn_ended.connect(_on_turn_ended)
+	game.joker_received.connect(_on_joker_received)
 	game.turn_started.connect(_on_turn_started)
 	game.turn_continued.connect(_on_turn_continued)
 	game.special_drawn.connect(_on_special_drawn)
@@ -738,12 +740,22 @@ func _pair_chip(a: BlandCard, b: BlandCard) -> Control:
 
 
 func _on_pair_made(player_index: int, card_a: BlandCard, card_b: BlandCard) -> void:
+	SoundManager.play_pair()
 	_pair_animation_queue.append({
 		"player": player_index,
 		"card_a": card_a,
 		"card_b": card_b,
 	})
 	_play_next_pair_animation.call_deferred()
+
+
+func _on_turn_ended(_player_index: int) -> void:
+	SoundManager.play_turn_over()
+
+
+func _on_joker_received(player_index: int) -> void:
+	if game.players[player_index].is_human:
+		SoundManager.play_joker()
 
 
 func _play_next_pair_animation() -> void:
