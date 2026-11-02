@@ -45,11 +45,12 @@ func _build_ui() -> void:
 	table.scale = Vector2.ONE * 0.22
 	add_child(table)
 
-	var shade := ColorRect.new()
-	shade.color = Color(0.02, 0.08, 0.04, 0.4)
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(shade)
+	var shade := $shade_colorRect #LEAN
+	#var shade := ColorRect.new()
+	#shade.color = Color(0.02, 0.08, 0.04, 0.4)
+	#shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	#shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	#add_child(shade)
 
 	
 	var header := $header #LEAN
@@ -301,11 +302,12 @@ func _animate_draw_card(card: Dictionary, from_player: int, to_player: int, sour
 		var target := player_anchors[to_player]
 		destination = target.global_position + target.size * 0.5
 
-	var animation_layer := Control.new()
-	animation_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	animation_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	animation_layer.z_index = 20
-	add_child(animation_layer)
+	var animation_layer := $animation_layer_control #Lean
+	#var animation_layer := Control.new()
+	#animation_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	#animation_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	#animation_layer.z_index = 20
+	#add_child(animation_layer)
 
 	var flying_card := _make_card_button("◆", false)
 	flying_card.custom_minimum_size = Vector2(100, 136)
@@ -314,14 +316,15 @@ func _animate_draw_card(card: Dictionary, from_player: int, to_player: int, sour
 	flying_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	animation_layer.add_child(flying_card)
 
-	var action := Label.new()
-	action.text = "DRAW"
-	action.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	action.add_theme_font_size_override("font_size", 28)
-	action.add_theme_color_override("font_color", Color(1.0, 0.87, 0.58))
-	action.position = Vector2(0, viewport_size.y * 0.3)
-	action.size = Vector2(viewport_size.x, 48)
-	animation_layer.add_child(action)
+	var action := $action_label
+	#var action := Label.new()
+	#action.text = "DRAW"
+	#action.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#action.add_theme_font_size_override("font_size", 28)
+	#action.add_theme_color_override("font_color", Color(1.0, 0.87, 0.58))
+	#action.position = Vector2(0, viewport_size.y * 0.3)
+	#action.size = Vector2(viewport_size.x, 48)
+	#animation_layer.add_child(action)
 
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_BACK)
@@ -354,11 +357,13 @@ func _animate_draw_card(card: Dictionary, from_player: int, to_player: int, sour
 
 func _animate_pair_discard(pair_names: Array[String], player_index: int) -> void:
 	var viewport_size := get_viewport_rect().size
-	var animation_layer := Control.new()
-	animation_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	animation_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	animation_layer.z_index = 21
-	add_child(animation_layer)
+	
+	var animation_layer := $animation_layer2_control
+	#var animation_layer := Control.new()
+	#animation_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	#animation_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	#animation_layer.z_index = 21
+	#add_child(animation_layer)
 
 	var title := Label.new()
 	title.text = "PAIR!"
