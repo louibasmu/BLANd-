@@ -1,7 +1,5 @@
 extends Control
 ## The table: draws the game state and turns clicks into BlandGame calls.
-## The whole UI is built in code so it's easy to restyle later (Ash's art can
-## replace the placeholder colours / card_empty specials without touching rules).
 ##
 ## Division of labour: BlandGame decides what is legal and what happens; this script only
 ##   (1) draws the current state (_refresh), (2) turns the human's clicks into BlandGame calls,
@@ -42,7 +40,7 @@ var _tex_cache: Dictionary = {}
 
 # Bots act on a timer. _bot_player is the bot we are waiting on, and _bot_pick is the card it has
 # highlighted and will take on the next tick.
-var _bot_timer: Timer
+@onready var _bot_timer: Timer = %BotTimer
 var _bot_player: int = -1
 var _bot_pick: Dictionary = {}     # {src, index} the bot is about to take (highlighted)
 # True while the pause menu is open; the bot timer ignores ticks during a pause.
@@ -50,11 +48,11 @@ var _paused: bool = false
 
 # UI nodes that are updated later; they are created in _build_ui() and kept in variables.
 # UI nodes
-var _status_label: Label
-var _menu_button: Button
-var _menu_popup: PopupPanel
-var _menu_jokers_label: Label
-var _menu_speed_option: OptionButton
+@onready var _status_label: Label = %StatusLabel
+@onready var _menu_button: Button = %MenuButton
+@onready var _menu_popup: PopupPanel = %MenuPopup
+@onready var _menu_jokers_label: Label = %MenuJokersLabel
+@onready var _menu_speed_option: OptionButton = %BotSpeedButton
 var _ui_scale: float = 1.0
 var _side_card_size: Vector2 = SIDE_CARD
 var _compass: TurnCompass
@@ -82,15 +80,9 @@ var _pair_animation_running: bool = false
 # connect the game's signals to the handlers below, and deal the first round.
 func _ready() -> void:
 	get_window().min_size = Vector2i(1280, 720)
-	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_build_ui()
 	get_viewport().size_changed.connect(_on_viewport_resized)
-
-	_bot_timer = Timer.new()
-	_bot_timer.one_shot = true
-	_bot_timer.timeout.connect(_on_bot_timer)
-	add_child(_bot_timer)
-
+	
 	game = BlandGame.new(GameSettings.num_rounds)
 	# `changed` can fire several times for one action, so it goes through _queue_refresh to redraw only once.
 	game.changed.connect(_queue_refresh)   # many changes in one action -> one redraw
@@ -106,6 +98,11 @@ func _ready() -> void:
 	game.round_over.connect(_on_round_over)
 	game.game_over.connect(_on_game_over)
 	game.start_round()
+	
+	for speed_name in GameSettings.BOT_SPEEDS:
+		_menu_speed_option.add_item(speed_name)
+		if is_equal_approx(GameSettings.BOT_SPEEDS[speed_name], GameSettings.bot_delay):
+			_menu_speed_option.select(_menu_speed_option.item_count - 1)
 
 
 # Keyboard shortcuts: T opens the card tracker. Esc (ui_cancel) cancels a half-finished selection if there
@@ -135,88 +132,8 @@ func _unhandled_input(event: InputEvent) -> void:
 #   top bar / top bot / capped middle row / prompt row / human's seat.
 
 func _build_ui() -> void:
-	var bg := ColorRect.new()
-	bg.color = Color(0.07, 0.3, 0.18)
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(bg)
 
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 16 if side == "top" or side == "right" else 8)
-	add_child(margin)
 
-	var root := VBoxContainer.new()
-	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_theme_constant_override("separation", 6)
-	margin.add_child(root)
-
-	# --- top bar
-	var bar := HBoxContainer.new()
-	bar.add_theme_constant_override("separation", 12)
-	root.add_child(bar)
-	_status_label = Label.new()
-	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_status_label.clip_text = true
-	_status_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	bar.add_child(_status_label)
-	_menu_button = Button.new()
-	_menu_button.custom_minimum_size = Vector2(44, 44)
-	_menu_button.text = "☰"
-	_menu_button.add_theme_font_size_override("font_size", 26)
-	_menu_button.tooltip_text = "Menu"
-	_menu_button.pressed.connect(_toggle_menu_popup)
-	_menu_button.add_theme_stylebox_override("normal", _top_button_style(Color(0.12, 0.32, 0.25)))
-	_menu_button.add_theme_stylebox_override("hover", _top_button_style(Color(0.18, 0.43, 0.32)))
-	_menu_button.add_theme_stylebox_override("pressed", _top_button_style(Color(0.08, 0.23, 0.18)))
-	_menu_button.add_theme_stylebox_override("focus", _top_button_style(Color(0.18, 0.43, 0.32)))
-	bar.add_child(_menu_button)
-
-	_menu_popup = PopupPanel.new()
-	_menu_popup.size = Vector2i(320, 350)
-	_menu_popup.exclusive = true
-	_menu_popup.transient = true
-	_menu_popup.close_requested.connect(_menu_popup.hide)
-	_menu_popup.popup_hide.connect(_on_menu_popup_hidden)
-	_menu_popup.add_theme_stylebox_override("panel", _box(Color(0.08, 0.16, 0.13), Color(0.3, 0.5, 0.4), 1))
-	var menu_items := VBoxContainer.new()
-	menu_items.set_anchors_preset(Control.PRESET_FULL_RECT)
-	menu_items.offset_left = 6
-	menu_items.offset_top = 6
-	menu_items.offset_right = -6
-	menu_items.offset_bottom = -6
-	menu_items.add_theme_constant_override("separation", 2)
-	_menu_popup.add_child(menu_items)
-	_menu_jokers_label = Label.new()
-	_menu_jokers_label.custom_minimum_size = Vector2(248, 34)
-	_menu_jokers_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_menu_jokers_label.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
-	menu_items.add_child(_menu_jokers_label)
-	menu_items.add_child(HSeparator.new())
-	_add_menu_item(menu_items, "Card Tracker", "T", _on_menu_tracker)
-	_add_menu_item(menu_items, "Rules / How to play", "", _on_menu_rules)
-	_add_menu_item(menu_items, "Special card roles", "", _on_menu_special_roles)
-	var speed_row := HBoxContainer.new()
-	speed_row.custom_minimum_size.y = 40
-	speed_row.add_theme_constant_override("separation", 8)
-	var speed_label := Label.new()
-	speed_label.text = "Bot speed"
-	speed_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	speed_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	speed_row.add_child(speed_label)
-	_menu_speed_option = OptionButton.new()
-	_menu_speed_option.custom_minimum_size.x = 120
-	for speed_name in GameSettings.BOT_SPEEDS:
-		_menu_speed_option.add_item(speed_name)
-		if is_equal_approx(GameSettings.BOT_SPEEDS[speed_name], GameSettings.bot_delay):
-			_menu_speed_option.select(_menu_speed_option.item_count - 1)
-	_menu_speed_option.item_selected.connect(_on_menu_bot_speed_selected)
-	speed_row.add_child(_menu_speed_option)
-	menu_items.add_child(speed_row)
-	var menu_separator := HSeparator.new()
-	menu_items.add_child(menu_separator)
-	_add_menu_item(menu_items, "Restart game", "", _on_menu_restart)
-	_add_menu_item(menu_items, "Main menu", "", _on_menu_main_menu)
 	add_child(_menu_popup)
 
 	# --- top bot (seat 2)
@@ -312,53 +229,6 @@ func _build_ui() -> void:
 	_apply_responsive_scale()
 
 
-func _top_button_style(fill: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = Color(1, 1, 1, 0.28)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(7)
-	style.content_margin_left = 10
-	style.content_margin_right = 10
-	style.content_margin_top = 6
-	style.content_margin_bottom = 6
-	return style
-
-
-func _add_menu_item(container: VBoxContainer, title: String, shortcut: String, action: Callable) -> void:
-	var button := Button.new()
-	button.custom_minimum_size = Vector2(248, 40)
-	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	button.add_theme_stylebox_override("normal", _top_button_style(Color(0.08, 0.16, 0.13, 0)))
-	button.add_theme_stylebox_override("hover", _top_button_style(Color(0.18, 0.34, 0.26)))
-	button.add_theme_stylebox_override("pressed", _top_button_style(Color(0.12, 0.25, 0.19)))
-	var row := HBoxContainer.new()
-	row.set_anchors_preset(Control.PRESET_FULL_RECT)
-	row.offset_left = 10
-	row.offset_right = -10
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(row)
-	var title_label := Label.new()
-	title_label.text = title
-	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(title_label)
-	if not shortcut.is_empty():
-		var shortcut_label := Label.new()
-		shortcut_label.text = shortcut
-		shortcut_label.add_theme_font_size_override("font_size", 12)
-		shortcut_label.modulate = Color(1, 1, 1, 0.6)
-		shortcut_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		shortcut_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(shortcut_label)
-	button.pressed.connect(func() -> void:
-		_menu_popup.hide()
-		action.call())
-	container.add_child(button)
-
-
 func _toggle_menu_popup() -> void:
 	if _menu_popup.visible:
 		_menu_popup.hide()
@@ -378,14 +248,17 @@ func _on_menu_popup_hidden() -> void:
 
 
 func _on_menu_tracker() -> void:
+	_menu_popup.hide()
 	_show_tracker()
 
 
 func _on_menu_rules() -> void:
+	_menu_popup.hide()
 	_show_rules()
 
 
 func _on_menu_special_roles() -> void:
+	_menu_popup.hide()
 	var roles: PackedStringArray = []
 	for special in BlandCard.SPECIAL_NAMES:
 		roles.append("%s: %s" % [BlandCard.SPECIAL_NAMES[special], BlandCard.SPECIAL_HELP[special]])
@@ -400,11 +273,13 @@ func _on_menu_bot_speed_selected(index: int) -> void:
 
 
 func _on_menu_restart() -> void:
+	_menu_popup.hide()
 	_confirm_action("Restart game?", "Your current game will be lost.",
 		func() -> void: get_tree().reload_current_scene())
 
 
 func _on_menu_main_menu() -> void:
+	_menu_popup.hide()
 	_confirm_action("Return to main menu?", "Your current game will be lost.",
 		func() -> void: get_tree().change_scene_to_file(MENU_SCENE))
 
@@ -738,24 +613,27 @@ func _pair_chip(a: BlandCard, b: BlandCard) -> Control:
 	chip.tooltip_text = "%s + %s" % [a.display_name(), b.display_name()]
 	return chip
 
-
+#commenting out so the game can run
 func _on_pair_made(player_index: int, card_a: BlandCard, card_b: BlandCard) -> void:
-	SoundManager.play_pair()
-	_pair_animation_queue.append({
-		"player": player_index,
-		"card_a": card_a,
-		"card_b": card_b,
-	})
-	_play_next_pair_animation.call_deferred()
+	pass
+	#SoundManager.play_pair()
+	#_pair_animation_queue.append({
+		#"player": player_index,
+		#"card_a": card_a,
+		#"card_b": card_b,
+	#})
+	#_play_next_pair_animation.call_deferred()
 
 
 func _on_turn_ended(_player_index: int) -> void:
-	SoundManager.play_turn_over()
+	pass
+	#SoundManager.play_turn_over()
 
 
 func _on_joker_received(player_index: int) -> void:
-	if game.players[player_index].is_human:
-		SoundManager.play_joker()
+	pass
+	#if game.players[player_index].is_human:
+		#SoundManager.play_joker()
 
 
 func _play_next_pair_animation() -> void:
