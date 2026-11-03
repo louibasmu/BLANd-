@@ -1,7 +1,6 @@
 extends Control
 ## The table: draws the game state and turns clicks into BlandGame calls.
-## The whole UI is built in code so it's easy to restyle later (Ash's art can
-## replace the placeholder colours / card_empty specials without touching rules).
+## The whole UI is built in code so card art can be restyled without touching game rules.
 ##
 ## Division of labour: BlandGame decides what is legal and what happens; this script only
 ##   (1) draws the current state (_refresh), (2) turns the human's clicks into BlandGame calls,
@@ -12,10 +11,14 @@ extends Control
 const MENU_SCENE := "res://BaseGame/2. MainMenu/main_menu.tscn"
 # Folder holding the card pictures; _tex() loads them from here by file name.
 const CARD_DIR := "res://Card Assets/"
+const CUSTOM_CARD_DIR := CARD_DIR + "BLANd Made Cards/"
+const ENVIRONMENT_DIR := "res://Environment Assets/"
+const BACKGROUND_BLUR_SHADER := preload("res://BaseGame/background_blur.gdshader")
 # Card sizes in pixels: big for the human's own hand, small for the opponents' face-down cards.
-const BIG_CARD := Vector2(78, 111)
-const SMALL_CARD := Vector2(40, 57)
-const SIDE_CARD := Vector2(57, 40)
+#5 to 7 ratio on the width and height
+const BIG_CARD := Vector2(90, 126)
+const SMALL_CARD := Vector2(50, 70)
+const SIDE_CARD := Vector2(70, 50)
 const MAX_MIDDLE_HEIGHT := 440.0
 # Seat number of the human player (always 0).
 const HUMAN := 0
@@ -96,8 +99,6 @@ func _ready() -> void:
 	game.changed.connect(_queue_refresh)   # many changes in one action -> one redraw
 	game.private_info.connect(_on_private_info)
 	game.pair_made.connect(_on_pair_made)
-	game.turn_ended.connect(_on_turn_ended)
-	game.joker_received.connect(_on_joker_received)
 	game.turn_started.connect(_on_turn_started)
 	game.turn_continued.connect(_on_turn_continued)
 	game.special_drawn.connect(_on_special_drawn)
@@ -135,8 +136,14 @@ func _unhandled_input(event: InputEvent) -> void:
 #   top bar / top bot / capped middle row / prompt row / human's seat.
 
 func _build_ui() -> void:
-	var bg := ColorRect.new()
-	bg.color = Color(0.07, 0.3, 0.18)
+	var bg := TextureRect.new()
+	bg.texture = _tex("background.jpeg")
+	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	bg.modulate = Color(0.72, 0.72, 0.72)
+	var bg_material := ShaderMaterial.new()
+	bg_material.shader = BACKGROUND_BLUR_SHADER
+	bg.material = bg_material
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 
@@ -236,10 +243,20 @@ func _build_ui() -> void:
 	mid_slot.resized.connect(_layout_middle.bind(mid_slot, mid))
 	_layout_middle(mid_slot, mid)
 	mid.add_child(_make_seat(1, 300))
+	var center_area := Control.new()
+	center_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center_area.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	mid.add_child(center_area)
+	var table_background := TextureRect.new()
+	table_background.texture = _tex("table.jpeg")
+	table_background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	table_background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	table_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	table_background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center_area.add_child(table_background)
 	var compass_center := CenterContainer.new()
-	compass_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	compass_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	mid.add_child(compass_center)
+	compass_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center_area.add_child(compass_center)
 	_compass = TurnCompass.new()   # which way play is going + who's up next
 	compass_center.add_child(_compass)
 	mid.add_child(_make_seat(3, 300))
@@ -580,11 +597,29 @@ func _box(fill: Color, border: Color, width: int = 0) -> StyleBoxFlat:
 
 # Loads a card picture the first time it is asked for and remembers it. Returns null if the file
 # doesn't exist yet (e.g. art that hasn't been added), instead of crashing.
-func _tex(file: String) -> Texture2D:
-	if not _tex_cache.has(file):
-		var path := CARD_DIR + file
-		_tex_cache[file] = load(path) if ResourceLoader.exists(path) else null
-	return _tex_cache[file]
+func _tex(file: String, rotate_clockwise: bool = false) -> Texture2D:
+	var cache_key := ("rotated:" if rotate_clockwise else "") + file
+	if not _tex_cache.has(cache_key):
+		var path := _texture_path(file)
+		var texture := load(path) as Texture2D if not path.is_empty() else null
+		if rotate_clockwise and texture != null:
+			var image := texture.get_image()
+			if not image.is_empty():
+				image.rotate_90(ClockDirection.CLOCKWISE)
+				texture = ImageTexture.create_from_image(image)
+		_tex_cache[cache_key] = texture
+	return _tex_cache[cache_key]
+
+func _texture_path(file: String) -> String:
+	var environment_path := ENVIRONMENT_DIR + file
+	if ResourceLoader.exists(environment_path):
+		return environment_path
+	var custom_path := CUSTOM_CARD_DIR + file
+	if ResourceLoader.exists(custom_path):
+		return custom_path
+	var card_path := CARD_DIR + file
+	return card_path if ResourceLoader.exists(card_path) else ""
+
 
 
 func _layout_side_cards(cards: Control) -> void:
@@ -606,8 +641,8 @@ func _layout_side_cards(cards: Control) -> void:
 ## `on_click` is a Callable to run when it is clicked; an invalid (empty) Callable means the card is not clickable.
 ## `highlight` raises and tints the card (used when a bot is about to take it, or for a card you just drew).
 func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_click: Callable,
-		highlight: bool = false, face_down_texture: String = "card_back.png",
-		number_inside: bool = false) -> Control:
+		highlight: bool = false, face_down_texture: String = "backside.jpeg",
+		number_inside: bool = false, rotate_texture: bool = false) -> Control:
 	var holder: Control
 	if number_inside:
 		holder = Control.new()
@@ -618,7 +653,11 @@ func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_cl
 		holder = column
 
 	var btn := TextureButton.new()
-	btn.texture_normal = _tex(card.texture_file() if face_up else face_down_texture)
+	var texture_file := card.texture_file() if face_up else face_down_texture
+	var has_special_art := face_up and card.is_special() and not _texture_path(texture_file).is_empty()
+	if face_up and card.is_special() and not has_special_art:
+		texture_file = "card_empty.png"
+	btn.texture_normal = _tex(texture_file, rotate_texture)
 	btn.ignore_texture_size = true
 	btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	btn.custom_minimum_size = size
@@ -626,9 +665,8 @@ func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_cl
 		btn.set_anchors_preset(Control.PRESET_FULL_RECT)
 	holder.add_child(btn)
 
-	# Specials have no finished art yet, so a coloured band with the card's name is drawn on top of a blank card.
 	if face_up and card.is_special():
-		_add_special_overlay(btn, card, size)
+		_add_special_overlay(btn, card, size, has_special_art)
 
 	# Clickable cards get a pointer cursor and light up / lift when the mouse is over them.
 	if on_click.is_valid():
@@ -673,15 +711,13 @@ func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_cl
 	return holder
 
 
-# Draws the placeholder look of a special card: a coloured band, the name in capitals, and a border whose colour shows its rarity.
-# Font and border sizes scale with the card size so it looks right on both big and small cards.
-func _add_special_overlay(btn: Control, card: BlandCard, size: Vector2) -> void:
-	var col: Color = BlandCard.SPECIAL_COLORS[card.special]
+# Adds the effect name and rarity border; with custom art, the caption stays small so it doesn't hide the illustration.
+func _add_special_overlay(btn: Control, card: BlandCard, size: Vector2, has_art: bool) -> void:
 	var band := ColorRect.new()
-	band.color = col
+	band.color = Color(0.05, 0.03, 0.08, 0.82) if has_art else BlandCard.SPECIAL_COLORS[card.special]
 	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	band.position = Vector2(size.x * 0.1, size.y * 0.32)
-	band.size = Vector2(size.x * 0.8, size.y * 0.36)
+	band.position = Vector2(size.x * (0.06 if has_art else 0.1), size.y * (0.79 if has_art else 0.32))
+	band.size = Vector2(size.x * (0.88 if has_art else 0.8), size.y * (0.15 if has_art else 0.36))
 	btn.add_child(band)
 	var l := Label.new()
 	l.text = card.special_name().to_upper()
@@ -740,22 +776,12 @@ func _pair_chip(a: BlandCard, b: BlandCard) -> Control:
 
 
 func _on_pair_made(player_index: int, card_a: BlandCard, card_b: BlandCard) -> void:
-	SoundManager.play_pair()
 	_pair_animation_queue.append({
 		"player": player_index,
 		"card_a": card_a,
 		"card_b": card_b,
 	})
 	_play_next_pair_animation.call_deferred()
-
-
-func _on_turn_ended(_player_index: int) -> void:
-	SoundManager.play_turn_over()
-
-
-func _on_joker_received(player_index: int) -> void:
-	if game.players[player_index].is_human:
-		SoundManager.play_joker()
 
 
 func _play_next_pair_animation() -> void:
@@ -1025,8 +1051,9 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 					and not game.last_peek.is_empty() and game.last_peek["target"] == i \
 					and game.last_peek["index"] == idx:
 				hl = true
-			var back_texture := "card_back_side.png" if side_hand else "card_back.png"
-			box.add_child(_card_view(p.hand[idx], false, card_size, idx, cb, hl, back_texture, side_hand or i == 2))
+			var back_texture := "backside.jpeg"
+			box.add_child(_card_view(p.hand[idx], false, card_size, idx, cb, hl, back_texture,
+				side_hand or i == 2, side_hand))
 		if side_hand:
 			_layout_side_cards(box)
 
