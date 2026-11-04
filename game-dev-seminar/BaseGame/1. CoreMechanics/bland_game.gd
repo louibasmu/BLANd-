@@ -240,7 +240,7 @@ func _finish_round() -> void:
 
 # ---------------------------------------------------------------- turns
 var draw_only: bool = false # after Skip/Reverse: you still draw, but can't play another special
-var drawn_special: BlandCard = null # the special just drawn (SPECIAL_DRAWN phase)
+var drawn_special: BlandCard = null # the st just drawn (SPECIAL_DRAWN phase)
 var actions_this_turn: int = 0            # how many times the current player has gone again
 
 # Starts the current player's turn. First, skip over players who can't act: anyone with an empty
@@ -482,8 +482,8 @@ func play_give(p: int, card: BlandCard, gift: BlandCard, target: int) -> void:
 
 # Peek at one card. Phase becomes VISION_DECIDE until resolve_vision() is called.
 # `index` is the card's position in the target's hand (the numbers under their cards).
-	# @param
-	# @return
+	# @param p -> int, card -> BlandCard, target -> int, index -> int 
+	# @return BlandCard instantiation 
 func play_vision(p: int, card: BlandCard, target: int, index: int) -> BlandCard:
 	if target == p or index < 0 or index >= players[target].hand.size():
 		return null
@@ -494,13 +494,13 @@ func play_vision(p: int, card: BlandCard, target: int, index: int) -> BlandCard:
 	_log("%s plays [b]Vision[/b] and peeks at card #%d in %s's hand." % [_n(p), index + 1, _n(target)])
 	affected.emit(target, p, "%s used Vision to peek at card #%d in your hand." % [_n(p), index + 1])
 	phase = Phase.VISION_DECIDE
-	changed.emit()
+	changed.emit() #signal
 	return seen
 
 # take = true: take the peeked card. If it makes a pair you keep going, otherwise your turn ends.
 # take = false: leave it. Vision was used without making a pair, so your turn ends.
-	# @param
-	# @return
+	# @param take -> boolean
+	# @return void
 func resolve_vision(take: bool) -> void:
 	if phase != Phase.VISION_DECIDE or last_peek.is_empty():
 		return
@@ -513,8 +513,8 @@ func resolve_vision(take: bool) -> void:
 
 # Plays the card: only if allowed and it is the right kind of special. Then it is
 # removed from the hand and placed on the discard pile. Every play_* function starts with this.
-	# @param
-	# @return
+	# @param p -> int, card -> BlandCard, expected - BlandCard.Special (enum type found in bland_card script)
+	# @return boolean
 func _consume(p: int, card: BlandCard, expected: BlandCard.Special) -> bool:
 	if not can_play(p, card) or card.special != expected:
 		return false
@@ -524,8 +524,8 @@ func _consume(p: int, card: BlandCard, expected: BlandCard.Special) -> bool:
 	return true
 
 # Keep the special you just drew without playing it. Ends your turn.
-	# @param
-	# @return
+	# @param p -> int
+	# @return void
 func pass_turn(p: int) -> void:
 	if current != p or phase != Phase.SPECIAL_DRAWN:
 		return
@@ -534,8 +534,8 @@ func pass_turn(p: int) -> void:
 
 # After Skip or Reverse the player still takes a card (but can't play another special first).
 # draw_only enforces that. If nobody can be drawn from, the turn just ends.
-	# @param
-	# @return
+	# @param none
+	# @return void
 func _draw_after_special() -> void:
 	_update_finished()
 	if _is_round_complete():
@@ -550,8 +550,8 @@ func _draw_after_special() -> void:
 
 # Called after every draw / special. Making a pair = go again. Anything else ends the turn.
 # Going again is only allowed if the player still has cards and someone to draw from.
-	# @param
-	# @return
+	# @param made_pair -> boolean
+	# @return void
 func _after_action(made_pair: bool) -> void:
 	_update_finished()
 	if _is_round_complete():
@@ -574,8 +574,8 @@ func _after_action(made_pair: bool) -> void:
 # Draw the card at `index` from player `src`'s hand.
 # The drawer may pick ANY other player who still has cards.
 # Pair -> go again. Drew a special -> may play it now. Otherwise the turn ends.
-	# @param
-	# @return
+	# @param p -> int, src -> int, index -> int
+	# @return void
 func draw_card(p: int, src: int, index: int) -> void:
 	if not can_draw(p):
 		return
@@ -590,8 +590,8 @@ func draw_card(p: int, src: int, index: int) -> void:
 # notify (private_info tells the human exactly which card moved), then check for a pair.
 # If the card is a special that can be played, wait in SPECIAL_DRAWN so the player may use it
 # right away. A card taken through Vision never triggers that: the Vision turn ends instead.
-	# @param
-	# @return
+	# @param p-> int, src -> int, index, via_vision -> boolean set as false
+	# @return void
 func _take_card(p: int, src: int, index: int, via_vision: bool = false) -> void:
 	var card := players[src].hand[index]
 	players[src].hand.remove_at(index)
@@ -615,8 +615,8 @@ func _take_card(p: int, src: int, index: int, via_vision: bool = false) -> void:
 	_after_action(paired)
 
 # If the new card matches something in the hand, discard the pair. Returns true if a pair was made.
-	# @param
-	# @return
+	# @param p -> int, card -> BlandCard
+	# @return boolean
 func _check_new_pair(p: int, card: BlandCard) -> bool:
 	var other := players[p].find_match_for(card)
 	if other != null:
@@ -629,8 +629,8 @@ func _check_new_pair(p: int, card: BlandCard) -> bool:
 
 # Fisher-Yates shuffle: walk backwards, swapping each card with a random earlier one.
 # This gives every ordering an equal chance, unlike naive shuffles.
-	# @param
-	# @return
+	# @param arr -> Array
+	# @return void
 func _shuffle(arr: Array) -> void:
 	for i in range(arr.size() - 1, 0, -1):
 		var j := _rng.randi_range(0, i)
@@ -640,8 +640,8 @@ func _shuffle(arr: Array) -> void:
 
 # Anyone whose hand just became empty is out for the round: safe from the Joker, and
 # they can never receive cards again this round (no draws, no Give, no turns).
-	# @param
-	# @return
+	# @param none
+	# @return void
 func _update_finished() -> void:
 	for pl in players:
 		if not pl.finished and pl.hand.is_empty():
@@ -652,26 +652,27 @@ func _update_finished() -> void:
 			player_finished.emit(pl.index)
 
 # Text helpers: _poss gives "your" / "Bot 1's"; _n gives a player's name.
-	# @param
-	# @return
+	# @param p -> int
+	# @return String
 func _poss(p: int) -> String:
 	return "your" if players[p].is_human else _n(p) + "'s"
-	
-	# @param
-	# @return
+
+# Player's display name
+	# @param p -> int
+	# @return String
 func _n(p: int) -> String:
 	return players[p].display_name
 
 # All log lines go through here so the "You" grammar is fixed in one place.
-	# @param
-	# @return
+	# @param text -> String
+	# @return void
 func _log(text: String) -> void:
 	log_message.emit(_you_grammar(text))
 
 # "You plays Skip" -> "You play Skip" (the human is called "You" in the log).
 # Messages are written as if the subject were a third person, then corrected here.
-	# @param
-	# @return
+	# @param text -> String
+	# @return String
 static func _you_grammar(text: String) -> String:
 	for verb in ["plays", "draws", "makes", "starts", "takes", "leaves", "gives"]:
 		text = text.replace("You " + verb, "You " + verb.trim_suffix("s"))
@@ -679,8 +680,8 @@ static func _you_grammar(text: String) -> String:
 	return text
 
 # For the card tracker: how many of each rank have been paired (0, 2 or 4 of the 4 cards).
-	# @param
-	# @return
+	# @param none
+	# @return Dictionary of amount of pairs made by each player
 func paired_count_by_rank() -> Dictionary:
 	var out := {}
 	for r in GameSettings.PAIR_RANKS:
@@ -691,8 +692,8 @@ func paired_count_by_rank() -> Dictionary:
 	return out
 
 # Number of pairs still to be made (each pair needs two cards, hence the division by 2).
-	# @param
-	# @return
+	# @param none
+	# @return int 
 func pairs_left() -> int:
 	var n := 0
 	for p in players:
