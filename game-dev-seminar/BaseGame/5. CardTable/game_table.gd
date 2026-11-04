@@ -53,25 +53,34 @@ var _paused: bool = false
 @onready var _menu_popup: PopupPanel = %MenuPopup
 @onready var _menu_jokers_label: Label = %MenuJokersLabel
 @onready var _menu_speed_option: OptionButton = %BotSpeedButton
+@onready var _root: VBoxContainer = $margin/root
+@onready var _top_seat_row: CenterContainer = %TopSeatRow
+@onready var _mid_slot: Control = %MidSlot
+@onready var _mid: HBoxContainer = %Mid
+@onready var _compass: TurnCompass = %TurnCompass
+@onready var _prompt: Label = %Prompt
+@onready var _cancel_btn: Button = %CancelButton
+@onready var _shuffle_btn: Button = %ShuffleButton
+@onready var _start_btn: Button = %StartButton
+@onready var _keep_btn: Button = %KeepButton
+@onready var _toast_box: VBoxContainer = %ToastBox
+@onready var _pair_animation_layer: Control = %PairAnimationLayer
 var _ui_scale: float = 1.0
 var _side_card_size: Vector2 = SIDE_CARD
-var _compass: TurnCompass
+
 # Last direction shown, so the compass only "pulses" when the direction actually flips.
 var _last_direction: int = 1
-var _prompt: Label
-var _cancel_btn: Button
-var _shuffle_btn: Button
-var _start_btn: Button
-var _keep_btn: Button
+
+
 # Index of the card the player has picked up while arranging their hand (-1 = none).
 var _arrange_sel: int = -1        # card picked up while arranging (click-to-move)
 # Per-seat UI parts, filled in by _make_seat(): the panel, labels, card row and buttons.
 var _seats: Dictionary = {}      # player index -> {panel, name, info, cards, target}
 # The pop-up dialog currently open (null = none). Only one is shown at a time.
 var _modal: Control = null
-var _toast_box: VBoxContainer      # pop-up alerts when a bot's move hits you
+
 var _pause_modal: Control = null
-var _pair_animation_layer: Control
+
 var _pair_animation_queue: Array[Dictionary] = []
 var _pair_animation_running: bool = false
 
@@ -133,8 +142,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _build_ui() -> void:
 
-
-	add_child(_menu_popup)
 
 	# --- top bot (seat 2)
 	var top_row := CenterContainer.new()
