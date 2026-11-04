@@ -5,6 +5,7 @@ extends Control
 ##Asmus manually created them by node structure instead during week 7 and 8
 
 # Scene file to load when the player presses Start Game.
+#game should start with the story rather than the main menu. 
 const TABLE_SCENE := "res://BaseGame/5. CardTable/game_table.tscn"
 
 # Controls that later functions need to read or update, so they are kept as member variables.
@@ -60,7 +61,6 @@ func _ready() -> void:
 func _on_rounds_changed(i: int) -> void:
 	var rounds := _rounds_option.get_item_id(i)
 	_schedule_label.text = GameSettings.schedule_text(rounds)
-
 
 # Saves every choice into GameSettings (these are static, so they survive the scene change)
 # and then loads the table scene, which starts the game.

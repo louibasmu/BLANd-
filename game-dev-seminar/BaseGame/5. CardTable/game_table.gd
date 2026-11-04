@@ -1,6 +1,5 @@
 extends Control
 ## The table: draws the game state and turns clicks into BlandGame calls.
-## The whole UI is built in code so card art can be restyled without touching game rules.
 ##
 ## Division of labour: BlandGame decides what is legal and what happens; this script only
 ##   (1) draws the current state (_refresh), (2) turns the human's clicks into BlandGame calls,
@@ -46,7 +45,7 @@ var _tex_cache: Dictionary = {}
 
 # Bots act on a timer. _bot_player is the bot we are waiting on, and _bot_pick is the card it has
 # highlighted and will take on the next tick.
-var _bot_timer: Timer
+@onready var _bot_timer: Timer = %BotTimer
 var _bot_player: int = -1
 var _bot_pick: Dictionary = {}     # {src, index} the bot is about to take (highlighted)
 # True while the pause menu is open; the bot timer ignores ticks during a pause.
@@ -54,30 +53,37 @@ var _paused: bool = false
 
 # UI nodes that are updated later; they are created in _build_ui() and kept in variables.
 # UI nodes
-var _status_label: Label
-var _menu_button: Button
-var _menu_popup: PopupPanel
-var _menu_jokers_label: Label
-var _menu_speed_option: OptionButton
+@onready var _status_label: Label = %StatusLabel
+@onready var _menu_button: Button = %MenuButton
+@onready var _menu_popup: PopupPanel = %MenuPopup
+@onready var _menu_jokers_label: Label = %MenuJokersLabel
+@onready var _menu_speed_option: OptionButton = %BotSpeedButton
+@onready var _mid_slot: Control = %MidSlot
+@onready var _mid: HBoxContainer = %Mid
+@onready var _compass: TurnCompass = %TurnCompass
+@onready var _prompt: Label = %Prompt
+@onready var _cancel_btn: Button = %CancelButton
+@onready var _shuffle_btn: Button = %ShuffleButton
+@onready var _start_btn: Button = %StartButton
+@onready var _keep_btn: Button = %KeepButton
+@onready var _toast_box: VBoxContainer = %ToastBox
+@onready var _pair_animation_layer: Control = %PairAnimationLayer
 var _ui_scale: float = 1.0
 var _side_card_size: Vector2 = SIDE_CARD
-var _compass: TurnCompass
+
 # Last direction shown, so the compass only "pulses" when the direction actually flips.
 var _last_direction: int = 1
-var _prompt: Label
-var _cancel_btn: Button
-var _shuffle_btn: Button
-var _start_btn: Button
-var _keep_btn: Button
+
+
 # Index of the card the player has picked up while arranging their hand (-1 = none).
 var _arrange_sel: int = -1        # card picked up while arranging (click-to-move)
 # Per-seat UI parts, filled in by _make_seat(): the panel, labels, card row and buttons.
 var _seats: Dictionary = {}      # player index -> {panel, name, info, cards, target}
 # The pop-up dialog currently open (null = none). Only one is shown at a time.
 var _modal: Control = null
-var _toast_box: VBoxContainer      # pop-up alerts when a bot's move hits you
+
 var _pause_modal: Control = null
-var _pair_animation_layer: Control
+
 var _pair_animation_queue: Array[Dictionary] = []
 var _pair_animation_running: bool = false
 
@@ -86,15 +92,11 @@ var _pair_animation_running: bool = false
 # connect the game's signals to the handlers below, and deal the first round.
 func _ready() -> void:
 	get_window().min_size = Vector2i(1280, 720)
-	set_anchors_preset(Control.PRESET_FULL_RECT)
-	_build_ui()
+	#ensuring that UI is scaled correctly when registering seats
+	_register_seats()
+	_apply_responsive_scale()
 	get_viewport().size_changed.connect(_on_viewport_resized)
-
-	_bot_timer = Timer.new()
-	_bot_timer.one_shot = true
-	_bot_timer.timeout.connect(_on_bot_timer)
-	add_child(_bot_timer)
-
+	
 	game = BlandGame.new(GameSettings.num_rounds)
 	# `changed` can fire several times for one action, so it goes through _queue_refresh to redraw only once.
 	game.changed.connect(_queue_refresh)   # many changes in one action -> one redraw
@@ -108,6 +110,11 @@ func _ready() -> void:
 	game.round_over.connect(_on_round_over)
 	game.game_over.connect(_on_game_over)
 	game.start_round()
+	
+	for speed_name in GameSettings.BOT_SPEEDS:
+		_menu_speed_option.add_item(speed_name)
+		if is_equal_approx(GameSettings.BOT_SPEEDS[speed_name], GameSettings.bot_delay):
+			_menu_speed_option.select(_menu_speed_option.item_count - 1)
 
 
 # Keyboard shortcuts: T opens the card tracker. Esc (ui_cancel) cancels a half-finished selection if there
@@ -133,7 +140,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 # ================================================================ layout
-# The screen is made of Godot container nodes created in code, laid out as:
+# The screen is made of Godot container nodes , laid out as:
 #   top bar / top bot / capped middle row / prompt row / human's seat.
 
 func _build_ui() -> void:
@@ -399,14 +406,17 @@ func _on_menu_popup_hidden() -> void:
 
 
 func _on_menu_tracker() -> void:
+	_menu_popup.hide()
 	_show_tracker()
 
 
 func _on_menu_rules() -> void:
+	_menu_popup.hide()
 	_show_rules()
 
 
 func _on_menu_special_roles() -> void:
+	_menu_popup.hide()
 	var roles: PackedStringArray = []
 	for special in BlandCard.SPECIAL_NAMES:
 		roles.append("%s: %s" % [BlandCard.SPECIAL_NAMES[special], BlandCard.SPECIAL_HELP[special]])
@@ -421,11 +431,13 @@ func _on_menu_bot_speed_selected(index: int) -> void:
 
 
 func _on_menu_restart() -> void:
+	_menu_popup.hide()
 	_confirm_action("Restart game?", "Your current game will be lost.",
 		func() -> void: get_tree().reload_current_scene())
 
 
 func _on_menu_main_menu() -> void:
+	_menu_popup.hide()
 	_confirm_action("Return to main menu?", "Your current game will be lost.",
 		func() -> void: get_tree().change_scene_to_file(MENU_SCENE))
 
@@ -466,115 +478,6 @@ func _apply_responsive_scale() -> void:
 			seat["card_area"].custom_minimum_size.y = BIG_CARD.y * scale + 13.0
 func _set_scaled_font_size(control: Control, base_size: int, scale: float) -> void:
 	control.add_theme_font_size_override("font_size", roundi(base_size * scale))
-
-
-# Builds the panel for one seat: name, "PLAYING"/"NEXT" badge, score line, the pairs they have made,
-# a "Choose" button for targeting them, and a container for their cards (a row for the
-# human's big overlapping cards, a wrapping flow for opponents' small ones).
-# `i` is the seat number; `min_width` stops the opponents' panels from collapsing.
-# Everything needed to update the seat later is stored in _seats[i].
-func _make_seat(i: int, min_width: float) -> Control:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(min_width, 0)
-	panel.clip_contents = true
-	if i == 1 or i == 3:
-		panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 4)
-	var side_cards: Control
-	if i == 1 or i == 3:
-		var seat_row := HBoxContainer.new()
-		seat_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		panel.add_child(seat_row)
-		side_cards = Control.new()
-		side_cards.custom_minimum_size = Vector2(72, 0)
-		side_cards.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		side_cards.clip_contents = true
-		side_cards.resized.connect(_layout_side_cards.bind(side_cards))
-		v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		if i == 1:
-			seat_row.add_child(v)
-			seat_row.add_child(side_cards)
-		else:
-			seat_row.add_child(side_cards)
-			seat_row.add_child(v)
-	else:
-		panel.add_child(v)
-
-	var head := HBoxContainer.new()
-	v.add_child(head)
-	var name_l := Label.new()
-	name_l.add_theme_font_size_override("font_size", 14)
-	head.add_child(name_l)
-	var badge := Label.new()   # "PLAYING" / "NEXT"
-	badge.add_theme_font_size_override("font_size", 10)
-	head.add_child(badge)
-	var score_l := Label.new()
-	score_l.add_theme_font_size_override("font_size", 16)
-	score_l.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
-	v.add_child(score_l)
-	var info_l := Label.new()
-	info_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	info_l.clip_text = true
-	info_l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	info_l.add_theme_font_size_override("font_size", 11)
-	info_l.modulate = Color(1, 1, 1, 0.8)
-	v.add_child(info_l)
-
-	# Keep the action button on its own row so it never competes with the pairs.
-	var row2 := HBoxContainer.new()
-	v.add_child(row2)
-	var target_btn := Button.new()
-	target_btn.text = "Choose"
-	target_btn.visible = false
-	target_btn.pressed.connect(_on_target_chosen.bind(i))
-	var target_spacer := Control.new()
-	target_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	if i == 1:
-		row2.add_child(target_btn)
-		row2.add_child(target_spacer)
-	else:
-		row2.add_child(target_spacer)
-		row2.add_child(target_btn)
-
-	var pairs_box: HFlowContainer = null
-	if i == HUMAN:
-		var pairs_row := HBoxContainer.new()
-		v.add_child(pairs_row)
-		var pairs_l := Label.new()
-		pairs_l.text = "Pairs made:"
-		pairs_l.add_theme_font_size_override("font_size", 12)
-		pairs_l.modulate = Color(1, 1, 1, 0.7)
-		pairs_row.add_child(pairs_l)
-		pairs_box = HFlowContainer.new()
-		pairs_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		pairs_box.add_theme_constant_override("h_separation", 3)
-		pairs_box.add_theme_constant_override("v_separation", 3)
-		pairs_row.add_child(pairs_box)
-
-	var cards: Control
-	var card_area: Control = null
-	if i == HUMAN:
-		var c := CenterContainer.new()
-		c.custom_minimum_size = Vector2(0, BIG_CARD.y + 13)
-		c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		v.add_child(c)
-		card_area = c
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", -14)   # overlap a little
-		c.add_child(row)
-		cards = row
-	elif i == 1 or i == 3:
-		cards = side_cards
-	else:
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 2)
-		v.add_child(row)
-		cards = row
-
-	_seats[i] = {"panel": panel, "name": name_l, "badge": badge, "score": score_l, "info": info_l,
-		"cards": cards, "card_area": card_area, "target": target_btn, "pairs": pairs_box}
-	return panel
 
 
 func _layout_middle(slot: Control, middle: Control) -> void:
@@ -778,14 +681,27 @@ func _pair_chip(a: BlandCard, b: BlandCard) -> Control:
 	chip.tooltip_text = "%s + %s" % [a.display_name(), b.display_name()]
 	return chip
 
-
+#commenting out so the game can run
 func _on_pair_made(player_index: int, card_a: BlandCard, card_b: BlandCard) -> void:
-	_pair_animation_queue.append({
-		"player": player_index,
-		"card_a": card_a,
-		"card_b": card_b,
-	})
-	_play_next_pair_animation.call_deferred()
+	pass
+	#SoundManager.play_pair()
+	#_pair_animation_queue.append({
+		#"player": player_index,
+		#"card_a": card_a,
+		#"card_b": card_b,
+	#})
+	#_play_next_pair_animation.call_deferred()
+
+
+func _on_turn_ended(_player_index: int) -> void:
+	pass
+	#SoundManager.play_turn_over()
+
+
+func _on_joker_received(player_index: int) -> void:
+	pass
+	#if game.players[player_index].is_human:
+		#SoundManager.play_joker()
 
 
 func _play_next_pair_animation() -> void:
@@ -1619,3 +1535,39 @@ func _show_rules() -> void:
 	b.pressed.connect(_close_modal)
 	v.add_child(b)
 	add_child(_modal)
+
+
+func _on_shuffle_pressed() -> void:
+	_arrange_sel = -1
+	game.shuffle_hand(HUMAN)
+
+
+func _on_start_pressed() -> void:
+	_arrange_sel = -1
+	game.finish_arranging()
+
+
+func _on_keep_pressed() -> void:
+	_clear_selection()
+	game.pass_turn(HUMAN)
+
+func _register_seats() -> void:
+	for i in 4:
+		var cards: Control = get_node("%%Seat%dCards" % i)
+		var target: Button = get_node("%%Seat%dTarget" % i)
+		target.pressed.connect(_on_target_chosen.bind(i))
+		if i == 1 or i == 3:
+			cards.resized.connect(_layout_side_cards.bind(cards))
+		_seats[i] = {
+			"panel": get_node("%%Seat%dPanel" % i),
+			"name": get_node("%%Seat%dName" % i),
+			"badge": get_node("%%Seat%dBadge" % i),
+			"score": get_node("%%Seat%dScore" % i),
+			"info": get_node("%%Seat%dInfo" % i),
+			"cards": cards,
+			"card_area": get_node_or_null("%Seat0CardArea") if i == HUMAN else null,
+			"target": target,
+			"pairs": get_node_or_null("%Seat0Pairs") if i == HUMAN else null,
+		}
+	_mid_slot.resized.connect(_layout_middle.bind(_mid_slot, _mid))
+	_layout_middle(_mid_slot, _mid)
