@@ -599,21 +599,19 @@ func _take_card(p: int, src: int, index: int, via_vision: bool = false) -> void:
 	if card.is_joker():
 		joker_received.emit(p)
 	_log("%s draws a card from %s." % [_n(p), _n(src)])
-	if players[p].is_human:
-		private_info.emit("You drew the %s." % card.display_name())
-	elif players[src].is_human:
-		private_info.emit("%s took your %s." % [_n(p), card.display_name()])
 	affected.emit(src, p, "%s took your %s!" % [_n(p), card.display_name()])
 	var paired := _check_new_pair(p, card)   # the new card was added at the END of the hand
 	if card.is_special() and not via_vision:
 		drawn_special = card
 		phase = Phase.SPECIAL_DRAWN
 		if can_play(p, card):
-			if players[p].is_human:
-				private_info.emit("You drew %s — you can play it right now." % card.special_name())
 			changed.emit()
 			special_drawn.emit(p, card)
 			return
+	if players[p].is_human:
+		private_info.emit("You drew the %s." % card.display_name())
+	elif players[src].is_human:
+		private_info.emit("%s took your %s." % [_n(p), card.display_name()])
 	_after_action(paired)
 
 # If the new card matches something in the hand, discard the pair. Returns true if a pair was made.

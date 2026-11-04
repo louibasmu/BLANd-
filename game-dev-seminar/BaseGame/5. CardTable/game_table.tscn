@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bqed73chtgvbp"]
 
 [ext_resource type="Script" uid="uid://glnp5crqn7w6" path="res://BaseGame/5. CardTable/game_table.gd" id="1_xanw4"]
+[ext_resource type="Theme" path="res://Fonts/BLANdTheme.tres" id="2_game_theme"]
 
 [node name="GameTable" type="Control" unique_id=1531637342]
 layout_mode = 3
@@ -10,3 +11,4 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_xanw4")
+theme = ExtResource("2_game_theme")

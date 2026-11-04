@@ -14,6 +14,7 @@ const CARD_DIR := "res://Card Assets/"
 const CUSTOM_CARD_DIR := CARD_DIR + "BLANd Made Cards/"
 const ENVIRONMENT_DIR := "res://Environment Assets/"
 const BACKGROUND_BLUR_SHADER := preload("res://BaseGame/background_blur.gdshader")
+const TITLE_FONT := preload("res://Fonts/Blackadder ITC Std Regular.otf")
 # Card sizes in pixels: big for the human's own hand, small for the opponents' face-down cards.
 #5 to 7 ratio on the width and height
 const BIG_CARD := Vector2(90, 126)
@@ -180,6 +181,7 @@ func _build_ui() -> void:
 	bar.add_child(_menu_button)
 
 	_menu_popup = PopupPanel.new()
+	_menu_popup.theme = theme
 	_menu_popup.size = Vector2i(320, 350)
 	_menu_popup.exclusive = true
 	_menu_popup.transient = true
@@ -308,6 +310,7 @@ func _build_ui() -> void:
 	layer.layer = 10
 	add_child(layer)
 	var top := MarginContainer.new()
+	top.theme = theme
 	top.set_anchors_preset(Control.PRESET_CENTER)
 	top.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	top.grow_vertical = Control.GROW_DIRECTION_BOTH
@@ -323,6 +326,7 @@ func _build_ui() -> void:
 	pair_canvas.layer = 20
 	add_child(pair_canvas)
 	_pair_animation_layer = Control.new()
+	_pair_animation_layer.theme = theme
 	_pair_animation_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_pair_animation_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pair_canvas.add_child(_pair_animation_layer)
@@ -797,6 +801,7 @@ func _play_next_pair_animation() -> void:
 	var title := Label.new()
 	title.text = "%s made a pair!" % player.display_name
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_override("font", TITLE_FONT)
 	title.add_theme_font_size_override("font_size", 26)
 	title.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
 	title.position = center + Vector2(-200, -115)
@@ -1447,6 +1452,7 @@ func _show_modal(title: String, body, card: BlandCard, buttons: Array) -> void:
 	var t := Label.new()
 	t.text = title
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	t.add_theme_font_override("font", TITLE_FONT)
 	t.add_theme_font_size_override("font_size", 24)
 	v.add_child(t)
 	if card != null:
@@ -1523,6 +1529,7 @@ func _toggle_pause() -> void:
 	var t := Label.new()
 	t.text = "Paused"
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	t.add_theme_font_override("font", TITLE_FONT)
 	t.add_theme_font_size_override("font_size", 28)
 	v.add_child(t)
 	for entry in [["Resume", _toggle_pause],
