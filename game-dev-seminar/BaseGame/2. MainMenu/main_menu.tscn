@@ -1,6 +1,29 @@
-[gd_scene format=3 uid="uid://wqu7ke4cw6du"]
+[gd_scene format=3 uid="uid://cn6hgnd16x23b"]
 
-[ext_resource type="Script" uid="uid://sjbx8bg7qwgl" path="res://BaseGame/2. MainMenu/main_menu.gd" id="1_4h7ua"]
+[ext_resource type="Script" uid="uid://sjbx8bg7qwgl" path="res://BaseGame/2. MainMenu/main_menu.gd" id="1_jiobw"]
+[ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_background"]
+[ext_resource type="Shader" uid="uid://p4hc4dadnnr1" path="res://Environment Assets/background_blur.gdshader" id="3_n43x3"]
+[ext_resource type="FontFile" uid="uid://18le2jrcug10" path="res://Fonts/Blackadder ITC Std Regular.otf" id="4_title_font"]
+[ext_resource type="Theme" path="res://Fonts/BLANdTheme.tres" id="5_menu_theme"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_background_blur"]
+shader = ExtResource("3_n43x3")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxlrp"]
+content_margin_left = 18.0
+content_margin_top = 18.0
+content_margin_right = 18.0
+content_margin_bottom = 18.0
+bg_color = Color(0.3491902, 0.38109186, 0.4100209, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.9309246, 0.58383155, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="MainMenu" type="Control" unique_id=909583755]
 layout_mode = 3
@@ -9,4 +32,249 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_4h7ua")
+theme = ExtResource("5_menu_theme")
+script = ExtResource("1_jiobw")
+
+[node name="bg" type="TextureRect" parent="." unique_id=932837455]
+modulate = Color(0.72, 0.72, 0.72, 1)
+material = SubResource("ShaderMaterial_background_blur")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Center" type="CenterContainer" parent="." unique_id=537732586]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="box" type="VBoxContainer" parent="Center" unique_id=328039131]
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="title" type="Label" parent="Center/box" unique_id=696690529]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 20
+text = "BLANd"
+horizontal_alignment = 1
+
+[node name="sub" type="Label" parent="Center/box" unique_id=483748069]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
+theme_override_fonts/font = ExtResource("4_title_font")
+theme_override_font_sizes/font_size = 72
+text = "Death's Door"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Center/box" unique_id=1021888189]
+layout_mode = 2
+
+[node name="RoundsRow" type="HBoxContainer" parent="Center/box" unique_id=2038137664]
+layout_mode = 2
+
+[node name="ScheduleLabel" type="Label" parent="Center/box/RoundsRow" unique_id=1816437823]
+unique_name_in_owner = true
+modulate = Color(1, 0.9019608, 0.6, 1)
+layout_mode = 2
+text = "Jokers per round"
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="Center/box/RoundsRow" unique_id=1458260079]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Rounds"
+
+[node name="RoundsOption" type="OptionButton" parent="Center/box/RoundsRow" unique_id=1015492661]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BotsRow" type="HBoxContainer" parent="Center/box" unique_id=487309281]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Center/box/BotsRow" unique_id=1214064848]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Bots"
+
+[node name="StyleOption" type="OptionButton" parent="Center/box/BotsRow" unique_id=530313808]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 2
+popup/item_0/text = "Random (coin-flip decisions)"
+popup/item_0/id = 0
+popup/item_1/text = "Basic strategy"
+popup/item_1/id = 1
+
+[node name="SpeedRow" type="HBoxContainer" parent="Center/box" unique_id=1148694762]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Center/box/SpeedRow" unique_id=467556617]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Bot Speed"
+
+[node name="SpeedOption" type="OptionButton" parent="Center/box/SpeedRow" unique_id=838294324]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SpecialsRow" type="HBoxContainer" parent="Center/box" unique_id=1858878164]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Center/box/SpecialsRow" unique_id=1840523362]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Specials"
+
+[node name="SpecialsButton" type="Button" parent="Center/box/SpecialsRow" unique_id=63866979]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Special Cards Setup..."
+
+[node name="SpecialsSummary" type="Label" parent="Center/box" unique_id=501649294]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.70000005)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="Center/box" unique_id=1917546215]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Start Game
+"
+
+[node name="RulesButton" type="Button" parent="Center/box" unique_id=1721886319]
+unique_name_in_owner = true
+layout_mode = 2
+text = "How To Play
+"
+
+[node name="QuitButton" type="Button" parent="Center/box" unique_id=1088980942]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Quit
+"
+
+[node name="RulesPanel" type="ColorRect" parent="." unique_id=342671681]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7019608)
+
+[node name="RulesCenter" type="CenterContainer" parent="RulesPanel" unique_id=290559758]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RulesBody" type="PanelContainer" parent="RulesPanel/RulesCenter" unique_id=541371510]
+custom_minimum_size = Vector2(760, 520)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lxlrp")
+
+[node name="RulesColumn" type="VBoxContainer" parent="RulesPanel/RulesCenter/RulesBody" unique_id=1958222952]
+layout_mode = 2
+
+[node name="RulesText" type="RichTextLabel" parent="RulesPanel/RulesCenter/RulesBody/RulesColumn" unique_id=1950425426]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="CloseButton" type="Button" parent="RulesPanel/RulesCenter/RulesBody/RulesColumn" unique_id=1662010715]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Close"
+
+[node name="SpecialsPanel" type="ColorRect" parent="." unique_id=1943384652]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7490196)
+
+[node name="SpecialsCenter" type="CenterContainer" parent="SpecialsPanel" unique_id=897176388]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="SpecialsPanel/SpecialsCenter" unique_id=801376155]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lxlrp")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SpecialsPanel/SpecialsCenter/PanelContainer" unique_id=1947636564]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="title" type="Label" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer" unique_id=894754568]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Special Cards Setup"
+horizontal_alignment = 1
+
+[node name="hint" type="Label" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer" unique_id=1308695315]
+modulate = Color(1, 1, 1, 0.75000006)
+layout_mode = 2
+text = "How many copies of each special card go in the deck (Jokers are separate).
+Rarity follows the count: 1 = Rare (purple), 2 = Uncommon (green), 3+ = Common (light blue)."
+horizontal_alignment = 1
+
+[node name="SpecialsGrid" type="GridContainer" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer" unique_id=1615091364]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 6
+columns = 4
+
+[node name="PopupButtons" type="HBoxContainer" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer" unique_id=929523693]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="DoneButton" type="Button" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons" unique_id=859327166]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Done"
+
+[node name="ResetButton" type="Button" parent="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons" unique_id=1406148155]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reset to defaults"
+
+[connection signal="pressed" from="Center/box/SpecialsRow/SpecialsButton" to="." method="_on_specials_pressed"]
+[connection signal="pressed" from="Center/box/StartButton" to="." method="_on_start"]
+[connection signal="pressed" from="Center/box/RulesButton" to="." method="_on_rules_pressed"]
+[connection signal="pressed" from="Center/box/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="RulesPanel/RulesCenter/RulesBody/RulesColumn/CloseButton" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons/DoneButton" to="." method="_on_done_button_pressed"]
+[connection signal="pressed" from="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons/ResetButton" to="." method="_on_specials_reset"]

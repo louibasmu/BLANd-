@@ -1,4 +1,4 @@
-extends Control
+extends Control #JokerGame
 
 # "const" is a value that cannot be changed or altered
 # by the application during runtime
@@ -34,7 +34,6 @@ var player_anchors: Array[Control] = []
 
 
 func _ready() -> void:
-	
 	_build_ui()
 	_start_round()
 
@@ -52,95 +51,109 @@ func _build_ui() -> void:
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shade)
 
-	var header := HBoxContainer.new()
-	header.anchor_right = 1.0
-	header.offset_left = 34
-	header.offset_top = 18
-	header.offset_right = -34
-	header.offset_bottom = 66
-	add_child(header)
+	
+	var header := $header #LEAN
+	#var header := HBoxContainer.new()
+	#header.anchor_right = 1.0
+	#header.offset_left = 34
+	#header.offset_top = 18
+	#header.offset_right = -34
+	#header.offset_bottom = 66
+	#add_child(header)
 
-	var heading := Label.new()
-	heading.text = "JOKER"
-	heading.add_theme_font_size_override("font_size", 34)
-	heading.add_theme_color_override("font_color", Color(1.0, 0.87, 0.58))
-	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(heading)
+	var heading := $header/joker_label #LEAN
+	#var heading := Label.new()
+	#heading.text = "JOKER"
+	#heading.add_theme_font_size_override("font_size", 34)
+	#heading.add_theme_color_override("font_color", Color(1.0, 0.87, 0.58))
+	#heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	#header.add_child(heading)
 
-	new_round_button = Button.new()
-	new_round_button.text = "New Round"
-	new_round_button.custom_minimum_size = Vector2(130, 42)
-	new_round_button.pressed.connect(_start_round)
-	header.add_child(new_round_button)
+	new_round_button = $header/new_round #LEAN
+	#new_round_button = Button.new()
+	#new_round_button.text = "New Round"
+	#new_round_button.custom_minimum_size = Vector2(130, 42)
+	#new_round_button.pressed.connect(_start_round)
+	#header.add_child(new_round_button)
+	
+	status_label = $status_label #LEAN (Status of what?)
+	#status_label = Label.new()
+	#status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#status_label.add_theme_font_size_override("font_size", 100)
+	#status_label.add_theme_color_override("font_color", Color.BLUE)
+	#status_label.anchor_left = 0.1
+	#status_label.anchor_top = 0.05
+	#status_label.anchor_right = 0.9
+	#status_label.anchor_bottom = 0.15
+	#add_child(status_label)
 
-	status_label = Label.new()
-	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	status_label.add_theme_font_size_override("font_size", 20)
-	status_label.add_theme_color_override("font_color", Color.WHITE)
-	status_label.anchor_left = 0.1
-	status_label.anchor_top = 0.05
-	status_label.anchor_right = 0.9
-	status_label.anchor_bottom = 0.15
-	add_child(status_label)
+	turn_label = $turn_label #LEAN (whose turn?)
+	#turn_label = Label.new()
+	#turn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#turn_label.add_theme_color_override("font_color", Color(0.88, 0.94, 0.86))
+	#turn_label.anchor_left = 0.1
+	#turn_label.anchor_top = 0.15
+	#turn_label.anchor_right = 0.9
+	#turn_label.anchor_bottom = 0.19
+	#add_child(turn_label)
+	
+	opponents_row =$opponents_row_container #LEAN
+	#opponents_row = HBoxContainer.new()
+	#opponents_row.name = "ComputerCardsArea"
+	#opponents_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	#_set_area_anchors(opponents_row, computer_cards_area)
+	#add_child(opponents_row)
 
-	turn_label = Label.new()
-	turn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	turn_label.add_theme_color_override("font_color", Color(0.88, 0.94, 0.86))
-	turn_label.anchor_left = 0.1
-	turn_label.anchor_top = 0.15
-	turn_label.anchor_right = 0.9
-	turn_label.anchor_bottom = 0.19
-	add_child(turn_label)
+	computer_1_name_label =$cpu_1_name_label #LEAN
+	#computer_1_name_label = Label.new()
+	#computer_1_name_label.name = "Computer1NameLabel"
+	#computer_1_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#computer_1_name_label.add_theme_color_override("font_color", Color.WHITE)
+	#_set_area_anchors(computer_1_name_label, computer_1_name_area)
+	#add_child(computer_1_name_label)
 
-	opponents_row = HBoxContainer.new()
-	opponents_row.name = "ComputerCardsArea"
-	opponents_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_set_area_anchors(opponents_row, computer_cards_area)
-	add_child(opponents_row)
+	computer_2_name_label = $cpu_2_name_label #LEAN
+	#computer_2_name_label = Label.new()
+	#computer_2_name_label.name = "Computer2NameLabel"
+	#computer_2_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#computer_2_name_label.add_theme_color_override("font_color", Color.WHITE)
+	#_set_area_anchors(computer_2_name_label, computer_2_name_area)
+	#add_child(computer_2_name_label)
 
-	computer_1_name_label = Label.new()
-	computer_1_name_label.name = "Computer1NameLabel"
-	computer_1_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	computer_1_name_label.add_theme_color_override("font_color", Color.WHITE)
-	_set_area_anchors(computer_1_name_label, computer_1_name_area)
-	add_child(computer_1_name_label)
+	
+	draw_title = $draw_title_label #LEAN (what does this do?)
+	#draw_title = Label.new()
+	#draw_title.name = "CardsToPickLabel"
+	#draw_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#draw_title.add_theme_font_size_override("font_size", 16)
+	#draw_title.anchor_left = 0.1
+	#draw_title.anchor_top = 0.34
+	#draw_title.anchor_right = 0.9
+	#draw_title.anchor_bottom = 0.43
+	#add_child(draw_title)
 
-	computer_2_name_label = Label.new()
-	computer_2_name_label.name = "Computer2NameLabel"
-	computer_2_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	computer_2_name_label.add_theme_color_override("font_color", Color.WHITE)
-	_set_area_anchors(computer_2_name_label, computer_2_name_area)
-	add_child(computer_2_name_label)
+	hand_title = $playerHand_label #LEAN
+	#hand_title = Label.new()
+	#hand_title.name = "PlayerHandLabel"
+	#hand_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	#hand_title.add_theme_font_size_override("font_size", 16)
+	#hand_title.anchor_left = 0.1
+	#hand_title.anchor_top = 0.65
+	#hand_title.anchor_right = 0.9
+	#hand_title.anchor_bottom = 0.7
+	#add_child(hand_title)
 
-	draw_title = Label.new()
-	draw_title.name = "CardsToPickLabel"
-	draw_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	draw_title.add_theme_font_size_override("font_size", 16)
-	draw_title.anchor_left = 0.1
-	draw_title.anchor_top = 0.34
-	draw_title.anchor_right = 0.9
-	draw_title.anchor_bottom = 0.43
-	add_child(draw_title)
+	draw_cards = $draw_cards_control #LEAN
+	#draw_cards = Control.new()
+	#draw_cards.name = "CardsToPickArea"
+	#_set_area_anchors(draw_cards, cards_to_pick_area)
+	#add_child(draw_cards)
 
-	hand_title = Label.new()
-	hand_title.name = "PlayerHandLabel"
-	hand_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hand_title.add_theme_font_size_override("font_size", 16)
-	hand_title.anchor_left = 0.1
-	hand_title.anchor_top = 0.65
-	hand_title.anchor_right = 0.9
-	hand_title.anchor_bottom = 0.7
-	add_child(hand_title)
-
-	draw_cards = Control.new()
-	draw_cards.name = "CardsToPickArea"
-	_set_area_anchors(draw_cards, cards_to_pick_area)
-	add_child(draw_cards)
-
-	hand_cards = Control.new()
-	hand_cards.name = "PlayerHandArea"
-	_set_area_anchors(hand_cards, player_hand_area)
-	add_child(hand_cards)
+	hand_cards = $hand_cards_control
+	#hand_cards = Control.new()
+	#hand_cards.name = "PlayerHandArea"
+	#_set_area_anchors(hand_cards, player_hand_area)
+	#add_child(hand_cards)
 
 
 func _set_area_anchors(area: Control, layout: Rect2) -> void:
@@ -153,7 +166,7 @@ func _set_area_anchors(area: Control, layout: Rect2) -> void:
 func _start_round() -> void:
 	var deck: Array[Dictionary] = []
 	for suit in SUITS:
-		for rank in RANKS:
+		for rank in RANKS: #What are ranks?
 			if rank == "2" and (suit == "Clubs" or suit == "Spades"):
 				continue
 			deck.append({"rank": rank, "suit": suit})
@@ -162,8 +175,8 @@ func _start_round() -> void:
 
 	players = [
 		{"name": "You", "hand": [], "human": true},
-		{"name": "Computer 1", "hand": [], "human": false},
-		{"name": "Computer 2", "hand": [], "human": false},
+		{"name": "CPU 1", "hand": [], "human": false},
+		{"name": "CPU 2", "hand": [], "human": false},
 	]
 	for card_index in range(deck.size()):
 		players[card_index % PLAYER_COUNT]["hand"].append(deck[card_index])
@@ -184,7 +197,6 @@ func _discard_pairs(player_index: int) -> Array[String]:
 	for card in hand:
 		if card["rank"] != "JOKER":
 			counts[card["rank"]] = int(counts.get(card["rank"], 0)) + 1
-
 	var discard_counts: Dictionary = {}
 	var pair_names: Array[String] = []
 	for rank in counts:
@@ -192,7 +204,6 @@ func _discard_pairs(player_index: int) -> Array[String]:
 		if pair_count > 0:
 			discard_counts[rank] = pair_count
 			pair_names.append(str(rank))
-
 	var remaining: Array[Dictionary] = []
 	for card in hand:
 		var rank: String = card["rank"]
@@ -202,7 +213,6 @@ func _discard_pairs(player_index: int) -> Array[String]:
 			remaining.append(card)
 	players[player_index]["hand"] = remaining
 	return pair_names
-
 
 func _on_human_picked(card_index: int) -> void:
 	if round_over or current_player != 0:
@@ -393,7 +403,6 @@ func _animate_pair_discard(pair_names: Array[String], player_index: int) -> void
 		tween.parallel().tween_property(button, "modulate:a", 0.0, 0.35)
 	await tween.finished
 	animation_layer.queue_free()
-
 
 func _card_face_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
