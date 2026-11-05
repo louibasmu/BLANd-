@@ -2,6 +2,10 @@
 
 [ext_resource type="Script" uid="uid://glnp5crqn7w6" path="res://BaseGame/5. CardTable/game_table.gd" id="1_xanw4"]
 [ext_resource type="Script" uid="uid://do2sxspgf0u2e" path="res://BaseGame/1. CoreMechanics/turn_compass.gd" id="2_mnkod"]
+[ext_resource type="Texture2D" uid="uid://7tmbcvhxytct" path="res://Environment Assets/background.jpeg" id="2_wlmaj"]
+[ext_resource type="Texture2D" uid="uid://cah31u7k52m61" path="res://Environment Assets/table.jpeg" id="3_g8l5e"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_emy3t"]
 bg_color = Color(0.12156863, 0.32156864, 0.2509804, 1)
@@ -53,14 +57,19 @@ script = ExtResource("1_xanw4")
 unique_name_in_owner = true
 one_shot = true
 
-[node name="Background" type="ColorRect" parent="." unique_id=1587207837]
+[node name="BackgroundImage" type="TextureRect" parent="." unique_id=1929817062]
+modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
+material = SubResource("ShaderMaterial_5asqp")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.07058824, 0.3019608, 0.18039216, 1)
+mouse_filter = 2
+texture = ExtResource("2_wlmaj")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="margin" type="MarginContainer" parent="." unique_id=1359996324]
 layout_mode = 1
@@ -245,13 +254,8 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_g8l5e")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 6.0
-offset_right = -8.0
-offset_bottom = -6.0
 grow_horizontal = 2
 grow_vertical = 2
-offset_transform_enabled = true
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
