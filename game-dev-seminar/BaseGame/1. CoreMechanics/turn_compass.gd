@@ -70,7 +70,7 @@ func _draw() -> void:
 	# sized from the smaller of width/height so the diagram always fits.
 	var c := size / 2 + Vector2(0, 8)
 	var r := minf(size.x, size.y - 16) * 0.36
-	var font := ThemeDB.fallback_font
+	var font := get_theme_font("font")
 
 	# Curved arrows between neighbouring seats, in the direction of play.
 	# For seat i the arrow runs from its angle to the next seat's angle (a quarter turn,

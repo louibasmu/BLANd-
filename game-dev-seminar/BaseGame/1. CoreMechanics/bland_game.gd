@@ -15,6 +15,8 @@ signal changed                              # anything on the table changed
 signal log_message(text: String)            # public event, everyone sees it
 signal private_info(text: String)           # only the human should see this
 signal pair_made(player_index: int, card_a: BlandCard, card_b: BlandCard)
+signal turn_ended(player_index: int)
+signal joker_received(player_index: int)
 signal turn_started(player_index: int)
 signal turn_continued(player_index: int)                 # made a pair, so the same player goes again
 signal special_drawn(player_index: int, card: BlandCard) # drew a special: may play it right away
@@ -286,6 +288,7 @@ var _skip_actor: int = -1
 	# @param none
 	# @return void
 func _end_turn() -> void:
+	turn_ended.emit(current)
 	_update_finished()
 	if _is_round_complete():
 		_finish_round()
@@ -465,6 +468,8 @@ func play_give(p: int, card: BlandCard, gift: BlandCard, target: int) -> void:
 		return
 	players[p].hand.erase(gift)
 	players[target].hand.append(gift)
+	if gift.is_joker():
+		joker_received.emit(target)
 	_log("%s plays [b]Give[/b] and hands a card to %s." % [_n(p), _n(target)])
 	if players[p].is_human:
 		private_info.emit("You gave your %s to %s." % [gift.display_name(), _n(target)])
@@ -591,22 +596,22 @@ func _take_card(p: int, src: int, index: int, via_vision: bool = false) -> void:
 	var card := players[src].hand[index]
 	players[src].hand.remove_at(index)
 	players[p].hand.append(card)
+	if card.is_joker():
+		joker_received.emit(p)
 	_log("%s draws a card from %s." % [_n(p), _n(src)])
-	if players[p].is_human:
-		private_info.emit("You drew the %s." % card.display_name())
-	elif players[src].is_human:
-		private_info.emit("%s took your %s." % [_n(p), card.display_name()])
 	affected.emit(src, p, "%s took your %s!" % [_n(p), card.display_name()])
 	var paired := _check_new_pair(p, card)   # the new card was added at the END of the hand
 	if card.is_special() and not via_vision:
 		drawn_special = card
 		phase = Phase.SPECIAL_DRAWN
 		if can_play(p, card):
-			if players[p].is_human:
-				private_info.emit("You drew %s — you can play it right now." % card.special_name())
 			changed.emit()
 			special_drawn.emit(p, card)
 			return
+	if players[p].is_human:
+		private_info.emit("You drew the %s." % card.display_name())
+	elif players[src].is_human:
+		private_info.emit("%s took your %s." % [_n(p), card.display_name()])
 	_after_action(paired)
 
 # If the new card matches something in the hand, discard the pair. Returns true if a pair was made.
