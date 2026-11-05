@@ -36,16 +36,16 @@ const SPECIAL_NAMES := {
 }
 
 const PAIR_TEXTURES := {
-	1: "Ace.png",
-	2: "two.png",
-	3: "three.png",
-	4: "Four.png",
-	5: "five.png",
-	6: "Six.png",
-	7: "seven.png",
-	8: "eight.png",
-	9: "nine.png",
-	10: "Ten.png",
+	1: "card_A.png",
+	2: "card_2.png",
+	3: "card_3.png",
+	4: "card_4.png",
+	5: "card_5.png",
+	6: "card_6.png",
+	7: "card_7.png",
+	8: "card_8.png",
+	9: "card_9.png",
+	10:"card_10.png",
 }
 
 const SPECIAL_TEXTURES := {
