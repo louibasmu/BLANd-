@@ -110,72 +110,62 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_lxlrp")
 theme_override_styles/focus = SubResource("StyleBoxFlat_ve31a")
 text = "="
 
-[node name="TopSeatRow" type="CenterContainer" parent="margin/root" unique_id=236633806]
+[node name="TopSeatRow" type="CenterContainer" parent="margin/root/bar" unique_id=236633806]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Seat2Panel" type="PanelContainer" parent="margin/root/TopSeatRow" unique_id=72800125]
-unique_name_in_owner = true
+[node name="Seat2Panel" type="PanelContainer" parent="margin/root/bar/TopSeatRow" unique_id=72800125]
 custom_minimum_size = Vector2(620, 0)
-clip_contents = true
 layout_mode = 2
 
-[node name="Column" type="VBoxContainer" parent="margin/root/TopSeatRow/Seat2Panel" unique_id=1417020886]
+[node name="Column" type="VBoxContainer" parent="margin/root/bar/TopSeatRow/Seat2Panel" unique_id=1417020886]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Head" type="HBoxContainer" parent="margin/root/TopSeatRow/Seat2Panel/Column" unique_id=567061561]
+[node name="Head" type="HBoxContainer" parent="margin/root/bar/TopSeatRow/Seat2Panel/Column" unique_id=567061561]
 layout_mode = 2
 
-[node name="Seat2Name" type="Label" parent="margin/root/TopSeatRow/Seat2Panel/Column/Head" unique_id=796191909]
-unique_name_in_owner = true
+[node name="Seat2Name" type="Label" parent="margin/root/bar/TopSeatRow/Seat2Panel/Column/Head" unique_id=796191909]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 
-[node name="Seat2Badge" type="Label" parent="margin/root/TopSeatRow/Seat2Panel/Column/Head" unique_id=766184269]
-unique_name_in_owner = true
+[node name="Seat2Badge" type="Label" parent="margin/root/bar/TopSeatRow/Seat2Panel/Column/Head" unique_id=766184269]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 
-[node name="Seat2Score" type="Label" parent="margin/root/TopSeatRow/Seat2Panel/Column" unique_id=1345664544]
-unique_name_in_owner = true
+[node name="Seat2Score" type="Label" parent="margin/root/bar/TopSeatRow/Seat2Panel/Column" unique_id=1345664544]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.95468724, 0.735357, 1)
 theme_override_font_sizes/font_size = 16
 
-[node name="Seat2Info" type="Label" parent="margin/root/TopSeatRow/Seat2Panel/Column" unique_id=1111216389]
-unique_name_in_owner = true
+[node name="Seat2Info" type="Label" parent="margin/root/bar/TopSeatRow/Seat2Panel/Column" unique_id=1111216389]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.8)
 theme_override_font_sizes/font_size = 11
 clip_text = true
 text_overrun_behavior = 3
 
-[node name="Row" type="HBoxContainer" parent="margin/root/TopSeatRow/Seat2Panel/Column" unique_id=776128286]
+[node name="Row2" type="HBoxContainer" parent="margin/root/bar/TopSeatRow/Seat2Panel/Column" unique_id=776128286]
 layout_mode = 2
 
-[node name="Spacer" type="Control" parent="margin/root/TopSeatRow/Seat2Panel/Column/Row" unique_id=77450944]
+[node name="TargetButton" type="Button" parent="margin/root/bar/TopSeatRow/Seat2Panel/Column/Row2" unique_id=716808128]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="margin/root/bar/TopSeatRow/Seat2Panel/Column/Row2" unique_id=77450944]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Seat2Target" type="Button" parent="margin/root/TopSeatRow/Seat2Panel/Column/Row" unique_id=716808128]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-text = "Choose"
-
-[node name="Seat2Cards" type="HBoxContainer" parent="margin/root/TopSeatRow/Seat2Panel/Column" unique_id=1640680165]
-unique_name_in_owner = true
+[node name="Seat2Cards" type="HBoxContainer" parent="margin/root/bar/TopSeatRow/Seat2Panel/Column" unique_id=1640680165]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="MidSlot" type="Control" parent="margin/root" unique_id=530416611]
+[node name="MidSlot" type="Control" parent="margin/root/bar" unique_id=530416611]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 3
 
-[node name="Mid" type="HBoxContainer" parent="margin/root/MidSlot" unique_id=487745131]
+[node name="Mid" type="HBoxContainer" parent="margin/root/bar/MidSlot" unique_id=487745131]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 0
@@ -183,270 +173,79 @@ offset_right = 40.0
 offset_bottom = 40.0
 theme_override_constants/separation = 8
 
-[node name="Seat1Panel" type="PanelContainer" parent="margin/root/MidSlot/Mid" unique_id=381706083]
-unique_name_in_owner = true
+[node name="Seat1Panel" type="PanelContainer" parent="margin/root/bar/MidSlot/Mid" unique_id=381706083]
 custom_minimum_size = Vector2(300, 0)
 clip_contents = true
 layout_mode = 2
 
-[node name="SeatRow" type="HBoxContainer" parent="margin/root/MidSlot/Mid/Seat1Panel" unique_id=1954226500]
+[node name="SeatRow" type="HBoxContainer" parent="margin/root/bar/MidSlot/Mid/Seat1Panel" unique_id=1954226500]
 layout_mode = 2
 
-[node name="Column" type="VBoxContainer" parent="margin/root/MidSlot/Mid/Seat1Panel/SeatRow" unique_id=1761649975]
+[node name="Column" type="VBoxContainer" parent="margin/root/bar/MidSlot/Mid/Seat1Panel/SeatRow" unique_id=1761649975]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="Head" type="HBoxContainer" parent="margin/root/MidSlot/Mid/Seat1Panel/SeatRow/Column" unique_id=1027465858]
+[node name="Head" type="HBoxContainer" parent="margin/root/bar/MidSlot/Mid/Seat1Panel/SeatRow/Column" unique_id=1027465858]
 layout_mode = 2
 
-[node name="Seat1Name" type="Label" parent="margin/root/MidSlot/Mid/Seat1Panel/SeatRow/Column/Head" unique_id=731934928]
-unique_name_in_owner = true
+[node name="Seat1Name" type="Label" parent="margin/root/bar/MidSlot/Mid/Seat1Panel/SeatRow/Column/Head" unique_id=731934928]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 
-[node name="Seat1Badge" type="Label" parent="margin/root/MidSlot/Mid/Seat1Panel/SeatRow/Column/Head" unique_id=1549269015]
-unique_name_in_owner = true
+[node name="Seat1Badge" type="Label" parent="margin/root/bar/MidSlot/Mid/Seat1Panel/SeatRow/Column/Head" unique_id=1549269015]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 
-[node name="Seat1Score" type="Label" parent="margin/root/MidSlot/Mid/Seat1Panel/SeatRow/Column" unique_id=768617287]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95468724, 0.735357, 1)
-theme_override_font_sizes/font_size = 16
-
-[node name="Seat1Info" type="Label" parent="margin/root/MidSlot/Mid/Seat1Panel/SeatRow/Column" unique_id=163202031]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.8)
-theme_override_font_sizes/font_size = 11
-clip_text = true
-text_overrun_behavior = 3
-
-[node name="Row" type="HBoxContainer" parent="margin/root/MidSlot/Mid/Seat1Panel/SeatRow/Column" unique_id=67271390]
-layout_mode = 2
-
-[node name="Spacer" type="Control" parent="margin/root/MidSlot/Mid/Seat1Panel/SeatRow/Column/Row" unique_id=1234017358]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Seat1Target" type="Button" parent="margin/root/MidSlot/Mid/Seat1Panel/SeatRow/Column/Row" unique_id=1395284731]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-text = "Choose"
-
-[node name="Seat1Cards" type="Control" parent="margin/root/MidSlot/Mid/Seat1Panel/SeatRow" unique_id=1771001785]
-unique_name_in_owner = true
+[node name="Seat1Cards" type="Control" parent="margin/root/bar/MidSlot/Mid/Seat1Panel/SeatRow" unique_id=1771001785]
 custom_minimum_size = Vector2(72, 0)
 clip_contents = true
 layout_mode = 2
 
-[node name="CenterArea" type="Control" parent="margin/root/MidSlot/Mid" unique_id=925708757]
-clip_contents = true
+[node name="CompassCenter" type="CenterContainer" parent="margin/root/bar/MidSlot/Mid" unique_id=1829671266]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TableImage" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1540025419]
-modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
-material = SubResource("ShaderMaterial_5asqp")
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("3_g8l5e")
-stretch_mode = 6
-
-[node name="CompassCenter" type="CenterContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1829671266]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-
-[node name="TurnCompass" type="Control" parent="margin/root/MidSlot/Mid/CenterArea/CompassCenter" unique_id=1352685893]
+[node name="TurnCompass" type="Control" parent="margin/root/bar/MidSlot/Mid/CompassCenter" unique_id=1352685893]
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("2_mnkod")
 metadata/_custom_type_script = "uid://do2sxspgf0u2e"
 
-[node name="Seat3Panel" type="PanelContainer" parent="margin/root/MidSlot/Mid" unique_id=920631560]
-unique_name_in_owner = true
+[node name="Seat3Panel" type="PanelContainer" parent="margin/root/bar/MidSlot/Mid" unique_id=920631560]
 custom_minimum_size = Vector2(300, 0)
 clip_contents = true
 layout_mode = 2
 
-[node name="SeatRow" type="HBoxContainer" parent="margin/root/MidSlot/Mid/Seat3Panel" unique_id=1610303591]
+[node name="SeatRow" type="HBoxContainer" parent="margin/root/bar/MidSlot/Mid/Seat3Panel" unique_id=1610303591]
 layout_mode = 2
 
-[node name="Seat3Cards" type="Control" parent="margin/root/MidSlot/Mid/Seat3Panel/SeatRow" unique_id=1709092792]
-unique_name_in_owner = true
+[node name="Column" type="VBoxContainer" parent="margin/root/bar/MidSlot/Mid/Seat3Panel/SeatRow" unique_id=821190701]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Head" type="HBoxContainer" parent="margin/root/bar/MidSlot/Mid/Seat3Panel/SeatRow/Column" unique_id=279131961]
+layout_mode = 2
+
+[node name="Seat1Name" type="Label" parent="margin/root/bar/MidSlot/Mid/Seat3Panel/SeatRow/Column/Head" unique_id=1784896073]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+
+[node name="Seat1Badge" type="Label" parent="margin/root/bar/MidSlot/Mid/Seat3Panel/SeatRow/Column/Head" unique_id=616803785]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+
+[node name="Seat1Cards" type="Control" parent="margin/root/bar/MidSlot/Mid/Seat3Panel/SeatRow" unique_id=1709092792]
 custom_minimum_size = Vector2(72, 0)
 clip_contents = true
 layout_mode = 2
-
-[node name="Column" type="VBoxContainer" parent="margin/root/MidSlot/Mid/Seat3Panel/SeatRow" unique_id=821190701]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="Head" type="HBoxContainer" parent="margin/root/MidSlot/Mid/Seat3Panel/SeatRow/Column" unique_id=279131961]
-layout_mode = 2
-
-[node name="Seat3Name" type="Label" parent="margin/root/MidSlot/Mid/Seat3Panel/SeatRow/Column/Head" unique_id=1784896073]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-
-[node name="Seat3Badge" type="Label" parent="margin/root/MidSlot/Mid/Seat3Panel/SeatRow/Column/Head" unique_id=616803785]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-
-[node name="Seat3Score" type="Label" parent="margin/root/MidSlot/Mid/Seat3Panel/SeatRow/Column" unique_id=1976115686]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95468724, 0.735357, 1)
-theme_override_font_sizes/font_size = 16
-
-[node name="Seat3Info" type="Label" parent="margin/root/MidSlot/Mid/Seat3Panel/SeatRow/Column" unique_id=739235968]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.8)
-theme_override_font_sizes/font_size = 11
-clip_text = true
-text_overrun_behavior = 3
-
-[node name="Row" type="HBoxContainer" parent="margin/root/MidSlot/Mid/Seat3Panel/SeatRow/Column" unique_id=1083667488]
-layout_mode = 2
-
-[node name="Seat3Target" type="Button" parent="margin/root/MidSlot/Mid/Seat3Panel/SeatRow/Column/Row" unique_id=507396448]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-text = "Choose"
-
-[node name="Spacer" type="Control" parent="margin/root/MidSlot/Mid/Seat3Panel/SeatRow/Column/Row" unique_id=372923620]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="PromptRow" type="HBoxContainer" parent="margin/root" unique_id=199576396]
-layout_mode = 2
-
-[node name="Prompt" type="Label" parent="margin/root/PromptRow" unique_id=9386330]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 0.92156863, 0.54509807, 1)
-theme_override_font_sizes/font_size = 17
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="CancelButton" type="Button" parent="margin/root/PromptRow" unique_id=2088306667]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Cancel"
-
-[node name="ShuffleButton" type="Button" parent="margin/root/PromptRow" unique_id=1596064961]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Shiffle My Hand"
-
-[node name="StartButton" type="Button" parent="margin/root/PromptRow" unique_id=825151693]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Lock Hand and Start Round"
-
-[node name="KeepButton" type="Button" parent="margin/root/PromptRow" unique_id=1309432727]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Keep it & end turn"
-
-[node name="Seat0Panel" type="PanelContainer" parent="margin/root" unique_id=2091436916]
-unique_name_in_owner = true
-clip_contents = true
-layout_mode = 2
-
-[node name="Column" type="VBoxContainer" parent="margin/root/Seat0Panel" unique_id=1438714214]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Head" type="HBoxContainer" parent="margin/root/Seat0Panel/Column" unique_id=1401111500]
-layout_mode = 2
-
-[node name="Seat0Name" type="Label" parent="margin/root/Seat0Panel/Column/Head" unique_id=540635257]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-
-[node name="Seat0Badge" type="Label" parent="margin/root/Seat0Panel/Column/Head" unique_id=1422552582]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-
-[node name="Seat0Score" type="Label" parent="margin/root/Seat0Panel/Column" unique_id=1409492544]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95468724, 0.735357, 1)
-theme_override_font_sizes/font_size = 16
-
-[node name="Seat0Info" type="Label" parent="margin/root/Seat0Panel/Column" unique_id=440287296]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.8)
-theme_override_font_sizes/font_size = 11
-clip_text = true
-text_overrun_behavior = 3
-
-[node name="Row" type="HBoxContainer" parent="margin/root/Seat0Panel/Column" unique_id=454362574]
-layout_mode = 2
-
-[node name="Spacer" type="Control" parent="margin/root/Seat0Panel/Column/Row" unique_id=947425293]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Seat0Target" type="Button" parent="margin/root/Seat0Panel/Column/Row" unique_id=1005683394]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-text = "Choose"
-
-[node name="PairsRow" type="HBoxContainer" parent="margin/root/Seat0Panel/Column" unique_id=1867522993]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="margin/root/Seat0Panel/Column/PairsRow" unique_id=1623313771]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.70000005)
-theme_override_font_sizes/font_size = 12
-text = "Pairs Made:"
-
-[node name="Seat0Pairs" type="HFlowContainer" parent="margin/root/Seat0Panel/Column/PairsRow" unique_id=2075156677]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/h_separation = 3
-theme_override_constants/v_separation = 3
-
-[node name="Seat0CardArea" type="CenterContainer" parent="margin/root/Seat0Panel/Column" unique_id=1115460719]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 124)
-layout_mode = 2
-
-[node name="Seat0Cards" type="HBoxContainer" parent="margin/root/Seat0Panel/Column/Seat0CardArea" unique_id=918893749]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = -14
 
 [node name="MenuPopup" type="PopupPanel" parent="." unique_id=53824035]
 unique_name_in_owner = true
 oversampling_override = 1.0
 size = Vector2i(320, 350)
+visible = true
 transient_to_focused = true
 exclude_from_capture = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_g8l5e")
@@ -483,27 +282,21 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_vmv58")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_25ech")
 theme_override_styles/hover = SubResource("StyleBoxFlat_wmx4n")
 
-[node name="MarginContainer" type="MarginContainer" parent="MenuPopup/MenuMargin/MenuItems/TrackerButton" unique_id=532235981]
+[node name="Row" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems/TrackerButton" unique_id=161486304]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = -1
+offset_left = 10.0
+offset_right = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_right = 10
 
-[node name="Row" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems/TrackerButton/MarginContainer" unique_id=161486304]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="TitleLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/TrackerButton/MarginContainer/Row" unique_id=749614110]
+[node name="TitleLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/TrackerButton/Row" unique_id=749614110]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Card Tracker"
 
-[node name="ShortcutLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/TrackerButton/MarginContainer/Row" unique_id=782603451]
+[node name="ShortcutLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/TrackerButton/Row" unique_id=782603451]
 modulate = Color(1, 1, 1, 0.6)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
@@ -517,25 +310,18 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_vmv58")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_25ech")
 theme_override_styles/hover = SubResource("StyleBoxFlat_wmx4n")
 
-[node name="MarginContainer" type="MarginContainer" parent="MenuPopup/MenuMargin/MenuItems/RulesButton" unique_id=1352835401]
+[node name="Row" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems/RulesButton" unique_id=61589274]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = -1
+offset_left = 10.0
+offset_right = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_right = 10
 
-[node name="Row" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems/RulesButton/MarginContainer" unique_id=61589274]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="TitleLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/RulesButton/MarginContainer/Row" unique_id=1894393310]
+[node name="TitleLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/RulesButton/Row" unique_id=1894393310]
 layout_mode = 2
 text = "Rules / How to play"
-horizontal_alignment = 1
 
 [node name="SpecialsButton" type="Button" parent="MenuPopup/MenuMargin/MenuItems" unique_id=1396835671]
 custom_minimum_size = Vector2(248, 40)
@@ -544,22 +330,16 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_vmv58")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_25ech")
 theme_override_styles/hover = SubResource("StyleBoxFlat_wmx4n")
 
-[node name="MarginContainer" type="MarginContainer" parent="MenuPopup/MenuMargin/MenuItems/SpecialsButton" unique_id=2010561669]
+[node name="Row" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems/SpecialsButton" unique_id=1798479459]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = -1
+offset_left = 10.0
+offset_right = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_right = 10
 
-[node name="Row" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems/SpecialsButton/MarginContainer" unique_id=1798479459]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="TitleLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/SpecialsButton/MarginContainer/Row" unique_id=2078493137]
+[node name="TitleLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/SpecialsButton/Row" unique_id=2078493137]
 layout_mode = 2
 text = "Special Card Roles"
 
@@ -587,22 +367,16 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_vmv58")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_25ech")
 theme_override_styles/hover = SubResource("StyleBoxFlat_wmx4n")
 
-[node name="MarginContainer" type="MarginContainer" parent="MenuPopup/MenuMargin/MenuItems/RestartGameButton" unique_id=2343786]
+[node name="Row" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems/RestartGameButton" unique_id=1544378870]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = -1
+offset_left = 10.0
+offset_right = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_right = 10
 
-[node name="Row" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems/RestartGameButton/MarginContainer" unique_id=1544378870]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="TitleLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/RestartGameButton/MarginContainer/Row" unique_id=1429358005]
+[node name="TitleLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/RestartGameButton/Row" unique_id=1429358005]
 layout_mode = 2
 text = "Restart Game"
 
@@ -614,66 +388,21 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_vmv58")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_25ech")
 theme_override_styles/hover = SubResource("StyleBoxFlat_wmx4n")
 
-[node name="MarginContainer" type="MarginContainer" parent="MenuPopup/MenuMargin/MenuItems/MainMenuButton" unique_id=554158500]
+[node name="Row" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems/MainMenuButton" unique_id=1385355509]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = -1
+offset_left = 10.0
+offset_right = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_right = 10
 
-[node name="Row" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems/MainMenuButton/MarginContainer" unique_id=1385355509]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="TitleLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/MainMenuButton/MarginContainer/Row" unique_id=1693025895]
+[node name="TitleLabel" type="Label" parent="MenuPopup/MenuMargin/MenuItems/MainMenuButton/Row" unique_id=1693025895]
 layout_mode = 2
 text = "Main Menu"
 
-[node name="ToastCanvas" type="CanvasLayer" parent="." unique_id=379252037]
-layer = 10
-
-[node name="top" type="MarginContainer" parent="ToastCanvas" unique_id=406158613]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_top = -30.0
-offset_bottom = 30.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/margin_bottom = 60
-
-[node name="ToastBox" type="VBoxContainer" parent="ToastCanvas/top" unique_id=940833557]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 6
-
-[node name="PairCanvas" type="CanvasLayer" parent="." unique_id=1277686814]
-layer = 20
-
-[node name="PairAnimationLayer" type="Control" parent="PairCanvas" unique_id=1212557976]
-unique_name_in_owner = true
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
 [connection signal="timeout" from="BotTimer" to="." method="_on_bot_timer"]
 [connection signal="pressed" from="margin/root/bar/MenuButton" to="." method="_toggle_menu_popup"]
-[connection signal="pressed" from="margin/root/PromptRow/CancelButton" to="." method="_cancel_selection"]
-[connection signal="pressed" from="margin/root/PromptRow/ShuffleButton" to="." method="_on_shuffle_pressed"]
-[connection signal="pressed" from="margin/root/PromptRow/StartButton" to="." method="_on_start_pressed"]
-[connection signal="pressed" from="margin/root/PromptRow/KeepButton" to="." method="_on_keep_pressed"]
 [connection signal="close_requested" from="MenuPopup" to="." method="hide"]
 [connection signal="popup_hide" from="MenuPopup" to="." method="_on_menu_popup_hidden"]
 [connection signal="pressed" from="MenuPopup/MenuMargin/MenuItems/TrackerButton" to="." method="_on_menu_tracker"]

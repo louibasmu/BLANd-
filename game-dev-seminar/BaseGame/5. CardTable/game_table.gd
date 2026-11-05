@@ -10,15 +10,10 @@ extends Control
 const MENU_SCENE := "res://BaseGame/2. MainMenu/main_menu.tscn"
 # Folder holding the card pictures; _tex() loads them from here by file name.
 const CARD_DIR := "res://Card Assets/"
-const CUSTOM_CARD_DIR := CARD_DIR + "BLANd Made Cards/"
-const ENVIRONMENT_DIR := "res://Environment Assets/"
-const BACKGROUND_BLUR_SHADER := preload("res://BaseGame/background_blur.gdshader")
-const TITLE_FONT := preload("res://Fonts/Blackadder ITC Std Regular.otf")
 # Card sizes in pixels: big for the human's own hand, small for the opponents' face-down cards.
-#5 to 7 ratio on the width and height
-const BIG_CARD := Vector2(90, 126)
-const SMALL_CARD := Vector2(50, 70)
-const SIDE_CARD := Vector2(70, 50)
+const BIG_CARD := Vector2(78, 111)
+const SMALL_CARD := Vector2(40, 57)
+const SIDE_CARD := Vector2(57, 40)
 const MAX_MIDDLE_HEIGHT := 440.0
 # Seat number of the human player (always 0).
 const HUMAN := 0
@@ -58,6 +53,8 @@ var _paused: bool = false
 @onready var _menu_popup: PopupPanel = %MenuPopup
 @onready var _menu_jokers_label: Label = %MenuJokersLabel
 @onready var _menu_speed_option: OptionButton = %BotSpeedButton
+@onready var _root: VBoxContainer = $margin/root
+@onready var _top_seat_row: CenterContainer = %TopSeatRow
 @onready var _mid_slot: Control = %MidSlot
 @onready var _mid: HBoxContainer = %Mid
 @onready var _compass: TurnCompass = %TurnCompass
@@ -92,9 +89,7 @@ var _pair_animation_running: bool = false
 # connect the game's signals to the handlers below, and deal the first round.
 func _ready() -> void:
 	get_window().min_size = Vector2i(1280, 720)
-	#ensuring that UI is scaled correctly when registering seats
-	_register_seats()
-	_apply_responsive_scale()
+	_build_ui()
 	get_viewport().size_changed.connect(_on_viewport_resized)
 	
 	game = BlandGame.new(GameSettings.num_rounds)
@@ -102,6 +97,8 @@ func _ready() -> void:
 	game.changed.connect(_queue_refresh)   # many changes in one action -> one redraw
 	game.private_info.connect(_on_private_info)
 	game.pair_made.connect(_on_pair_made)
+	game.turn_ended.connect(_on_turn_ended)
+	game.joker_received.connect(_on_joker_received)
 	game.turn_started.connect(_on_turn_started)
 	game.turn_continued.connect(_on_turn_continued)
 	game.special_drawn.connect(_on_special_drawn)
@@ -140,55 +137,103 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 # ================================================================ layout
-# The screen is made of Godot container nodes , laid out as:
+# The screen is made of Godot container nodes created in code, laid out as:
 #   top bar / top bot / capped middle row / prompt row / human's seat.
 
-
-func _top_button_style(fill: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = Color(1, 1, 1, 0.28)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(7)
-	style.content_margin_left = 10
-	style.content_margin_right = 10
-	style.content_margin_top = 6
-	style.content_margin_bottom = 6
-	return style
+func _build_ui() -> void:
 
 
-func _add_menu_item(container: VBoxContainer, title: String, shortcut: String, action: Callable) -> void:
-	var button := Button.new()
-	button.custom_minimum_size = Vector2(248, 40)
-	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	button.add_theme_stylebox_override("normal", _top_button_style(Color(0.08, 0.16, 0.13, 0)))
-	button.add_theme_stylebox_override("hover", _top_button_style(Color(0.18, 0.34, 0.26)))
-	button.add_theme_stylebox_override("pressed", _top_button_style(Color(0.12, 0.25, 0.19)))
-	var row := HBoxContainer.new()
-	row.set_anchors_preset(Control.PRESET_FULL_RECT)
-	row.offset_left = 10
-	row.offset_right = -10
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(row)
-	var title_label := Label.new()
-	title_label.text = title
-	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(title_label)
-	if not shortcut.is_empty():
-		var shortcut_label := Label.new()
-		shortcut_label.text = shortcut
-		shortcut_label.add_theme_font_size_override("font_size", 12)
-		shortcut_label.modulate = Color(1, 1, 1, 0.6)
-		shortcut_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		shortcut_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(shortcut_label)
-	button.pressed.connect(func() -> void:
-		_menu_popup.hide()
-		action.call())
-	container.add_child(button)
+	# --- top bot (seat 2)
+	var top_row := CenterContainer.new()
+	root.add_child(top_row)
+	top_row.add_child(_make_seat(2, 620))
+
+	# --- middle: left bot, turn compass, right bot
+	var mid_slot := Control.new()
+	mid_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	mid_slot.clip_contents = true
+	root.add_child(mid_slot)
+	var mid := HBoxContainer.new()
+	mid.clip_contents = true
+	mid.add_theme_constant_override("separation", 8)
+	mid_slot.add_child(mid)
+	mid_slot.resized.connect(_layout_middle.bind(mid_slot, mid))
+	_layout_middle(mid_slot, mid)
+	mid.add_child(_make_seat(1, 300))
+	var compass_center := CenterContainer.new()
+	compass_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	compass_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	mid.add_child(compass_center)
+	_compass = TurnCompass.new()   # which way play is going + who's up next
+	compass_center.add_child(_compass)
+	mid.add_child(_make_seat(3, 300))
+
+	# --- prompt
+	var prompt_row := HBoxContainer.new()
+	root.add_child(prompt_row)
+	_prompt = Label.new()
+	_prompt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_prompt.add_theme_font_size_override("font_size", 17)
+	_prompt.add_theme_color_override("font_color", Color(1, 0.92, 0.55))
+	# Wraps long prompts so they never push the buttons off-screen.
+	_prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART   # long prompts wrap instead of pushing buttons off-screen
+	_prompt.custom_minimum_size = Vector2(200, 0)
+	prompt_row.add_child(_prompt)
+	_cancel_btn = Button.new()
+	_cancel_btn.text = "Cancel"
+	_cancel_btn.pressed.connect(_cancel_selection)
+	prompt_row.add_child(_cancel_btn)
+	_shuffle_btn = Button.new()
+	_shuffle_btn.text = "Shuffle my hand"
+	# The "Shuffle my hand" and "Lock hand & start round" buttons only appear in the ARRANGE phase,
+	# "Keep it & end turn" only right after drawing a special; _refresh() decides which are visible.
+	_shuffle_btn.pressed.connect(func() -> void:
+		_arrange_sel = -1
+		game.shuffle_hand(HUMAN))
+	prompt_row.add_child(_shuffle_btn)
+	_start_btn = Button.new()
+	_start_btn.text = "Lock hand & start round"
+	_start_btn.pressed.connect(func() -> void:
+		_arrange_sel = -1
+		game.finish_arranging())
+	prompt_row.add_child(_start_btn)
+	_keep_btn = Button.new()
+	_keep_btn.text = "Keep it & end turn"
+	_keep_btn.pressed.connect(func() -> void:
+		_clear_selection()
+		game.pass_turn(HUMAN))
+	prompt_row.add_child(_keep_btn)
+
+	# --- you (seat 0)
+	var human_seat := _make_seat(0, 0)
+	human_seat.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.add_child(human_seat)
+
+	# --- alert pop-ups (own layer so they show above everything)
+	var layer := CanvasLayer.new()
+	layer.layer = 10
+	add_child(layer)
+	var top := MarginContainer.new()
+	top.set_anchors_preset(Control.PRESET_CENTER)
+	top.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	top.grow_vertical = Control.GROW_DIRECTION_BOTH
+	top.add_theme_constant_override("margin_bottom", 60)
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(top)
+	_toast_box = VBoxContainer.new()
+	_toast_box.add_theme_constant_override("separation", 6)
+	_toast_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	top.add_child(_toast_box)
+
+	var pair_canvas := CanvasLayer.new()
+	pair_canvas.layer = 20
+	add_child(pair_canvas)
+	_pair_animation_layer = Control.new()
+	_pair_animation_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_pair_animation_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pair_canvas.add_child(_pair_animation_layer)
+	_apply_responsive_scale()
 
 
 func _toggle_menu_popup() -> void:
@@ -284,6 +329,115 @@ func _set_scaled_font_size(control: Control, base_size: int, scale: float) -> vo
 	control.add_theme_font_size_override("font_size", roundi(base_size * scale))
 
 
+# Builds the panel for one seat: name, "PLAYING"/"NEXT" badge, score line, the pairs they have made,
+# a "Choose" button for targeting them, and a container for their cards (a row for the
+# human's big overlapping cards, a wrapping flow for opponents' small ones).
+# `i` is the seat number; `min_width` stops the opponents' panels from collapsing.
+# Everything needed to update the seat later is stored in _seats[i].
+func _make_seat(i: int, min_width: float) -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(min_width, 0)
+	panel.clip_contents = true
+	if i == 1 or i == 3:
+		panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 4)
+	var side_cards: Control
+	if i == 1 or i == 3:
+		var seat_row := HBoxContainer.new()
+		seat_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		panel.add_child(seat_row)
+		side_cards = Control.new()
+		side_cards.custom_minimum_size = Vector2(72, 0)
+		side_cards.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		side_cards.clip_contents = true
+		side_cards.resized.connect(_layout_side_cards.bind(side_cards))
+		v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if i == 1:
+			seat_row.add_child(v)
+			seat_row.add_child(side_cards)
+		else:
+			seat_row.add_child(side_cards)
+			seat_row.add_child(v)
+	else:
+		panel.add_child(v)
+
+	var head := HBoxContainer.new()
+	v.add_child(head)
+	var name_l := Label.new()
+	name_l.add_theme_font_size_override("font_size", 14)
+	head.add_child(name_l)
+	var badge := Label.new()   # "PLAYING" / "NEXT"
+	badge.add_theme_font_size_override("font_size", 10)
+	head.add_child(badge)
+	var score_l := Label.new()
+	score_l.add_theme_font_size_override("font_size", 16)
+	score_l.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
+	v.add_child(score_l)
+	var info_l := Label.new()
+	info_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info_l.clip_text = true
+	info_l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	info_l.add_theme_font_size_override("font_size", 11)
+	info_l.modulate = Color(1, 1, 1, 0.8)
+	v.add_child(info_l)
+
+	# Keep the action button on its own row so it never competes with the pairs.
+	var row2 := HBoxContainer.new()
+	v.add_child(row2)
+	var target_btn := Button.new()
+	target_btn.text = "Choose"
+	target_btn.visible = false
+	target_btn.pressed.connect(_on_target_chosen.bind(i))
+	var target_spacer := Control.new()
+	target_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if i == 1:
+		row2.add_child(target_btn)
+		row2.add_child(target_spacer)
+	else:
+		row2.add_child(target_spacer)
+		row2.add_child(target_btn)
+
+	var pairs_box: HFlowContainer = null
+	if i == HUMAN:
+		var pairs_row := HBoxContainer.new()
+		v.add_child(pairs_row)
+		var pairs_l := Label.new()
+		pairs_l.text = "Pairs made:"
+		pairs_l.add_theme_font_size_override("font_size", 12)
+		pairs_l.modulate = Color(1, 1, 1, 0.7)
+		pairs_row.add_child(pairs_l)
+		pairs_box = HFlowContainer.new()
+		pairs_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		pairs_box.add_theme_constant_override("h_separation", 3)
+		pairs_box.add_theme_constant_override("v_separation", 3)
+		pairs_row.add_child(pairs_box)
+
+	var cards: Control
+	var card_area: Control = null
+	if i == HUMAN:
+		var c := CenterContainer.new()
+		c.custom_minimum_size = Vector2(0, BIG_CARD.y + 13)
+		c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		v.add_child(c)
+		card_area = c
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", -14)   # overlap a little
+		c.add_child(row)
+		cards = row
+	elif i == 1 or i == 3:
+		cards = side_cards
+	else:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 2)
+		v.add_child(row)
+		cards = row
+
+	_seats[i] = {"panel": panel, "name": name_l, "badge": badge, "score": score_l, "info": info_l,
+		"cards": cards, "card_area": card_area, "target": target_btn, "pairs": pairs_box}
+	return panel
+
+
 func _layout_middle(slot: Control, middle: Control) -> void:
 	var height := minf(MAX_MIDDLE_HEIGHT, slot.size.y)
 	middle.position = Vector2(0, (slot.size.y - height) / 2.0)
@@ -308,29 +462,11 @@ func _box(fill: Color, border: Color, width: int = 0) -> StyleBoxFlat:
 
 # Loads a card picture the first time it is asked for and remembers it. Returns null if the file
 # doesn't exist yet (e.g. art that hasn't been added), instead of crashing.
-func _tex(file: String, rotate_clockwise: bool = false) -> Texture2D:
-	var cache_key := ("rotated:" if rotate_clockwise else "") + file
-	if not _tex_cache.has(cache_key):
-		var path := _texture_path(file)
-		var texture := load(path) as Texture2D if not path.is_empty() else null
-		if rotate_clockwise and texture != null:
-			var image := texture.get_image()
-			if not image.is_empty():
-				image.rotate_90(ClockDirection.CLOCKWISE)
-				texture = ImageTexture.create_from_image(image)
-		_tex_cache[cache_key] = texture
-	return _tex_cache[cache_key]
-
-func _texture_path(file: String) -> String:
-	var environment_path := ENVIRONMENT_DIR + file
-	if ResourceLoader.exists(environment_path):
-		return environment_path
-	var custom_path := CUSTOM_CARD_DIR + file
-	if ResourceLoader.exists(custom_path):
-		return custom_path
-	var card_path := CARD_DIR + file
-	return card_path if ResourceLoader.exists(card_path) else ""
-
+func _tex(file: String) -> Texture2D:
+	if not _tex_cache.has(file):
+		var path := CARD_DIR + file
+		_tex_cache[file] = load(path) if ResourceLoader.exists(path) else null
+	return _tex_cache[file]
 
 
 func _layout_side_cards(cards: Control) -> void:
@@ -352,8 +488,8 @@ func _layout_side_cards(cards: Control) -> void:
 ## `on_click` is a Callable to run when it is clicked; an invalid (empty) Callable means the card is not clickable.
 ## `highlight` raises and tints the card (used when a bot is about to take it, or for a card you just drew).
 func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_click: Callable,
-		highlight: bool = false, face_down_texture: String = "backside.jpeg",
-		number_inside: bool = false, rotate_texture: bool = false) -> Control:
+		highlight: bool = false, face_down_texture: String = "card_back.png",
+		number_inside: bool = false) -> Control:
 	var holder: Control
 	if number_inside:
 		holder = Control.new()
@@ -364,11 +500,7 @@ func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_cl
 		holder = column
 
 	var btn := TextureButton.new()
-	var texture_file := card.texture_file() if face_up else face_down_texture
-	var has_special_art := face_up and card.is_special() and not _texture_path(texture_file).is_empty()
-	if face_up and card.is_special() and not has_special_art:
-		texture_file = "card_empty.png"
-	btn.texture_normal = _tex(texture_file, rotate_texture)
+	btn.texture_normal = _tex(card.texture_file() if face_up else face_down_texture)
 	btn.ignore_texture_size = true
 	btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	btn.custom_minimum_size = size
@@ -376,8 +508,9 @@ func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_cl
 		btn.set_anchors_preset(Control.PRESET_FULL_RECT)
 	holder.add_child(btn)
 
+	# Specials have no finished art yet, so a coloured band with the card's name is drawn on top of a blank card.
 	if face_up and card.is_special():
-		_add_special_overlay(btn, card, size, has_special_art)
+		_add_special_overlay(btn, card, size)
 
 	# Clickable cards get a pointer cursor and light up / lift when the mouse is over them.
 	if on_click.is_valid():
@@ -422,13 +555,15 @@ func _card_view(card: BlandCard, face_up: bool, size: Vector2, index: int, on_cl
 	return holder
 
 
-# Adds the effect name and rarity border; with custom art, the caption stays small so it doesn't hide the illustration.
-func _add_special_overlay(btn: Control, card: BlandCard, size: Vector2, has_art: bool) -> void:
+# Draws the placeholder look of a special card: a coloured band, the name in capitals, and a border whose colour shows its rarity.
+# Font and border sizes scale with the card size so it looks right on both big and small cards.
+func _add_special_overlay(btn: Control, card: BlandCard, size: Vector2) -> void:
+	var col: Color = BlandCard.SPECIAL_COLORS[card.special]
 	var band := ColorRect.new()
-	band.color = Color(0.05, 0.03, 0.08, 0.82) if has_art else BlandCard.SPECIAL_COLORS[card.special]
+	band.color = col
 	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	band.position = Vector2(size.x * (0.06 if has_art else 0.1), size.y * (0.79 if has_art else 0.32))
-	band.size = Vector2(size.x * (0.88 if has_art else 0.8), size.y * (0.15 if has_art else 0.36))
+	band.position = Vector2(size.x * 0.1, size.y * 0.32)
+	band.size = Vector2(size.x * 0.8, size.y * 0.36)
 	btn.add_child(band)
 	var l := Label.new()
 	l.text = card.special_name().to_upper()
@@ -521,7 +656,6 @@ func _play_next_pair_animation() -> void:
 	var title := Label.new()
 	title.text = "%s made a pair!" % player.display_name
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_override("font", TITLE_FONT)
 	title.add_theme_font_size_override("font_size", 26)
 	title.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
 	title.position = center + Vector2(-200, -115)
@@ -776,9 +910,8 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 					and not game.last_peek.is_empty() and game.last_peek["target"] == i \
 					and game.last_peek["index"] == idx:
 				hl = true
-			var back_texture := "backside.jpeg"
-			box.add_child(_card_view(p.hand[idx], false, card_size, idx, cb, hl, back_texture,
-				side_hand or i == 2, side_hand))
+			var back_texture := "card_back_side.png" if side_hand else "card_back.png"
+			box.add_child(_card_view(p.hand[idx], false, card_size, idx, cb, hl, back_texture, side_hand or i == 2))
 		if side_hand:
 			_layout_side_cards(box)
 
@@ -1172,7 +1305,6 @@ func _show_modal(title: String, body, card: BlandCard, buttons: Array) -> void:
 	var t := Label.new()
 	t.text = title
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	t.add_theme_font_override("font", TITLE_FONT)
 	t.add_theme_font_size_override("font_size", 24)
 	v.add_child(t)
 	if card != null:
@@ -1249,7 +1381,6 @@ func _toggle_pause() -> void:
 	var t := Label.new()
 	t.text = "Paused"
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	t.add_theme_font_override("font", TITLE_FONT)
 	t.add_theme_font_size_override("font_size", 28)
 	v.add_child(t)
 	for entry in [["Resume", _toggle_pause],
@@ -1339,39 +1470,3 @@ func _show_rules() -> void:
 	b.pressed.connect(_close_modal)
 	v.add_child(b)
 	add_child(_modal)
-
-
-func _on_shuffle_pressed() -> void:
-	_arrange_sel = -1
-	game.shuffle_hand(HUMAN)
-
-
-func _on_start_pressed() -> void:
-	_arrange_sel = -1
-	game.finish_arranging()
-
-
-func _on_keep_pressed() -> void:
-	_clear_selection()
-	game.pass_turn(HUMAN)
-
-func _register_seats() -> void:
-	for i in 4:
-		var cards: Control = get_node("%%Seat%dCards" % i)
-		var target: Button = get_node("%%Seat%dTarget" % i)
-		target.pressed.connect(_on_target_chosen.bind(i))
-		if i == 1 or i == 3:
-			cards.resized.connect(_layout_side_cards.bind(cards))
-		_seats[i] = {
-			"panel": get_node("%%Seat%dPanel" % i),
-			"name": get_node("%%Seat%dName" % i),
-			"badge": get_node("%%Seat%dBadge" % i),
-			"score": get_node("%%Seat%dScore" % i),
-			"info": get_node("%%Seat%dInfo" % i),
-			"cards": cards,
-			"card_area": get_node_or_null("%Seat0CardArea") if i == HUMAN else null,
-			"target": target,
-			"pairs": get_node_or_null("%Seat0Pairs") if i == HUMAN else null,
-		}
-	_mid_slot.resized.connect(_layout_middle.bind(_mid_slot, _mid))
-	_layout_middle(_mid_slot, _mid)

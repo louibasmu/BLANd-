@@ -14,32 +14,12 @@ computer_cards_area = Rect2(0.23, 0.18, 0.8, 0.18)
 computer_1_name_area = Rect2(0.1, 0.15, 0.4, 0.04)
 computer_2_name_area = Rect2(0.5, 0.15, 0.4, 0.04)
 
-[node name="shade_colorRect" type="ColorRect" parent="." unique_id=1244090768]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
 [node name="draw_cards_control" type="Control" parent="." unique_id=258174923]
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="hand_cards_control" type="Control" parent="." unique_id=1157664752]
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="animation_layer_control" type="Control" parent="." unique_id=1735512594]
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="action_label" type="Label" parent="." unique_id=1524850443]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-
-[node name="animation_layer2_control" type="Control" parent="." unique_id=614804325]
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
