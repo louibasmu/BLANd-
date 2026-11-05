@@ -35,6 +35,28 @@ const SPECIAL_NAMES := {
 	Special.VISION: "Vision",
 }
 
+const PAIR_TEXTURES := {
+	1: "Ace.png",
+	2: "two.png",
+	3: "three.png",
+	4: "Four.png",
+	5: "five.png",
+	6: "Six.png",
+	7: "seven.png",
+	8: "eight.png",
+	9: "nine.png",
+	10: "Ten.png",
+}
+
+const SPECIAL_TEXTURES := {
+	Special.SKIP: "sloth_card.png",
+	Special.REVERSE: "wrath_card.png",
+	Special.GIVE: "greed_card.png",
+	Special.FREEZE: "gluttony_card.png",
+	Special.ANGEL: "pride_card.png",
+	Special.VISION: "envy_card.png",
+}
+
 # One-line description of each special, used for tooltips / the card info text.
 const SPECIAL_HELP := {
 	Special.SKIP: "Next player loses their turn",
@@ -45,7 +67,7 @@ const SPECIAL_HELP := {
 	Special.VISION: "Peek at a card, then take it or leave it",
 }
 
-# Placeholder colours for special cards until Ash's art is in.
+# Fallback colours used if a special-card illustration is unavailable.
 const SPECIAL_COLORS := {
 	Special.SKIP: Color(0.85, 0.35, 0.1),
 	Special.REVERSE: Color(0.15, 0.45, 0.85),
@@ -222,28 +244,19 @@ func special_name() -> String:
 # TEXTURE FILE
 # ============================================================================
 
-## File name inside res://Sprites/Card Assets/
-## Builds the picture file name. Pair cards map to e.g. card_clubs_04.png (Ace is "A",
-## other ranks are zero-padded to two digits to match the asset names).
-# PSEUDO:
-#   FUNCTION texture_file():
-#       IF kind == PAIR:
-#           IF rank == 1: r = "A"
-#           ELSE:         r = rank padded to 2 digits     # 4 -> "04"
-#           RETURN "card_" + r + ".png"
-#       IF kind == SPECIAL:
-#           RETURN "card_back.png"          # text is drawn on top for now
-#       ELSE:
-#           RETURN "card_joker_black.png"
+## File name inside the card art folders. Pair faces use the custom rank images;
+## specials and Jokers use their themed illustrations.
 func texture_file() -> String:
 	match kind:
 		Kind.PAIR:
+			if PAIR_TEXTURES.has(rank):
+				return str(PAIR_TEXTURES[rank])
 			var r := "A" if rank == 1 else "%02d" % rank
-			return "card_%s_%s.png" % [suit, r]
+			return "card_%s.png" % r
 		Kind.SPECIAL:
-			return "card_empty.png"   # text is drawn on top for now
+			return str(SPECIAL_TEXTURES.get(special, "card_empty.png"))
 		_:
-			return "card_joker_black.png"
+			return "joker_card.png"
 
 # ============================================================================
 # SORTING

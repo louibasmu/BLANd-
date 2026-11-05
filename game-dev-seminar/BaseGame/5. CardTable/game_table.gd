@@ -12,7 +12,7 @@ const MENU_SCENE := "res://BaseGame/2. MainMenu/main_menu.tscn"
 const CARD_DIR := "res://Card Assets/"
 const CUSTOM_CARD_DIR := CARD_DIR + "BLANd Made Cards/"
 const ENVIRONMENT_DIR := "res://Environment Assets/"
-#const BACKGROUND_BLUR_SHADER := preload("res://BaseGame/background_blur.gdshader")
+const BACKGROUND_BLUR_SHADER := preload("res://Environment Assets/background_blur.gdshader")
 const TITLE_FONT := preload("res://Fonts/Blackadder ITC Std Regular.otf")
 # Card sizes in pixels: big for the human's own hand, small for the opponents' face-down cards.
 #5 to 7 ratio on the width and height
