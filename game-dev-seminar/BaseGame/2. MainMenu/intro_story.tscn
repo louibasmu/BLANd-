@@ -1,0 +1,106 @@
+[gd_scene format=3 uid="uid://c0kuc4jcka7wh"]
+
+[ext_resource type="Script" uid="uid://b8fs86kn8spj1" path="res://BaseGame/2. MainMenu/intro_story.gd" id="1_u31pj"]
+[ext_resource type="Texture2D" uid="uid://mtqopwkjmew" path="res://BaseGame/X.jpeg" id="2_3v3jw"]
+[ext_resource type="AudioStream" uid="uid://c4xmc1jrf3t73" path="res://sound_assets/ScaryMusic2018-10-12_-_It_Is_Coming_-_David_Fesliyan.mp3" id="2_tx0by"]
+[ext_resource type="FontFile" uid="uid://beqhif7l28ciw" path="res://Fonts/LibreBaskerville.ttf" id="3_3v3jw"]
+[ext_resource type="AudioStream" uid="uid://dumay4o84sh22" path="res://wii-keyboard-click-3.mp3" id="4_niqfb"]
+
+[sub_resource type="Theme" id="Theme_x0vsp"]
+
+[sub_resource type="FontVariation" id="FontVariation_niqfb"]
+base_font = ExtResource("3_3v3jw")
+
+[node name="IntroStory" type="Control" unique_id=1582264726]
+custom_maximum_size = Vector2(0, -1)
+layout_mode = 3
+anchor_top = 0.5
+anchor_bottom = 0.5
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme = SubResource("Theme_x0vsp")
+script = ExtResource("1_u31pj")
+menu_scene = "uid://cn6hgnd16x23b"
+lines = Array[String](["You wake in the dark.", "Rope on your wrists.", "Three strangers. One table.
+Every one of them guilty.", "A masked man deals the cards.", "Only one of you can survive."])
+text_color = Color(0.9907475, 0.9622629, 0.980622, 1)
+blood_color = Color(0.7490196, 0.12156863, 0.12156863, 1)
+type_delay = 0.05
+music_fade_in = 0.5
+
+[node name="Background2" type="ColorRect" parent="." unique_id=1803045966]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.06053035, 0.06053035, 0.060530342, 1)
+
+[node name="BackgroundPic2" type="TextureRect" parent="." unique_id=415892830]
+layout_mode = 1
+anchors_preset = -1
+offset_left = -38.0
+offset_top = -369.0
+offset_right = 1281.0
+offset_bottom = 378.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_3v3jw")
+expand_mode = 1
+
+[node name="Dim" type="ColorRect" parent="." unique_id=401143022]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(1, 1, 1, 0)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1153389611]
+custom_minimum_size = Vector2(2, 0)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -29.0
+offset_right = 1.0
+offset_bottom = 29.0
+grow_vertical = 2
+
+[node name="StoryLabel" type="Label" parent="CenterContainer" unique_id=1655492682]
+layout_mode = 2
+theme_override_fonts/font = SubResource("FontVariation_niqfb")
+theme_override_font_sizes/font_size = 46
+
+[node name="HintLabel" type="Label" parent="." unique_id=303926937]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="SkipButton" type="Button" parent="." unique_id=204437529]
+modulate = Color(0.9702564, 0.9884185, 0.9959453, 1)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 1187.0
+offset_top = 205.0
+offset_right = 1258.0
+offset_bottom = 251.0
+grow_horizontal = 0
+focus_mode = 0
+theme_override_fonts/font = ExtResource("3_3v3jw")
+theme_override_font_sizes/font_size = 25
+text = "SKIP"
+flat = true
+
+[node name="KeyClickPlayer" type="AudioStreamPlayer" parent="." unique_id=1229243522]
+stream = ExtResource("4_niqfb")
+volume_db = -18.409
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=358753817]
+stream = ExtResource("2_tx0by")
+volume_db = -8.0
+parameters/looping = true
+
+[connection signal="pressed" from="SkipButton" to="." method="_leave"]
