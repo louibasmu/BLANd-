@@ -1,4 +1,5 @@
 extends Control
+#test
 ## The table: draws the game state and turns clicks into BlandGame calls.
 ##
 ## Division of labour: BlandGame decides what is legal and what happens; this script only
