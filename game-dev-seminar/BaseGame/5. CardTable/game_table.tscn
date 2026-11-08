@@ -38,10 +38,10 @@ corner_radius_bottom_left = 6
 bg_color = Color(0, 0.4366271, 0.39588127, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_25ech"]
-bg_color = Color(0.12156863, 0.2509804, 0.1882353, 1)
+bg_color = Color(0.42352942, 0, 0.12156863, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wmx4n"]
-bg_color = Color(0.18039216, 0.34117648, 0.25882354, 1)
+bg_color = Color(0.54901963, 0, 0.12156863, 1)
 
 [node name="GameTable" type="Control" unique_id=1531637342]
 layout_mode = 3
