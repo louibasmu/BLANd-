@@ -1,13 +1,13 @@
 [gd_scene format=3 uid="uid://cn6hgnd16x23b"]
 
 [ext_resource type="Script" uid="uid://sjbx8bg7qwgl" path="res://BaseGame/2. MainMenu/main_menu.gd" id="1_jiobw"]
-[ext_resource type="Texture2D" path="res://Environment Assets/background.jpeg" id="2_background"]
-[ext_resource type="Shader" path="res://BaseGame/background_blur.gdshader" id="3_background_blur"]
-[ext_resource type="FontFile" path="res://Fonts/Blackadder ITC Std Regular.otf" id="4_title_font"]
+[ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_background"]
+[ext_resource type="Shader" uid="uid://p4hc4dadnnr1" path="res://Environment Assets/background_blur.gdshader" id="3_n43x3"]
+[ext_resource type="FontFile" uid="uid://18le2jrcug10" path="res://Fonts/Blackadder ITC Std Regular.otf" id="4_title_font"]
 [ext_resource type="Theme" path="res://Fonts/BLANdTheme.tres" id="5_menu_theme"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_background_blur"]
-shader = ExtResource("3_background_blur")
+shader = ExtResource("3_n43x3")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxlrp"]
 content_margin_left = 18.0
@@ -32,10 +32,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_jiobw")
 theme = ExtResource("5_menu_theme")
+script = ExtResource("1_jiobw")
 
 [node name="bg" type="TextureRect" parent="." unique_id=932837455]
+modulate = Color(0.72, 0.72, 0.72, 1)
+material = SubResource("ShaderMaterial_background_blur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -45,8 +47,6 @@ grow_vertical = 2
 texture = ExtResource("2_background")
 expand_mode = 1
 stretch_mode = 6
-modulate = Color(0.72, 0.72, 0.72, 1)
-material = SubResource("ShaderMaterial_background_blur")
 
 [node name="Center" type="CenterContainer" parent="." unique_id=537732586]
 layout_mode = 1
@@ -63,17 +63,17 @@ theme_override_constants/separation = 14
 
 [node name="title" type="Label" parent="Center/box" unique_id=696690529]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
 theme_override_fonts/font = ExtResource("4_title_font")
 theme_override_font_sizes/font_size = 20
-theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
 text = "BLANd"
 horizontal_alignment = 1
 
 [node name="sub" type="Label" parent="Center/box" unique_id=483748069]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
 theme_override_fonts/font = ExtResource("4_title_font")
 theme_override_font_sizes/font_size = 72
-theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
 text = "Death's Door"
 horizontal_alignment = 1
 

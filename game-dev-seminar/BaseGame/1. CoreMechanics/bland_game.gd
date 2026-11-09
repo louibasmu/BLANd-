@@ -35,53 +35,39 @@ signal game_over(standings: Array)          # players sorted by score
 enum Phase { IDLE, ARRANGE, PLAY_OR_DRAW, SPECIAL_DRAWN, VISION_DECIDE, ROUND_OVER, GAME_OVER }
 
 # Hard cap on turns (and extra "go again" actions) so a bug can never freeze the game in an endless loop.
-const SAFETY_TURN_LIMIT := 2000   # ends a round if something ever loops forever
+const SAFETY_TURN_LIMIT := 2000   # ends a round if something loops forever
 
-
-#var round_number: int = 0
-
-# Seat whose turn it is.
-var current: int = 0
-
-# Who played the Skip, so the "you lose your turn" alert can name them.
-var _skip_actor: int = -1
-var phase: Phase = Phase.IDLE
-# Set when the current player just drew a special card, so can_play() knows that is the only card they may play.
-var drawn_special: BlandCard = null       # the special just drawn (SPECIAL_DRAWN phase)
-var actions_this_turn: int = 0            # how many times the current player has gone again
-var draw_only: bool = false               # after Skip/Reverse: you still draw, but can't play another special
-
-
-
-# Which seat deals/starts the round. It rotates one seat each round so nobody always goes first.
-var _round_starter: int = 0
-
-var total_rounds: int = 5# Total rounds picked on the main menu, and which round we are on (1-based once started).
+#------------------------------------------------------------------------ funcs
+var total_rounds: int = 5 # Total rounds picked on the main menu, and which round we are on (1-based once started).
 var _rng := RandomNumberGenerator.new() # Our own random number generator (instead of the global one) used for shuffling.
 var players: Array[BlandPlayer] = [] # --- Game state ---
+
 # Creates the four seats. Seat 0 is the human ("You"); the rest are bots. The round count is
 # clamped to the allowed range so a bad value can't break the Joker schedule.
+	#@param p_total_round -> int value that represents total rounds being played, Array -> array of players and bots
+	#@return void
 func _init(p_total_rounds: int = 5, names: Array = ["You", "CPU 1", "CPU 2", "CPU 3"]) -> void: #LEAN
 	total_rounds = clampi(p_total_rounds, GameSettings.MIN_ROUNDS, GameSettings.MAX_ROUNDS)
 	_rng.randomize()
 	for i in GameSettings.NUM_PLAYERS: #const value from 0 - 3 (both values are inclusive)
 		players.append(BlandPlayer.new(i, names[i], i == 0))
-# @return?
 
-# ---------------------------------------------------------------- rounds
-# Total rounds picked on the main menu, and which round we are on (1-based once started).
-#var total_rounds: int = 5
 var round_number: int = 0
 var jokers_this_round: int = 1 #Jokers shuffled into this round's deck (grows with the round, see GameSettings.JOKER_SCHEDULE).
 var direction: int = 1 # 1 = clockwise, -1 = counter-clockwise
 var skip_pending = false # True once someone plays Skip. The skip is applied in _end_turn() to whoever would have played next.
 var turns_this_round: int = 0
-var discard_pile: Array[BlandCard] = [] # Every pair card that has been matched and removed from play, plus every special that has been played.
-var last_peek: Dictionary = {} # {player, target, index, card} from Vision this turn remembered by Vision so the player (or bot) can then take or leave the card they saw.
+var discard_pile: Array[BlandCard] = [] #Every pair card that has been matched and removed from play, plus every special that has been played.
+var last_peek: Dictionary = {} #{player, target, index, card} from Vision this turn remembered by Vision so the player (or bot) can then take or leave the card they saw.
+var _round_starter: int = 0 #Which seat deals/starts the round. It rotates one seat each round so nobody always goes first.
+var phase: Phase = Phase.IDLE
+var current: int = 0
 
 # Sets up and deals a new round: resets everyone, builds and shuffles the deck, deals it
 # out one card at a time round the table, then discards any pairs players were dealt.
 # If that already finishes the round the game moves straight on; otherwise it waits in ARRANGE.
+	#@param none
+	#@return void
 func start_round() -> void:
 	round_number += 1
 	jokers_this_round = GameSettings.jokers_for_round(total_rounds, round_number)
@@ -104,84 +90,98 @@ func start_round() -> void:
 	_log("[b]Round %d of %d[/b] — %d cards dealt, %d Joker%s in the deck." % [
 		round_number, total_rounds, deck.size(), jokers_this_round,
 		"" if jokers_this_round == 1 else "s"])
+	
 	for p in players:
-		_discard_starting_pairs(p)   # hands stay in their random dealt order
+		_discard_starting_pairs(p) #hands stay in their random dealt order
+	
 	_update_finished()
-
 	# Advance the starter for next round now, after this round's first player has been recorded in `current`.
 	current = _round_starter
 	_round_starter = (_round_starter + 1) % players.size()
 	if _is_round_complete():
-		changed.emit()
+		changed.emit() #signal
 		_finish_round()
 		return
 	# (An unlucky deal could pair everything off immediately, in which case there is no game to play.)
 	# Before play starts, players may arrange their hands. Once play begins the order is locked.
 	phase = Phase.ARRANGE
 	_log("Arrange your hand, then start the round. After that, card order is locked.")
-	changed.emit()
-
+	changed.emit() #signal	
 
 ## Move a card within a hand. Only allowed during the ARRANGE phase.
 ## Used by the drag-to-reorder UI; returns whether the move was legal (valid indexes, different slots).
+	#@param p -> int num of players, from -> int intial position, to -> int final position
+	#@return boolean
 func move_card(p: int, from: int, to: int) -> bool:
 	var hand := players[p].hand
 	if phase != Phase.ARRANGE or from < 0 or from >= hand.size() or to < 0 or to >= hand.size() or from == to:
 		return false
 	# Taking the card out first and inserting it at `to` gives the same result as dragging it there.
-	var card := hand[from]
+	var card := hand[from] #local variable
 	hand.remove_at(from)
 	hand.insert(to, card)
-	changed.emit()
+	changed.emit() #signal
 	return true
 
-
-## Randomize a hand again (ARRANGE phase only).
+# Randomize a hand again (ARRANGE phase only).
+	#@param p -> int num of players
+	#@return void
 func shuffle_hand(p: int) -> void:
 	if phase != Phase.ARRANGE:
 		return
 	_shuffle(players[p].hand)
-	changed.emit()
+	changed.emit() #signal
 
-
-## Locks every hand's order and starts the first turn of the round.
+# Locks every hand's order and starts the first turn of the round.
+	# @param none
+	# @return void
 func finish_arranging() -> void:
 	if phase != Phase.ARRANGE:
 		return
 	_log("Hands are locked. Play begins!")
 	_begin_turn()
 
-
-## Call after round_over to continue (or to end the game).
-## If that was the last round, the players are sorted by total score (highest first) and game_over is emitted.
+# compares players score
+	# @param a -> BlandPlayer a player b -> BlandPlayer a player
+	# @return boolean
+func player_score(a: BlandPlayer, b: BlandPlayer) -> bool: 
+	return a.total_score > b.total_score #total_score is defined in the bland_player scipt
+	
+# Call after round_over to continue (or to end the game).
+# If that was the last round, the players are sorted by total score (highest first) and game_over is emitted.
+	# @param none
+	# @return void
 func next_round() -> void:
 	if round_number >= total_rounds:
 		phase = Phase.GAME_OVER
 		var standings := players.duplicate()
-		standings.sort_custom(func(a: BlandPlayer, b: BlandPlayer) -> bool: return a.total_score > b.total_score)
-		changed.emit()
-		game_over.emit(standings)
+		standings.sort_custom(player_score) #-> bool means it is returning a boolean type + edited to not create the function in the function
+		changed.emit() #signal
+		game_over.emit(standings) #signal
 	else:
 		start_round()
 
 
 # Builds an unshuffled deck: 40 pair cards (every rank in every suit), then the special cards
 # (counts come from GameSettings.special_counts), then this round's Jokers.
+	#@param jokers -> int the number of jokers
+	#@return BlandCard -> Array of all of the game cards from bland_card script
 func _build_deck(jokers: int) -> Array[BlandCard]:
 	var deck: Array[BlandCard] = []
 	for r in GameSettings.PAIR_RANKS:
 		for s in BlandCard.SUITS:
 			deck.append(BlandCard.make_pair(r, s))
-	for sp in GameSettings.special_counts:
-		for i in GameSettings.special_counts[sp]:
-			deck.append(BlandCard.make_special(sp))
+	for sc in GameSettings.special_counts:
+		for i in GameSettings.special_counts[sc]:
+			deck.append(BlandCard.make_special(sc))
 	for i in jokers:
 		deck.append(BlandCard.make_joker())
 	return deck
 
-
 # Removes every pair a player was dealt. After one pair is removed the hand has changed, so the
 # loop starts scanning again (`found` flag) until no matching cards remain. Handles a hand that holds all four of one rank.
+	#@param p -> BlandPlayer type from bland_player script
+	#@return void
 func _discard_starting_pairs(p: BlandPlayer) -> void:
 	var found := true
 	while found:
@@ -194,6 +194,8 @@ func _discard_starting_pairs(p: BlandPlayer) -> void:
 				break
 
 # Moves a matched pair out of the hand into the discard pile and records its points immediately.
+	#@param p -> BlandPlayer, a -> BlandCard (an object that represents a card in a pair), b -> BlandCard((an object that represents a card in a pair)
+	#@return void
 func _discard_pair(p: BlandPlayer, a: BlandCard, b: BlandCard) -> void:
 	p.hand.erase(a)
 	p.hand.erase(b)
@@ -204,17 +206,19 @@ func _discard_pair(p: BlandPlayer, a: BlandCard, b: BlandCard) -> void:
 	p.paired_ranks.append(a.rank)
 	p.paired_cards.append([a, b])
 
-
 # The round is over when no pair cards are left in anyone's hand. Only Jokers (and specials) may remain.
+	#@param none
+	#@return boolean
 func _is_round_complete() -> bool:
 	for p in players:
 		if p.pair_card_count() > 0:
 			return false
 	return true
 
-
 # Ends the round and works out the scores: +1 point per pair, minus 4 per Joker still held.
 # Builds a summary (one entry per player) that the table shows on the round-over screen.
+	#@param none
+	#@return void
 func _finish_round() -> void:
 	phase = Phase.ROUND_OVER
 	var summary: Array = []
@@ -228,17 +232,22 @@ func _finish_round() -> void:
 			"penalty": p.round_penalty, "round_points": gained, "total": p.total_score,
 		})
 		if jokers > 0:
-			_log("[color=#ff7070]%s is stuck with %d Joker%s: -%d points.[/color]" % [
+			_log("[color=#ff7070]%s is stuck with %d Joker%s: -%d points.[/color]" % [ # [/color] 
 				p.display_name, jokers, "" if jokers == 1 else "s", p.round_penalty])
-	_log("[b]Round %d over.[/b]" % round_number)
-	changed.emit()
-	round_over.emit(summary)
+	_log("[b]Round %d over.[/b]" % round_number) #[/b]
+	changed.emit() #signal
+	round_over.emit(summary) #signal
 
 # ---------------------------------------------------------------- turns
+var draw_only: bool = false # after Skip/Reverse: you still draw, but can't play another special
+var drawn_special: BlandCard = null # the st just drawn (SPECIAL_DRAWN phase)
+var actions_this_turn: int = 0            # how many times the current player has gone again
 
 # Starts the current player's turn. First, skip over players who can't act: anyone with an empty
 # hand, and anyone who is frozen (each skipped turn uses up one of their frozen turns).
 # `guard` stops the loop if every player were somehow unable to play.
+	# @param none
+	# @return void
 func _begin_turn() -> void:
 	# Skip anyone with no cards or who is frozen.
 	var guard := 0
@@ -271,10 +280,13 @@ func _begin_turn() -> void:
 	changed.emit()
 	turn_started.emit(current)
 
+var _skip_actor: int = -1
 
 # Finishes the current player's turn. Checks whether anyone just ran out of cards or the round
 # is over, then hands over to the next player who still has cards. A pending Skip is applied here:
 # that player's turn is skipped and the one after them plays instead.
+	# @param none
+	# @return void
 func _end_turn() -> void:
 	turn_ended.emit(current)
 	_update_finished()
@@ -289,15 +301,17 @@ func _end_turn() -> void:
 		current = _next_with_cards(current)
 	_begin_turn()
 
-
 # One seat forward in the current direction. posmod makes the seat number wrap around
 # correctly even when going backwards (a plain % can return a negative number in GDScript).
+	# @param from -> int increments direction
+	# @void int
 func _step(from: int) -> int:
-	return posmod(from + direction, players.size())
+	return posmod(from + direction, players.size()) #posmod returns the integer mod of x divided by y that wraps equally in positive and negative.
 
-
-## Who will play after the current player (for the turn indicator). -1 outside play.
-## This takes a pending Skip into account, so the compass arrows point to the right player.
+# Who will play after the current player (for the turn indicator). -1 outside play.
+# This takes a pending Skip into account, so the compass arrows point to the right player.
+	# @param none
+	# @return int
 func upcoming_player() -> int:
 	if phase == Phase.ARRANGE:
 		return current
@@ -308,19 +322,21 @@ func upcoming_player() -> int:
 		n = _next_with_cards(n)
 	return n
 
-
-## Next seat (in the current direction) that still holds cards.
-## Players with empty hands are out for the round, so they are skipped over.
+# Next seat (in the current direction) that still holds cards.
+# Players with empty hands are out for the round, so they are skipped over.
+	# @param from -> int 
+	# @return int
 func _next_with_cards(from: int) -> int:
-	var idx := from
+	var idx := from #idx is a dynamic variable in the fn
 	for i in players.size():
 		idx = _step(idx)
 		if not players[idx].hand.is_empty():
 			return idx
 	return _step(from)
 
-
-## Players that `p` may draw from: any other player who still has cards.
+# Players that `p` may draw from: any other player who still has cards.
+	# @param p -> int num of players
+	# @return Array[int]
 func draw_targets(p: int) -> Array[int]:
 	var out: Array[int] = []
 	for i in players.size():
@@ -328,32 +344,37 @@ func draw_targets(p: int) -> Array[int]:
 			out.append(i)
 	return out
 
-
 # Small permission checks used by the UI (to enable/disable buttons) and by the bots:
-#   can_draw_from - is `src` a legal player to draw from?
+# can_draw_from - is `src` a legal player to draw from?
+	# @param p -> int, src -> int
+	# @return boolean
 func can_draw_from(p: int, src: int) -> bool:
 	return draw_targets(p).has(src)
 
-
-#   is_turn_of    - is it `p`'s turn and are they free to act (not in the middle of a Vision peek)?
+#   is_turn_of - is it `p`'s turn and are they free to act (not in the middle of a Vision peek)?
+	# @param p -> int
+	# @retun boolean
 func is_turn_of(p: int) -> bool:
 	return current == p and (phase == Phase.PLAY_OR_DRAW or phase == Phase.SPECIAL_DRAWN)
 
-
-#   can_draw      - may `p` draw a card right now?
+#   can_draw - may `p` draw a card right now?
+	# @param p -> int
+	# @return boolean
 func can_draw(p: int) -> bool:
 	return current == p and phase == Phase.PLAY_OR_DRAW
 
-
 # May `p` play a special at all right now? Not after Skip/Reverse (draw_only), when they must draw first.
+	# @param p -> int
+	# @return boolean
 func can_play_specials(p: int) -> bool:
 	if phase == Phase.PLAY_OR_DRAW and draw_only:
 		return false
 	return is_turn_of(p)
 
-
-## Whether this particular special card can be played right now.
-## Also rejects specials that would have nobody to target (e.g. Give with only one card in hand).
+# Whether this particular special card can be played right now.
+# Also rejects specials that would have nobody to target (e.g. Give with only one card in hand).
+	# @param p -> int, card -> BlandCard
+	# @return boolean
 func can_play(p: int, card: BlandCard) -> bool:
 	if not can_play_specials(p) or not card.is_special() or not players[p].hand.has(card):
 		return false
@@ -366,9 +387,10 @@ func can_play(p: int, card: BlandCard) -> bool:
 			return not valid_targets(p, card).is_empty()
 	return true
 
-
-## Players that a special card can target.
-## Excludes yourself and anyone who is out of cards, since they are safe for the rest of the round.
+# Players that a special card can target.
+# Excludes yourself and anyone who is out of cards, since they are safe for the rest of the round.
+	# @param p -> int
+	# @return Array[int]
 func valid_targets(p: int, card: BlandCard) -> Array[int]:
 	var out: Array[int] = []
 	for i in players.size():
@@ -377,13 +399,14 @@ func valid_targets(p: int, card: BlandCard) -> Array[int]:
 		out.append(i)
 	return out
 
-
 # Each play_* function follows the same pattern: _consume() checks the play is legal and moves the
 # card to the discard pile, then the effect is applied, messages are logged / sent to the UI,
 # and finally the turn either continues (_draw_after_special) or ends (_after_action).
-# ---------------------------------------------------------------- special cards
 
+# ---------------------------------------------------------------- special cards
 # Skip: the next player loses their turn (applied later in _end_turn). The player still draws a card.
+	# @param p -> int, card -> BlandCard
+	# @return void
 func play_skip(p: int, card: BlandCard) -> void:
 	if not _consume(p, card, BlandCard.Special.SKIP):
 		return
@@ -392,8 +415,9 @@ func play_skip(p: int, card: BlandCard) -> void:
 	_log("%s plays [b]Skip[/b] — the next player loses their turn." % _n(p))
 	_draw_after_special()   # Skip and Reverse still let you take a card
 
-
 # Reverse: flips the direction of play. The player still draws a card. Everyone else is notified.
+	# @param p -> int, card -> BlandCard
+	# @return void
 func play_reverse(p: int, card: BlandCard) -> void:
 	if not _consume(p, card, BlandCard.Special.REVERSE):
 		return
@@ -405,8 +429,9 @@ func play_reverse(p: int, card: BlandCard) -> void:
 			affected.emit(i, p, "%s played Reverse — play now goes %s." % [_n(p), dir_text])
 	_draw_after_special()
 
-
 # Freeze: the target will miss their next FREEZE_TURNS turns (counted down in _begin_turn).
+	# @param p -> int
+	# @return void
 func play_freeze(p: int, card: BlandCard, target: int) -> void:
 	# Reject a self-target, or a play that isn't legal; _consume() also removes the card from the hand.
 	if target == p or not _consume(p, card, BlandCard.Special.FREEZE):
@@ -417,8 +442,9 @@ func play_freeze(p: int, card: BlandCard, target: int) -> void:
 	# `false` = the special itself is not a pair, so the turn ends.
 	_after_action(false)
 
-
-## Returns true if the target holds a Joker. Only the player who used it learns the answer.
+# Returns true if the target holds a Joker. Only the player who used it learns the answer.
+	# @param p -> int, card -> BlandCard, target -> int
+	# @return boolean
 func play_angel(p: int, card: BlandCard, target: int) -> bool:
 	if target == p or not _consume(p, card, BlandCard.Special.ANGEL):
 		return false
@@ -431,9 +457,10 @@ func play_angel(p: int, card: BlandCard, target: int) -> bool:
 	_after_action(false)
 	return has
 
-
 # Give: hand one card (`gift`) to another player. Can't give the Give card itself, and the gift
 # must actually be in the giver's hand. Giving a Joker away is allowed (it is the main use).
+	# @param p -> int, card -> BlandCard, gift -> BlandCard, target -> int
+	# @return void
 func play_give(p: int, card: BlandCard, gift: BlandCard, target: int) -> void:
 	if target == p or gift == card or not players[p].hand.has(gift):
 		return
@@ -453,9 +480,10 @@ func play_give(p: int, card: BlandCard, gift: BlandCard, target: int) -> void:
 	_check_new_pair(target, gift)   # the gift was added at the END of their hand
 	_after_action(false)            # a pair made by the receiver doesn't extend YOUR turn
 
-
-## Peek at one card. Phase becomes VISION_DECIDE until resolve_vision() is called.
-## `index` is the card's position in the target's hand (the numbers under their cards).
+# Peek at one card. Phase becomes VISION_DECIDE until resolve_vision() is called.
+# `index` is the card's position in the target's hand (the numbers under their cards).
+	# @param p -> int, card -> BlandCard, target -> int, index -> int 
+	# @return BlandCard instantiation 
 func play_vision(p: int, card: BlandCard, target: int, index: int) -> BlandCard:
 	if target == p or index < 0 or index >= players[target].hand.size():
 		return null
@@ -466,12 +494,13 @@ func play_vision(p: int, card: BlandCard, target: int, index: int) -> BlandCard:
 	_log("%s plays [b]Vision[/b] and peeks at card #%d in %s's hand." % [_n(p), index + 1, _n(target)])
 	affected.emit(target, p, "%s used Vision to peek at card #%d in your hand." % [_n(p), index + 1])
 	phase = Phase.VISION_DECIDE
-	changed.emit()
+	changed.emit() #signal
 	return seen
 
-
-## take = true: take the peeked card. If it makes a pair you keep going, otherwise your turn ends.
-## take = false: leave it. Vision was used without making a pair, so your turn ends.
+# take = true: take the peeked card. If it makes a pair you keep going, otherwise your turn ends.
+# take = false: leave it. Vision was used without making a pair, so your turn ends.
+	# @param take -> boolean
+	# @return void
 func resolve_vision(take: bool) -> void:
 	if phase != Phase.VISION_DECIDE or last_peek.is_empty():
 		return
@@ -482,9 +511,10 @@ func resolve_vision(take: bool) -> void:
 		_log("%s leaves the card where it is." % _n(current))
 		_after_action(false)
 
-
 # Plays the card: only if allowed and it is the right kind of special. Then it is
 # removed from the hand and placed on the discard pile. Every play_* function starts with this.
+	# @param p -> int, card -> BlandCard, expected - BlandCard.Special (enum type found in bland_card script)
+	# @return boolean
 func _consume(p: int, card: BlandCard, expected: BlandCard.Special) -> bool:
 	if not can_play(p, card) or card.special != expected:
 		return false
@@ -493,17 +523,19 @@ func _consume(p: int, card: BlandCard, expected: BlandCard.Special) -> bool:
 	drawn_special = null
 	return true
 
-
-## Keep the special you just drew without playing it. Ends your turn.
+# Keep the special you just drew without playing it. Ends your turn.
+	# @param p -> int
+	# @return void
 func pass_turn(p: int) -> void:
 	if current != p or phase != Phase.SPECIAL_DRAWN:
 		return
 	_log("%s keeps the card for later." % _n(p))
 	_after_action(false)
 
-
-## After Skip or Reverse the player still takes a card (but can't play another special first).
-## draw_only enforces that. If nobody can be drawn from, the turn just ends.
+# After Skip or Reverse the player still takes a card (but can't play another special first).
+# draw_only enforces that. If nobody can be drawn from, the turn just ends.
+	# @param none
+	# @return void
 func _draw_after_special() -> void:
 	_update_finished()
 	if _is_round_complete():
@@ -516,8 +548,10 @@ func _draw_after_special() -> void:
 	phase = Phase.PLAY_OR_DRAW
 	changed.emit()
 
-## Called after every draw / special. Making a pair = go again. Anything else ends the turn.
-## Going again is only allowed if the player still has cards and someone to draw from.
+# Called after every draw / special. Making a pair = go again. Anything else ends the turn.
+# Going again is only allowed if the player still has cards and someone to draw from.
+	# @param made_pair -> boolean
+	# @return void
 func _after_action(made_pair: bool) -> void:
 	_update_finished()
 	if _is_round_complete():
@@ -537,9 +571,11 @@ func _after_action(made_pair: bool) -> void:
 		return
 	_end_turn()
 # ---------------------------------------------------------------- drawing
-## Draw the card at `index` from player `src`'s hand.
-## The drawer may pick ANY other player who still has cards.
-## Pair -> go again. Drew a special -> may play it now. Otherwise the turn ends.
+# Draw the card at `index` from player `src`'s hand.
+# The drawer may pick ANY other player who still has cards.
+# Pair -> go again. Drew a special -> may play it now. Otherwise the turn ends.
+	# @param p -> int, src -> int, index -> int
+	# @return void
 func draw_card(p: int, src: int, index: int) -> void:
 	if not can_draw(p):
 		return
@@ -550,11 +586,12 @@ func draw_card(p: int, src: int, index: int) -> void:
 		return
 	_take_card(p, src, index)
 
-
 # Does the actual card transfer: remove from `src`, append to the end of `p`'s hand, log and
 # notify (private_info tells the human exactly which card moved), then check for a pair.
 # If the card is a special that can be played, wait in SPECIAL_DRAWN so the player may use it
 # right away. A card taken through Vision never triggers that: the Vision turn ends instead.
+	# @param p-> int, src -> int, index, via_vision -> boolean set as false
+	# @return void
 func _take_card(p: int, src: int, index: int, via_vision: bool = false) -> void:
 	var card := players[src].hand[index]
 	players[src].hand.remove_at(index)
@@ -577,8 +614,9 @@ func _take_card(p: int, src: int, index: int, via_vision: bool = false) -> void:
 		private_info.emit("%s took your %s." % [_n(p), card.display_name()])
 	_after_action(paired)
 
-
 # If the new card matches something in the hand, discard the pair. Returns true if a pair was made.
+	# @param p -> int, card -> BlandCard
+	# @return boolean
 func _check_new_pair(p: int, card: BlandCard) -> bool:
 	var other := players[p].find_match_for(card)
 	if other != null:
@@ -587,11 +625,12 @@ func _check_new_pair(p: int, card: BlandCard) -> bool:
 		return true
 	return false
 
-
 # ---------------------------------------------------------------- helpers
 
 # Fisher-Yates shuffle: walk backwards, swapping each card with a random earlier one.
 # This gives every ordering an equal chance, unlike naive shuffles.
+	# @param arr -> Array
+	# @return void
 func _shuffle(arr: Array) -> void:
 	for i in range(arr.size() - 1, 0, -1):
 		var j := _rng.randi_range(0, i)
@@ -599,9 +638,10 @@ func _shuffle(arr: Array) -> void:
 		arr[i] = arr[j]
 		arr[j] = tmp
 
-
-## Anyone whose hand just became empty is out for the round: safe from the Joker, and
-## they can never receive cards again this round (no draws, no Give, no turns).
+# Anyone whose hand just became empty is out for the round: safe from the Joker, and
+# they can never receive cards again this round (no draws, no Give, no turns).
+	# @param none
+	# @return void
 func _update_finished() -> void:
 	for pl in players:
 		if not pl.finished and pl.hand.is_empty():
@@ -611,31 +651,37 @@ func _update_finished() -> void:
 				pl.display_name, "are" if pl.is_human else "is"])
 			player_finished.emit(pl.index)
 
-
 # Text helpers: _poss gives "your" / "Bot 1's"; _n gives a player's name.
+	# @param p -> int
+	# @return String
 func _poss(p: int) -> String:
 	return "your" if players[p].is_human else _n(p) + "'s"
 
-
+# Player's display name
+	# @param p -> int
+	# @return String
 func _n(p: int) -> String:
 	return players[p].display_name
 
-
 # All log lines go through here so the "You" grammar is fixed in one place.
+	# @param text -> String
+	# @return void
 func _log(text: String) -> void:
 	log_message.emit(_you_grammar(text))
 
-
-## "You plays Skip" -> "You play Skip" (the human is called "You" in the log).
-## Messages are written as if the subject were a third person, then corrected here.
+# "You plays Skip" -> "You play Skip" (the human is called "You" in the log).
+# Messages are written as if the subject were a third person, then corrected here.
+	# @param text -> String
+	# @return String
 static func _you_grammar(text: String) -> String:
 	for verb in ["plays", "draws", "makes", "starts", "takes", "leaves", "gives"]:
 		text = text.replace("You " + verb, "You " + verb.trim_suffix("s"))
 	text = text.replace("You is ", "You are ")
 	return text
 
-
-## For the card tracker: how many of each rank have been paired (0, 2 or 4 of the 4 cards).
+# For the card tracker: how many of each rank have been paired (0, 2 or 4 of the 4 cards).
+	# @param none
+	# @return Dictionary of amount of pairs made by each player
 func paired_count_by_rank() -> Dictionary:
 	var out := {}
 	for r in GameSettings.PAIR_RANKS:
@@ -645,8 +691,9 @@ func paired_count_by_rank() -> Dictionary:
 			out[r] += 2
 	return out
 
-
 # Number of pairs still to be made (each pair needs two cards, hence the division by 2).
+	# @param none
+	# @return int 
 func pairs_left() -> int:
 	var n := 0
 	for p in players:
