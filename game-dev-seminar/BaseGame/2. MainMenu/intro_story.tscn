@@ -22,7 +22,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 0
 theme = SubResource("Theme_x0vsp")
 script = ExtResource("1_u31pj")
-menu_scene = "uid://cn6hgnd16x23b"
 lines = Array[String](["You wake in the dark.", "Rope on your wrists.", "Three strangers. One table.
 Every one of them guilty.", "A masked man deals the cards.", "Only one of you can survive."])
 text_color = Color(0.9907475, 0.9622629, 0.980622, 1)

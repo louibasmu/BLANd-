@@ -12,8 +12,8 @@ dest_files=["res://.godot/imported/ScaryMusic2018-10-12_-_It_Is_Coming_-_David_F
 
 [params]
 
-loop=false
-loop_offset=0
-bpm=0
+loop=true
+loop_offset=0.003
+bpm=0.0
 beat_count=0
 bar_beats=4
