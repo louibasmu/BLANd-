@@ -249,6 +249,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="TableImage" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1540025419]
+unique_name_in_owner = true
 modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
 material = SubResource("ShaderMaterial_5asqp")
 layout_mode = 1

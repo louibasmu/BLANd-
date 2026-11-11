@@ -62,6 +62,8 @@ var last_peek: Dictionary = {} #{player, target, index, card} from Vision this t
 var _round_starter: int = 0 #Which seat deals/starts the round. It rotates one seat each round so nobody always goes first.
 var phase: Phase = Phase.IDLE
 var current: int = 0
+#@onready var _table_image: textureRect = $TableImage
+
 
 # Sets up and deals a new round: resets everyone, builds and shuffles the deck, deals it
 # out one card at a time round the table, then discards any pairs players were dealt.
@@ -251,9 +253,21 @@ var actions_this_turn: int = 0            # how many times the current player ha
 func _begin_turn() -> void:
 	# Skip anyone with no cards or who is frozen.
 	var guard := 0
+	#set candle image to point to current player's turn
+		
 	while guard < 64:
 		guard += 1
 		var p := players[current]
+		#if current == 0:
+			##setCandleToPointToPlayer0
+			#_table_image
+		#elif current = 1:
+			##setCandleToPointToPlayer1
+			#
+		#elif current = 2:
+			##setCandleToPointToPlayer2
+		#elif current = 3:
+			##setCandleToPointToPlayer3
 		if p.hand.is_empty():
 			current = _step(current)
 			continue
