@@ -6,7 +6,6 @@ extends Control
 
 
 @export_file("*.tscn") var menu_scene: String = "res://BaseGame/2. MainMenu/main_menu.tscn"
-
 @export_group("Story")
 @export_multiline var lines: Array[String] = [
 	"You wake in the dark.",
@@ -49,6 +48,7 @@ var _leaving := false            # true once heading to the menu
 
 
 func _ready() -> void:
+	#preload("res://BaseGame/2. MainMenu/main_menu.tscn")
 	# Music
 	if _music_player.stream != null:
 		var target_volume := _music_player.volume_db
@@ -76,6 +76,7 @@ func _input(event: InputEvent) -> void:
 	var clicked: bool = mb != null and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT
 	if clicked or event.is_action_pressed("ui_accept"):
 		_skip_requested = true
+		
 
 
 # For each line: set colour -> type it -> wait -> clear -> dark pause.
@@ -134,7 +135,7 @@ func _wait(seconds: float) -> void:
 		if _leaving or not is_inside_tree():
 			return
 		if _skip_requested:
-			_skip_requested = false
+			#_skip_requested = false
 			return
 		await get_tree().create_timer(0.05).timeout
 		elapsed += 0.05
@@ -154,10 +155,11 @@ func _leave() -> void:
 
 func _go_to_menu() -> void:
 	var err := get_tree().change_scene_to_file(menu_scene)
+	_leaving = true
 	if err != OK:
 		push_error("Intro: could not load menu scene '%s' (error %d). Check Menu Scene in the Inspector." % [menu_scene, err])
 		modulate.a = 1.0
 		_leaving = false
-
+	
 func _on_skip_button_pressed() -> void:
-	pass # Replace with function body.
+	pass

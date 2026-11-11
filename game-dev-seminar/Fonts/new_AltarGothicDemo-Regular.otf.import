@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dcla1p8kha54n"
-path="res://.godot/imported/New_BlackRoseGothic-Free.ttf-e25bdd8f06ea1ef326275bd06ff726c9.fontdata"
+uid="uid://coereqhxy3fo4"
+path="res://.godot/imported/new_AltarGothicDemo-Regular.otf-d2e2ec5912b33e8e97e78f66e0bfcf60.fontdata"
 
 [deps]
 
-source_file="res://Fonts/New_BlackRoseGothic-Free.ttf"
-dest_files=["res://.godot/imported/New_BlackRoseGothic-Free.ttf-e25bdd8f06ea1ef326275bd06ff726c9.fontdata"]
+source_file="res://Fonts/new_AltarGothicDemo-Regular.otf"
+dest_files=["res://.godot/imported/new_AltarGothicDemo-Regular.otf-d2e2ec5912b33e8e97e78f66e0bfcf60.fontdata"]
 
 [params]
 

@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://glnp5crqn7w6" path="res://BaseGame/5. CardTable/game_table.gd" id="1_xanw4"]
 [ext_resource type="Script" uid="uid://do2sxspgf0u2e" path="res://BaseGame/1. CoreMechanics/turn_compass.gd" id="2_mnkod"]
 [ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_wlmaj"]
-[ext_resource type="Texture2D" uid="uid://b1japk5v6daty" path="res://Environment Assets/table.jpeg" id="3_g8l5e"]
+[ext_resource type="Texture2D" uid="uid://b7uoqtmi87xk1" path="res://BaseGame/5. CardTable/Wallpaper.jpeg" id="3_g8l5e"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
@@ -259,7 +259,16 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("3_g8l5e")
+expand_mode = 1
 stretch_mode = 6
+
+[node name="Candle" type="Node2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage" unique_id=970094850]
+
+[node name="CandleBody" type="Sprite2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage/Candle" unique_id=1914588295]
+
+[node name="FlamePivot" type="Node2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage/Candle" unique_id=133726079]
+
+[node name="Flame" type="Sprite2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage/Candle/FlamePivot" unique_id=1728108652]
 
 [node name="CompassCenter" type="CenterContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1829671266]
 layout_mode = 1

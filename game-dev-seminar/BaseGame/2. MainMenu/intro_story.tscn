@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://mtqopwkjmew" path="res://BaseGame/X.jpeg" id="2_3v3jw"]
 [ext_resource type="AudioStream" uid="uid://c4xmc1jrf3t73" path="res://sound_assets/ScaryMusic2018-10-12_-_It_Is_Coming_-_David_Fesliyan.mp3" id="2_tx0by"]
 [ext_resource type="FontFile" uid="uid://beqhif7l28ciw" path="res://Fonts/LibreBaskerville.ttf" id="3_3v3jw"]
-[ext_resource type="AudioStream" uid="uid://dumay4o84sh22" path="res://wii-keyboard-click-3.mp3" id="4_niqfb"]
+[ext_resource type="AudioStream" uid="uid://kq6q1lchq6lx" path="res://sound_assets/wii-keyboard-click-3.mp3" id="4_niqfb"]
 
 [sub_resource type="Theme" id="Theme_x0vsp"]
 
@@ -14,6 +14,7 @@ base_font = ExtResource("3_3v3jw")
 [node name="IntroStory" type="Control" unique_id=1582264726]
 custom_maximum_size = Vector2(0, -1)
 layout_mode = 3
+anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
 grow_vertical = 2
@@ -21,7 +22,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 0
 theme = SubResource("Theme_x0vsp")
 script = ExtResource("1_u31pj")
-menu_scene = "uid://cn6hgnd16x23b"
 lines = Array[String](["You wake in the dark.", "Rope on your wrists.", "Three strangers. One table.
 Every one of them guilty.", "A masked man deals the cards.", "Only one of you can survive."])
 text_color = Color(0.9907475, 0.9622629, 0.980622, 1)
