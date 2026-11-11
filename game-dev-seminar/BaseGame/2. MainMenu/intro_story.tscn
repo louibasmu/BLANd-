@@ -1,10 +1,11 @@
 [gd_scene format=3 uid="uid://c0kuc4jcka7wh"]
 
-[ext_resource type="Script" uid="uid://b8fs86kn8spj1" path="res://BaseGame/2. MainMenu/intro_story.gd" id="1_u31pj"]
-[ext_resource type="Texture2D" uid="uid://mtqopwkjmew" path="res://BaseGame/X.jpeg" id="2_3v3jw"]
+[ext_resource type="Script" uid="uid://ii8bobvual1p" path="res://BaseGame/2. MainMenu/intro_story.gd" id="1_u31pj"]
+[ext_resource type="Texture2D" path="res://BaseGame/X.jpeg" id="2_3v3jw"]
 [ext_resource type="AudioStream" uid="uid://c4xmc1jrf3t73" path="res://sound_assets/ScaryMusic2018-10-12_-_It_Is_Coming_-_David_Fesliyan.mp3" id="2_tx0by"]
 [ext_resource type="FontFile" uid="uid://beqhif7l28ciw" path="res://Fonts/LibreBaskerville.ttf" id="3_3v3jw"]
-[ext_resource type="AudioStream" uid="uid://dumay4o84sh22" path="res://wii-keyboard-click-3.mp3" id="4_niqfb"]
+[ext_resource type="AudioStream" uid="uid://kq6q1lchq6lx" path="res://sound_assets/wii-keyboard-click-3.mp3" id="4_niqfb"]
+
 
 [sub_resource type="Theme" id="Theme_x0vsp"]
 
