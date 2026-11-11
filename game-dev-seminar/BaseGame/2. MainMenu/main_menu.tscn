@@ -2,12 +2,8 @@
 
 [ext_resource type="Script" uid="uid://sjbx8bg7qwgl" path="res://BaseGame/2. MainMenu/main_menu.gd" id="1_jiobw"]
 [ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_background"]
-[ext_resource type="Shader" uid="uid://p4hc4dadnnr1" path="res://Environment Assets/background_blur.gdshader" id="3_n43x3"]
-[ext_resource type="FontFile" uid="uid://18le2jrcug10" path="res://Fonts/Blackadder ITC Std Regular.otf" id="4_title_font"]
-[ext_resource type="Theme" path="res://Fonts/BLANdTheme.tres" id="5_menu_theme"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_background_blur"]
-shader = ExtResource("3_n43x3")
+[ext_resource type="FontFile" uid="uid://coereqhxy3fo4" path="res://Fonts/new_AltarGothicDemo-Regular.otf" id="5_clt80"]
+[ext_resource type="Theme" uid="uid://brtm8878wh8qx" path="res://Fonts/BLANdTheme.tres" id="5_menu_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxlrp"]
 content_margin_left = 18.0
@@ -37,7 +33,6 @@ script = ExtResource("1_jiobw")
 
 [node name="bg" type="TextureRect" parent="." unique_id=932837455]
 modulate = Color(0.72, 0.72, 0.72, 1)
-material = SubResource("ShaderMaterial_background_blur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -64,17 +59,16 @@ theme_override_constants/separation = 14
 [node name="title" type="Label" parent="Center/box" unique_id=696690529]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
-theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 20
-text = "BLANd"
+theme_override_fonts/font = ExtResource("5_clt80")
+text = "B. L. A. N. d."
 horizontal_alignment = 1
 
 [node name="sub" type="Label" parent="Center/box" unique_id=483748069]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
-theme_override_fonts/font = ExtResource("4_title_font")
-theme_override_font_sizes/font_size = 72
-text = "Death's Door"
+theme_override_fonts/font = ExtResource("5_clt80")
+theme_override_font_sizes/font_size = 101
+text = "DEATH'S DOOR"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="Center/box" unique_id=1021888189]
@@ -94,6 +88,7 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 text = "Rounds"
+horizontal_alignment = 1
 
 [node name="RoundsOption" type="OptionButton" parent="Center/box/RoundsRow" unique_id=1015492661]
 unique_name_in_owner = true
@@ -143,7 +138,8 @@ text = "Specials"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Special Cards Setup..."
+theme_override_font_sizes/font_size = 18
+text = "[Special Cards Setup]"
 
 [node name="SpecialsSummary" type="Label" parent="Center/box" unique_id=501649294]
 unique_name_in_owner = true
