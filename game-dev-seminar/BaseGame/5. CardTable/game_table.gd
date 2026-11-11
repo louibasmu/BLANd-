@@ -30,8 +30,7 @@ const HUMAN := 0
 #   CHOOSE_TARGET       - picked a special, now pick which opponent it affects
 #   CHOOSE_GIVE_CARD    - playing Give, now pick which card from your hand to give away
 #   CHOOSE_VISION_INDEX - playing Vision, now pick which card of the target to peek at
-#   CHOOSE_DRAW_INDEX   - chose a player to draw from, now pick the card
-enum UiMode { NONE, CHOOSE_TARGET, CHOOSE_GIVE_CARD, CHOOSE_VISION_INDEX, CHOOSE_DRAW_INDEX }
+enum UiMode { NONE, CHOOSE_TARGET, CHOOSE_GIVE_CARD, CHOOSE_VISION_INDEX }
 
 # The rules object. All game state lives in here; this script only displays it.
 var game: BlandGame
@@ -686,15 +685,12 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 	var border := Color(1, 0.85, 0.2) if is_current else Color(0, 0, 0, 0)
 	if p.frozen_turns > 0 and not is_current:
 		border = Color(0.4, 0.8, 1)
-	var being_drawn_from: bool = (not _bot_pick.is_empty() and _bot_pick["src"] == i) \
-		or (ui_mode == UiMode.CHOOSE_DRAW_INDEX and pending_target == i)
+	var being_drawn_from: bool = not _bot_pick.is_empty() and _bot_pick["src"] == i
 	if being_drawn_from and not is_current:
 		border = Color(1, 0.55, 0.15)
 	seat["panel"].add_theme_stylebox_override("panel", _box(Color(0, 0, 0, 0.3), border, 3))
 
-	# Target button (Freeze / Angel / Give / Vision)
-	# Shown on an opponent's panel in two cases: (a) a special is waiting for a target, or (b) it is
-	# the human's turn to draw and this opponent can be drawn from.
+	# Target button for special cards that need an opponent.
 	var tb: Button = seat["target"]
 	tb.visible = false
 	if ui_mode == UiMode.CHOOSE_TARGET and pending_special != null and i != HUMAN:
@@ -756,7 +752,7 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 			if arranging:
 				_enable_drag(view.get_child(0), idx)
 			box.add_child(view)
-	# Opponents' cards are face down, and only clickable when we are choosing a card to draw or to peek at.
+	# Opponents' cards are face down; eligible cards can be clicked to draw, or to peek at with Vision.
 	# The card a bot is about to take is highlighted (hl), as is the one a bot peeked at with Vision.
 	else:
 		var side_hand := i == 1 or i == 3
@@ -803,8 +799,6 @@ func _prompt_text(human_turn: bool) -> String:
 			return "Give: click the card from your hand you want to give away."
 		UiMode.CHOOSE_VISION_INDEX:
 			return "Vision: click the card in %s's hand you want to peek at." % game.players[pending_target].display_name
-		UiMode.CHOOSE_DRAW_INDEX:
-			return "Click the card you want from %s's hand (or pick a different player)." % game.players[pending_target].display_name
 	if not human_turn:
 		var who := game.players[game.current].display_name
 		if game.phase == BlandGame.Phase.VISION_DECIDE and game.current != HUMAN:
@@ -898,15 +892,8 @@ func _on_gift_chosen(card: BlandCard) -> void:
 	_refresh()
 
 
-# Called when the human clicks a "Choose" button on an opponent. With nothing selected (or while
-# choosing a card) this is step 1 of an ordinary draw: remember the player and ask for a card.
-# Otherwise it finishes the special that is waiting for a target.
+# Called when the human clicks a target button for the special that is waiting for a target.
 func _on_target_chosen(target: int) -> void:
-	if ui_mode == UiMode.NONE or ui_mode == UiMode.CHOOSE_DRAW_INDEX:
-		pending_target = target           # step 1 of drawing done
-		ui_mode = UiMode.CHOOSE_DRAW_INDEX
-		_refresh()
-		return
 	var special := pending_special
 	var gift := pending_gift
 	if special == null:
@@ -949,9 +936,8 @@ func _on_vision_index(index: int) -> void:
 	])
 
 
-# Step 2 of an ordinary draw: take the chosen card from the chosen player.
-func _on_draw(index: int) -> void:
-	var src := pending_target
+# The human clicked a highlighted opponent card to draw it directly.
+func _on_draw_from_player(src: int, index: int) -> void:
 	_clear_selection()
 	game.draw_card(HUMAN, src, index)
 
