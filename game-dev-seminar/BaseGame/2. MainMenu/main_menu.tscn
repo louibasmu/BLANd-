@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://cn6hgnd16x23b"]
+[gd_scene format=3 uid="uid://b8mmqntttrr3t"]
 
 [ext_resource type="Script" uid="uid://sjbx8bg7qwgl" path="res://BaseGame/2. MainMenu/main_menu.gd" id="1_jiobw"]
 [ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_background"]
