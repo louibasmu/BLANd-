@@ -700,11 +700,11 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 	if ui_mode == UiMode.CHOOSE_TARGET and pending_special != null and i != HUMAN:
 		tb.visible = game.valid_targets(HUMAN, pending_special).has(i)
 		tb.text = "%s this player" % pending_special.special_name()
-	elif game.can_draw(HUMAN) and i != HUMAN and game.can_draw_from(HUMAN, i) \
-			and (ui_mode == UiMode.NONE or ui_mode == UiMode.CHOOSE_DRAW_INDEX):
-		# Step 1 of drawing: pick who to take from.
-		tb.visible = not (ui_mode == UiMode.CHOOSE_DRAW_INDEX and pending_target == i)
-		tb.text = "Draw from %s" % p.display_name
+	##elif game.can_draw(HUMAN) and i != HUMAN and game.can_draw_from(HUMAN, i) \
+		##	and (ui_mode == UiMode.NONE or ui_mode == UiMode.CHOOSE_DRAW_INDEX):
+		### Step 1 of drawing: pick who to take from.
+		##tb.visible = not (ui_mode == UiMode.CHOOSE_DRAW_INDEX and pending_target == i)
+		##tb.text = "Draw from %s" % p.display_name
 
 	if i == HUMAN:
 		# Show the human's pairs, sorted by rank; bot pairs are only shown in the animation.
@@ -768,8 +768,8 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 			box.add_theme_constant_override("separation", floori(step - card_size.x))
 		for idx in p.hand.size():
 			var cb := Callable()
-			if game.can_draw(HUMAN) and ui_mode == UiMode.CHOOSE_DRAW_INDEX and i == pending_target:
-				cb = _on_draw.bind(idx)          # step 2 of drawing: pick the card
+			if ui_mode == UiMode.NONE and game.can_draw(HUMAN) and game.can_draw_from(HUMAN, i):
+				cb = _on_draw_direct.bind(i, idx)
 			elif ui_mode == UiMode.CHOOSE_VISION_INDEX and i == pending_target:
 				cb = _on_vision_index.bind(idx)
 			var hl: bool = not _bot_pick.is_empty() and _bot_pick["src"] == i and _bot_pick["index"] == idx
@@ -819,11 +819,11 @@ func _prompt_text(human_turn: bool) -> String:
 	if game.phase == BlandGame.Phase.SPECIAL_DRAWN and game.drawn_special != null:
 		return "You drew %s: click it to play it now, or press \"Keep it & end turn\"." % game.drawn_special.special_name()
 	if game.draw_only:
-		return "Now take a card: choose a player to draw from."
+		return "Now take a card: click a card from any opponent's hand."
 	var lead := "Pair! Go again" if game.actions_this_turn > 0 else "Your turn"
 	if game.can_play_specials(HUMAN) and not game.players[HUMAN].specials().is_empty():
-		return "%s: choose a player to draw from, or play a special card (ends your turn unless it makes a pair)." % lead
-	return "%s: choose a player to draw from." % lead
+		return "%s: click an opponent's card, or play a special card (ends your turn unless it makes a pair)." % lead
+	return "%s: click a card from an opponent's hand." % lead
 
 
 # Keep private game information visible after removing the center log.
@@ -955,6 +955,10 @@ func _on_draw(index: int) -> void:
 	_clear_selection()
 	game.draw_card(HUMAN, src, index)
 
+# Draw in one click: take the clicked card from the player whose hand it is in.
+func _on_draw_direct(src: int, index: int) -> void:
+	_clear_selection()
+	game.draw_card(HUMAN, src, index)
 
 # Abandons whatever the human was in the middle of choosing (Cancel button or Esc).
 func _cancel_selection() -> void:
@@ -1084,18 +1088,22 @@ func _on_affected(target: int, actor: int, text: String) -> void:
 ## At most 4 are shown at once (the oldest is removed). Each stays for a time based on the bot speed, then
 ## fades out via a Tween (an animation helper) and deletes itself.
 func _toast(text: String) -> void:
+	for existing in _toast_box.get_children():
+		if existing.get_meta("text", "") == text:
+			return
 	while _toast_box.get_child_count() >= 4:
 		var oldest := _toast_box.get_child(0)
 		_toast_box.remove_child(oldest)
 		oldest.queue_free()
 	var panel := PanelContainer.new()
+	panel.set_meta("text", text)
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var sb := _box(Color(0.35, 0.08, 0.05, 0.95), Color(1, 0.6, 0.2), 2)
 	sb.content_margin_left = 16
 	sb.content_margin_right = 16
 	panel.add_theme_stylebox_override("panel", sb)
 	var l := Label.new()
-	l.text = "!  " + text
+	l.text = text
 	l.add_theme_font_size_override("font_size", 18)
 	l.add_theme_color_override("font_color", Color(1, 0.95, 0.85))
 	panel.add_child(l)
