@@ -11,6 +11,7 @@
 bg_color = Color(0.627451, 0.0627451, 0.011764706, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ra43y"]
+bg_color = Color(0.078431375, 0.23137255, 0.18039216, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxlrp"]
 bg_color = Color(0.43137255, 0.0627451, 0.011764706, 1)
@@ -456,8 +457,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 8.0
 offset_top = 6.0
-offset_right = -8.0
-offset_bottom = -6.0
+offset_right = 312.0
+offset_bottom = 344.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 6
