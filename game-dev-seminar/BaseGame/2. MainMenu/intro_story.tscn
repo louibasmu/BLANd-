@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c0kuc4jcka7wh"]
 
-[ext_resource type="Script" uid="uid://ii8bobvual1p" path="res://BaseGame/2. MainMenu/intro_story.gd" id="1_u31pj"]
-[ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_niqfb"]
+[ext_resource type="Script" path="res://BaseGame/2. MainMenu/intro_story.gd" id="1_u31pj"]
+[ext_resource type="Texture2D" uid="uid://mtqopwkjmew" path="res://BaseGame/X.jpeg" id="2_3v3jw"]
 [ext_resource type="AudioStream" uid="uid://c4xmc1jrf3t73" path="res://sound_assets/ScaryMusic2018-10-12_-_It_Is_Coming_-_David_Fesliyan.mp3" id="2_tx0by"]
 [ext_resource type="FontFile" uid="uid://beqhif7l28ciw" path="res://Fonts/LibreBaskerville.ttf" id="3_3v3jw"]
 [ext_resource type="AudioStream" uid="uid://kq6q1lchq6lx" path="res://sound_assets/wii-keyboard-click-3.mp3" id="4_niqfb"]
@@ -47,7 +47,7 @@ offset_right = 1281.0
 offset_bottom = 378.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2_niqfb")
+texture = ExtResource("2_3v3jw")
 expand_mode = 1
 
 [node name="Dim" type="ColorRect" parent="." unique_id=401143022]
