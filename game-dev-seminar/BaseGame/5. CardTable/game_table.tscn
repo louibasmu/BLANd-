@@ -249,6 +249,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="TableImage" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1540025419]
+unique_name_in_owner = true
 modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
 material = SubResource("ShaderMaterial_5asqp")
 layout_mode = 1
@@ -261,14 +262,6 @@ mouse_filter = 2
 texture = ExtResource("3_g8l5e")
 expand_mode = 1
 stretch_mode = 6
-
-[node name="Candle" type="Node2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage" unique_id=970094850]
-
-[node name="CandleBody" type="Sprite2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage/Candle" unique_id=1914588295]
-
-[node name="FlamePivot" type="Node2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage/Candle" unique_id=133726079]
-
-[node name="Flame" type="Sprite2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage/Candle/FlamePivot" unique_id=1728108652]
 
 [node name="CompassCenter" type="CenterContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1829671266]
 layout_mode = 1
