@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://mtqopwkjmew"
-path="res://.godot/imported/X.jpeg-b04caac55fd06faac1a41cde466ee11d.ctex"
+uid="uid://b7uoqtmi87xk1"
+path="res://.godot/imported/Wallpaper.jpeg-4559c4034b64aee3e9243e7a11ab31a2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://BaseGame/X.jpeg"
-dest_files=["res://.godot/imported/X.jpeg-b04caac55fd06faac1a41cde466ee11d.ctex"]
+source_file="res://Environment Assets/Wallpaper.jpeg"
+dest_files=["res://.godot/imported/Wallpaper.jpeg-4559c4034b64aee3e9243e7a11ab31a2.ctex"]
 
 [params]
 

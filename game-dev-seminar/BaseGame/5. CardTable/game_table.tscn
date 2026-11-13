@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://glnp5crqn7w6" path="res://BaseGame/5. CardTable/game_table.gd" id="1_xanw4"]
 [ext_resource type="Script" uid="uid://do2sxspgf0u2e" path="res://BaseGame/1. CoreMechanics/turn_compass.gd" id="2_mnkod"]
 [ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_wlmaj"]
-[ext_resource type="Texture2D" uid="uid://b7uoqtmi87xk1" path="res://BaseGame/5. CardTable/Wallpaper.jpeg" id="3_g8l5e"]
+[ext_resource type="Texture2D" uid="uid://b7uoqtmi87xk1" path="res://Environment Assets/Wallpaper.jpeg" id="3_g8l5e"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
