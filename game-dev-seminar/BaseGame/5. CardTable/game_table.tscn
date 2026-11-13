@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://glnp5crqn7w6" path="res://BaseGame/5. CardTable/game_table.gd" id="1_xanw4"]
 [ext_resource type="Script" uid="uid://do2sxspgf0u2e" path="res://BaseGame/1. CoreMechanics/turn_compass.gd" id="2_mnkod"]
 [ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_wlmaj"]
-[ext_resource type="Texture2D" uid="uid://b1japk5v6daty" path="res://Environment Assets/tableRight.jpeg" id="3_g8l5e"]
+[ext_resource type="Texture2D" uid="uid://b7uoqtmi87xk1" path="res://BaseGame/5. CardTable/Wallpaper.jpeg" id="3_g8l5e"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
@@ -11,6 +11,7 @@
 bg_color = Color(0.627451, 0.0627451, 0.011764706, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ra43y"]
+bg_color = Color(0.078431375, 0.23137255, 0.18039216, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxlrp"]
 bg_color = Color(0.43137255, 0.0627451, 0.011764706, 1)
@@ -248,6 +249,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="TableImage" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1540025419]
+unique_name_in_owner = true
 modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
 material = SubResource("ShaderMaterial_5asqp")
 layout_mode = 1
@@ -258,6 +260,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("3_g8l5e")
+expand_mode = 1
 stretch_mode = 6
 
 [node name="CompassCenter" type="CenterContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1829671266]
