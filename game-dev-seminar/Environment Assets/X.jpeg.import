@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b7uoqtmi87xk1"
-path="res://.godot/imported/Wallpaper.jpeg-26f6beb60abe29d3be77e8b186a3859c.ctex"
+uid="uid://mtqopwkjmew"
+path="res://.godot/imported/X.jpeg-7a204a4b675644887589d095123537b8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://BaseGame/5. CardTable/Wallpaper.jpeg"
-dest_files=["res://.godot/imported/Wallpaper.jpeg-26f6beb60abe29d3be77e8b186a3859c.ctex"]
+source_file="res://Environment Assets/X.jpeg"
+dest_files=["res://.godot/imported/X.jpeg-7a204a4b675644887589d095123537b8.ctex"]
 
 [params]
 
