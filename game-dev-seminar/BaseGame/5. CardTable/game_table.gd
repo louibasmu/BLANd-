@@ -51,7 +51,7 @@ var _bot_pick: Dictionary = {}     # {src, index} the bot is about to take (high
 # True while the pause menu is open; the bot timer ignores ticks during a pause.
 var _paused: bool = false
 
-# UI nodes that are updated later; they are created in _build_ui() and kept in variables.
+# UI nodes that are updated later; 
 # UI nodes
 @onready var _status_label: Label = %StatusLabel
 @onready var _menu_button: Button = %MenuButton
