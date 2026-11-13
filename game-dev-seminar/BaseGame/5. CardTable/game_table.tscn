@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://do2sxspgf0u2e" path="res://BaseGame/1. CoreMechanics/turn_compass.gd" id="2_mnkod"]
 [ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_wlmaj"]
 [ext_resource type="Texture2D" uid="uid://b1japk5v6daty" path="res://Environment Assets/table.jpeg" id="3_g8l5e"]
+[ext_resource type="AudioStream" uid="uid://bd1xxh4iyn110" path="res://sound_assets/background_sound_for_the_game.mp3" id="5_aiv48"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
@@ -671,6 +672,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="BackgroundMusic" type="AudioStreamPlayer" parent="." unique_id=668796053]
+stream = ExtResource("5_aiv48")
+autoplay = true
 
 [connection signal="timeout" from="BotTimer" to="." method="_on_bot_timer"]
 [connection signal="pressed" from="margin/root/bar/MenuButton" to="." method="_toggle_menu_popup"]
