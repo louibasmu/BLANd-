@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="BLANdevelopers"
-run/main_scene="uid://c0kuc4jcka7wh"
+run/main_scene="uid://b66112ewa6itc"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
