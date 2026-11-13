@@ -9,28 +9,28 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_emy3t"]
-bg_color = Color(0.12156863, 0.32156864, 0.2509804, 1)
+bg_color = Color(0.627451, 0.0627451, 0.011764706, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ra43y"]
 bg_color = Color(0.078431375, 0.23137255, 0.18039216, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxlrp"]
-bg_color = Color(0.18039216, 0.43137255, 0.32156864, 1)
+bg_color = Color(0.43137255, 0.0627451, 0.011764706, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ve31a"]
-bg_color = Color(0.18039216, 0.43137255, 0.32156864, 1)
+bg_color = Color(0.43137255, 0.0627451, 0.011764706, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g8l5e"]
 content_margin_left = 8.0
 content_margin_top = 6.0
 content_margin_right = 8.0
 content_margin_bottom = 6.0
-bg_color = Color(0.078431375, 0.16078432, 0.12941177, 1)
+bg_color = Color(0, 0, 0, 0.92156863)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.3019608, 0.5019608, 0.4, 1)
+border_color = Color(0.42352942, 0, 0.12156863, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -40,10 +40,10 @@ corner_radius_bottom_left = 6
 bg_color = Color(0, 0.4366271, 0.39588127, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_25ech"]
-bg_color = Color(0.12156863, 0.2509804, 0.1882353, 1)
+bg_color = Color(0.42352942, 0, 0.12156863, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wmx4n"]
-bg_color = Color(0.18039216, 0.34117648, 0.25882354, 1)
+bg_color = Color(0.54901963, 0, 0.12156863, 1)
 
 [node name="GameTable" type="Control" unique_id=1531637342]
 layout_mode = 3
@@ -250,6 +250,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="TableImage" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1540025419]
+unique_name_in_owner = true
 modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
 material = SubResource("ShaderMaterial_5asqp")
 layout_mode = 1
@@ -260,6 +261,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("3_g8l5e")
+expand_mode = 1
 stretch_mode = 6
 
 [node name="CompassCenter" type="CenterContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1829671266]
@@ -358,7 +360,7 @@ text = "Cancel"
 [node name="ShuffleButton" type="Button" parent="margin/root/PromptRow" unique_id=1596064961]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Shiffle My Hand"
+text = "Shuffle My Hand"
 
 [node name="StartButton" type="Button" parent="margin/root/PromptRow" unique_id=825151693]
 unique_name_in_owner = true

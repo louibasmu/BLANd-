@@ -4,7 +4,6 @@ extends RefCounted
 ##
 ## This class is never instantiated: everything is `static`, so the main menu can change values
 ## and the game scene (loaded afterwards) reads the same values. Rules that should not change are `const`.
-## Everything the team decided on 10/5 lives here so it is easy to change.
 ## Which brain the bots use (see bot_brain.gd): purely random choices, or simple rules of thumb.
 
 enum BotStyle { RANDOM, BASIC }
