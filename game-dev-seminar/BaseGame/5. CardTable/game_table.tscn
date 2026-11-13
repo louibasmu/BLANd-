@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://glnp5crqn7w6" path="res://BaseGame/5. CardTable/game_table.gd" id="1_xanw4"]
 [ext_resource type="Script" uid="uid://do2sxspgf0u2e" path="res://BaseGame/1. CoreMechanics/turn_compass.gd" id="2_mnkod"]
 [ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_wlmaj"]
-[ext_resource type="Texture2D" uid="uid://b1japk5v6daty" path="res://Environment Assets/table.jpeg" id="3_g8l5e"]
+[ext_resource type="Texture2D" uid="uid://b1japk5v6daty" path="res://Environment Assets/tableRight.jpeg" id="3_g8l5e"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
@@ -456,8 +456,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 8.0
 offset_top = 6.0
-offset_right = -8.0
-offset_bottom = -6.0
+offset_right = 312.0
+offset_bottom = 344.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 6
