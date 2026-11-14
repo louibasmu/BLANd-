@@ -18,6 +18,7 @@ const TABLE_SCENE := "res://BaseGame/5. CardTable/game_table.tscn"
 @onready var _start_btn: Button = %StartButton
 @onready var _rules_panel: Control = %RulesPanel     
 @onready var _rules_text: RichTextLabel = %RulesText
+@onready var _accessibility_panel: Control = %Accessibility_Panel #new_lean
 @onready var _specials_panel: Control = %SpecialsPanel
 @onready var _specials_grid: GridContainer = %SpecialsGrid
 var _special_rows: Dictionary = {}   # special -> {spin, rarity}
@@ -141,4 +142,7 @@ func _on_done_button_pressed() -> void:
 	_specials_panel.visible = false
 
 func _on_accessibility_pressed() -> void:
-	pass # Replace with function body.
+	_accessibility_panel.visible = true
+
+func _on_access_close_pressed() -> void:
+	_accessibility_panel.visible = false

@@ -215,6 +215,73 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Close"
 
+[node name="Accessibility_Panel" type="ColorRect" parent="." unique_id=532959513]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7019608)
+
+[node name="Access_Center" type="CenterContainer" parent="Accessibility_Panel" unique_id=1126696959]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Access_Body" type="PanelContainer" parent="Accessibility_Panel/Access_Center" unique_id=128898202]
+custom_minimum_size = Vector2(760, 520)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lxlrp")
+
+[node name="Access_Column" type="VBoxContainer" parent="Accessibility_Panel/Access_Center/Access_Body" unique_id=1236908074]
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=879087495]
+visibility_layer = 0
+layout_mode = 2
+theme_override_constants/separation = 110
+
+[node name="Button" type="Button" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=883510595]
+layout_mode = 2
+size_flags_vertical = 4
+text = "Brightness/Contrast"
+
+[node name="Button2" type="Button" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=1786426169]
+layout_mode = 2
+size_flags_vertical = 4
+text = "Audio"
+
+[node name="Button3" type="Button" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=726756312]
+layout_mode = 2
+size_flags_vertical = 4
+text = "Text Size
+"
+
+[node name="Button4" type="Button" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=653455097]
+layout_mode = 2
+size_flags_vertical = 4
+text = "Card Size"
+
+[node name="HSeparator5" type="HSeparator" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=861420340]
+visibility_layer = 0
+layout_mode = 2
+theme_override_constants/separation = 27
+
+[node name="Access_Text" type="RichTextLabel" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=1246822230]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="Access_Close" type="Button" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=901437337]
+layout_mode = 2
+text = "Close"
+
 [node name="SpecialsPanel" type="ColorRect" parent="." unique_id=1943384652]
 unique_name_in_owner = true
 visible = false
@@ -284,5 +351,6 @@ text = "Reset to defaults"
 [connection signal="pressed" from="Center/box/Accessibility" to="." method="_on_accessibility_pressed"]
 [connection signal="pressed" from="Center/box/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="RulesPanel/RulesCenter/RulesBody/RulesColumn/CloseButton" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Access_Close" to="." method="_on_access_close_pressed"]
 [connection signal="pressed" from="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons/DoneButton" to="." method="_on_done_button_pressed"]
 [connection signal="pressed" from="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons/ResetButton" to="." method="_on_specials_reset"]
