@@ -68,6 +68,7 @@ var _paused: bool = false
 @onready var _keep_btn: Button = %KeepButton
 @onready var _toast_box: VBoxContainer = %ToastBox
 @onready var _pair_animation_layer: Control = %PairAnimationLayer
+@onready var _joker_sound: AudioStreamPlayer = $JokerSound
 var _ui_scale: float = 1.0
 var _side_card_size: Vector2 = SIDE_CARD
 
@@ -104,6 +105,7 @@ func _ready() -> void:
 	game.pair_made.connect(_on_pair_made)
 	game.turn_started.connect(_on_turn_started)
 	game.turn_continued.connect(_on_turn_continued)
+	game.joker_received.connect(_on_joker_received)
 	game.special_drawn.connect(_on_special_drawn)
 	game.affected.connect(_on_affected)
 	game.player_finished.connect(_on_player_finished)
@@ -503,9 +505,8 @@ func _on_turn_ended(_player_index: int) -> void:
 
 
 func _on_joker_received(player_index: int) -> void:
-	pass
-	#if game.players[player_index].is_human:
-		#SoundManager.play_joker()
+	if game.players[player_index].is_human:
+		_joker_sound.play()
 
 
 func _play_next_pair_animation() -> void:
