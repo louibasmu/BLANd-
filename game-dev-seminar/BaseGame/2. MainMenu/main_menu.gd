@@ -139,3 +139,6 @@ func _on_close_button_pressed() -> void:
 
 func _on_done_button_pressed() -> void:
 	_specials_panel.visible = false
+
+func _on_accessibility_pressed() -> void:
+	pass # Replace with function body.
