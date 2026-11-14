@@ -73,6 +73,12 @@ texture = ExtResource("2_wlmaj")
 expand_mode = 1
 stretch_mode = 6
 
+[node name="purple_overlay" type="ColorRect" parent="." unique_id=915609692]
+layout_mode = 0
+offset_right = 1281.0
+offset_bottom = 715.0
+color = Color(0.09803922, 0.003921569, 0.20784314, 0.23529412)
+
 [node name="margin" type="MarginContainer" parent="." unique_id=1359996324]
 layout_mode = 1
 anchors_preset = 15
