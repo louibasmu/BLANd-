@@ -15,9 +15,11 @@ const CUSTOM_CARD_DIR := CARD_DIR + "BLANd Made Cards/"
 const ENVIRONMENT_DIR := "res://Environment Assets/"
 const BACKGROUND_BLUR_SHADER := preload("res://Environment Assets/background_blur.gdshader")
 const TITLE_FONT := preload("res://Fonts/Blackadder ITC Std Regular.otf")
+const PAIR_FONT := preload("res://Fonts/Hoefler Text.ttc")
 # Card sizes in pixels: big for the human's own hand, small for the opponents' face-down cards.
 #5 to 7 ratio on the width and height
 const BIG_CARD := Vector2(90, 126)
+const GIVE_ZOOM := 1.3
 const SMALL_CARD := Vector2(50, 70)
 const SIDE_CARD := Vector2(70, 50)
 const MAX_MIDDLE_HEIGHT := 440.0
@@ -68,6 +70,8 @@ var _paused: bool = false
 @onready var _keep_btn: Button = %KeepButton
 @onready var _toast_box: VBoxContainer = %ToastBox
 @onready var _pair_animation_layer: Control = %PairAnimationLayer
+@onready var _user_log: RichTextLabel = %userLog
+@onready var _bot_log: RichTextLabel = %botLog
 @onready var _joker_sound: AudioStreamPlayer = $JokerSound
 var _ui_scale: float = 1.0
 var _side_card_size: Vector2 = SIDE_CARD
@@ -112,11 +116,14 @@ func _ready() -> void:
 	game.round_over.connect(_on_round_over)
 	game.game_over.connect(_on_game_over)
 	game.start_round()
+	game.log_message.connect(_on_log_message)
 	
 	for speed_name in GameSettings.BOT_SPEEDS:
 		_menu_speed_option.add_item(speed_name)
 		if is_equal_approx(GameSettings.BOT_SPEEDS[speed_name], GameSettings.bot_delay):
 			_menu_speed_option.select(_menu_speed_option.item_count - 1)
+			
+	_show_welcome()
 
 
 # Keyboard shortcuts: T opens the card tracker. Esc (ui_cancel) cancels a half-finished selection if there
@@ -487,16 +494,35 @@ func _pair_chip(a: BlandCard, b: BlandCard) -> Control:
 	chip.tooltip_text = "%s + %s" % [a.display_name(), b.display_name()]
 	return chip
 
-#commenting out so the game can run
-func _on_pair_made(player_index: int, card_a: BlandCard, card_b: BlandCard) -> void:
-	pass
+# Shown once when the game opens. The button then plays the pairs the human was dealt.
+func _show_welcome() -> void:
+	_show_modal("Welcome to Death's Door!",
+		"Pair up your cards to score points, and don't get stuck holding the Joker.\nGood luck!",
+		null,
+		[["Let's play", _play_starting_pairs]])
+
+
+# Queues one animation for every pair the human started with.
+func _play_starting_pairs() -> void:
+	for pr in game.players[HUMAN].paired_cards:
+		_pair_animation_queue.append({
+			"player": HUMAN,
+			"card_a": pr[0],
+			"card_b": pr[1],
+		})
+	_play_next_pair_animation.call_deferred()
+#when pair is made it will print the details in the text box
+func _on_pair_made(p: int, a: BlandCard, b: BlandCard) -> void:
+	if p != HUMAN:
+		return
+	_toast("You made a pair of %s! (+%d)" % [a.rank_plural(), GameSettings.POINTS_PER_PAIR])
+	_pair_animation_queue.append({
+		"player": p,
+		"card_a": a,
+		"card_b": b,
+	})
+	_play_next_pair_animation.call_deferred()
 	#SoundManager.play_pair()
-	#_pair_animation_queue.append({
-		#"player": player_index,
-		#"card_a": card_a,
-		#"card_b": card_b,
-	#})
-	#_play_next_pair_animation.call_deferred()
 
 
 func _on_turn_ended(_player_index: int) -> void:
@@ -521,12 +547,21 @@ func _play_next_pair_animation() -> void:
 	var center := _pair_animation_layer.size / 2.0
 	var title := Label.new()
 	title.text = "%s made a pair!" % player.display_name
+	var title_font_size := 40
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_override("font", TITLE_FONT)
-	title.add_theme_font_size_override("font_size", 26)
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title.add_theme_font_override("font", PAIR_FONT)
+	title.add_theme_font_size_override("font_size", title_font_size)
 	title.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
-	title.position = center + Vector2(-200, -115)
-	title.size = Vector2(400, 40)
+	# The box behind the text: dark fill with a gold border.
+	var title_box := _box(Color(0.08, 0.04, 0.02, 0.85), Color(1, 0.85, 0.4), 3)
+	title_box.content_margin_left = 24
+	title_box.content_margin_right = 24
+	title.add_theme_stylebox_override("normal", title_box)
+	# Size the label to fit its text so the box wraps the message tightly.
+	var text_w := PAIR_FONT.get_string_size(title.text, HORIZONTAL_ALIGNMENT_LEFT, -1, title_font_size).x
+	title.size = Vector2(text_w + 48, 64)
+	title.position = center + Vector2(-title.size.x / 2.0, -135)
 	_pair_animation_layer.add_child(title)
 
 	var card_size := Vector2(72, 102)
@@ -544,7 +579,17 @@ func _play_next_pair_animation() -> void:
 		_pair_animation_layer.add_child(card_view)
 		moving_cards.append(card_view)
 
-	await get_tree().create_timer(0.9).timeout
+	# Fade the title and both cards in, then hold before they fly to the pairs box.
+	title.modulate.a = 0.0
+	for cv in moving_cards:
+		cv.modulate.a = 0.0
+	var fade_in := create_tween()
+	fade_in.set_parallel(true)
+	fade_in.tween_property(title, "modulate:a", 1.0, 0.35)
+	for cv in moving_cards:
+		fade_in.tween_property(cv, "modulate:a", 1.0, 0.35)
+	await fade_in.finished
+	await get_tree().create_timer(1.3).timeout   # was 0.9
 
 	var destination_control: Control = _seats[player_index]["pairs"] \
 		if player_index == HUMAN else _seats[player_index]["score"]
@@ -582,6 +627,12 @@ func _small_label(text: String) -> Label:
 
 var _refresh_queued: bool = false
 
+# While the human is choosing a card to Give, grey out everything except their hand.
+func _update_give_dim() -> void:
+	var dim := ui_mode == UiMode.CHOOSE_GIVE_CARD
+	var c := Color(0.45, 0.45, 0.45) if dim else Color.WHITE
+	_mid_slot.modulate = c                    # left opponent, center area, right opponent
+	_seats[2]["panel"].modulate = c           # the top opponent
 
 ## The game emits `changed` several times during one action; redraw once per frame instead.
 func _queue_refresh() -> void:
@@ -634,6 +685,8 @@ func _refresh() -> void:
 	_start_btn.visible = arranging
 	_keep_btn.visible = game.current == HUMAN and game.phase == BlandGame.Phase.SPECIAL_DRAWN
 	_prompt.text = _prompt_text(human_turn)
+	#dims the rest so player focuses on the card to choose
+	_update_give_dim()
 
 
 func _fit_status_text(base: String, direction: String, next_text: String) -> String:
@@ -727,7 +780,8 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 	#   choosing a card for Give -> give it away.
 	if i == HUMAN:
 		var arranging := game.phase == BlandGame.Phase.ARRANGE
-		var card_size := BIG_CARD * _ui_scale
+		var giving := pending_special != null and pending_special.special == BlandCard.Special.GIVE
+		var card_size := BIG_CARD * _ui_scale * (GIVE_ZOOM if giving else 1.0)
 		var card_area: Control = seat["card_area"]
 		card_area.custom_minimum_size.y = card_size.y + 13.0
 		var hand_count := p.hand.size()
@@ -750,6 +804,8 @@ func _refresh_seat(i: int, human_turn: bool) -> void:
 			# Your own cards show their position too: that's what opponents pick from.
 			var just_drawn := game.phase == BlandGame.Phase.SPECIAL_DRAWN and card == game.drawn_special
 			var view := _card_view(card, true, card_size, idx, cb, (arranging and idx == _arrange_sel) or just_drawn)
+			if ui_mode == UiMode.CHOOSE_GIVE_CARD and card == pending_special:
+				view.modulate = Color(0.5, 0.5, 0.5)
 			if arranging:
 				_enable_drag(view.get_child(0), idx)
 			box.add_child(view)
@@ -1071,35 +1127,31 @@ func _on_affected(target: int, actor: int, text: String) -> void:
 		_toast(text)
 
 
-## A pop-up banner at the top of the screen that fades out after a few seconds.
-## At most 4 are shown at once (the oldest is removed). Each stays for a time based on the bot speed, then
-## fades out via a Tween (an animation helper) and deletes itself.
+
+##shows the actions in the history log box for the user
 func _toast(text: String) -> void:
-	for existing in _toast_box.get_children():
-		if existing.get_meta("text", "") == text:
-			return
-	while _toast_box.get_child_count() >= 4:
-		var oldest := _toast_box.get_child(0)
-		_toast_box.remove_child(oldest)
-		oldest.queue_free()
-	var panel := PanelContainer.new()
-	panel.set_meta("text", text)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sb := _box(Color(0.35, 0.08, 0.05, 0.95), Color(1, 0.6, 0.2), 2)
-	sb.content_margin_left = 16
-	sb.content_margin_right = 16
-	panel.add_theme_stylebox_override("panel", sb)
-	var l := Label.new()
-	l.text = text
-	l.add_theme_font_size_override("font_size", 18)
-	l.add_theme_color_override("font_color", Color(1, 0.95, 0.85))
-	panel.add_child(l)
-	_toast_box.add_child(panel)
-	var hold: float = clampf(GameSettings.bot_delay * 2.5, 3.0, 6.0)
-	var tw := panel.create_tween()
-	tw.tween_interval(hold)
-	tw.tween_property(panel, "modulate:a", 0.0, 0.6)
-	tw.tween_callback(panel.queue_free)
+	_user_log.add_text(text + "\n")
+	while _user_log.get_paragraph_count() > 200:   # keep the log from growing forever
+		_user_log.remove_paragraph(0)
+
+#logs message for bot actions that user may see
+func _on_log_message(text: String) -> void:
+	# Only lines where a bot is the one acting
+	var bot_acting := false
+	for i in range(1, game.players.size()):
+		if text.begins_with(game.players[i].display_name):
+			bot_acting = true
+			break
+	if not bot_acting:
+		return
+	# Anything that targets the human belongs in the user panel instead
+	if text.contains("You") or text.contains("your"):
+		return
+	if text.contains("again"):   # skips the extra "made a pair and goes again" line
+		return
+	_bot_log.append_text(text + "\n")
+	while _bot_log.get_paragraph_count() > 200:
+		_bot_log.remove_paragraph(0)
 
 
 # ================================================================ rounds / game over
@@ -1109,9 +1161,10 @@ func _toast(text: String) -> void:
 func _on_round_over(summary: Array) -> void:
 	_bot_timer.stop()
 	_bot_pick = {}
-	for t in _toast_box.get_children():
-		t.queue_free()
 	_clear_selection()
+	while _pair_animation_running or not _pair_animation_queue.is_empty():
+		await get_tree().process_frame
+	await get_tree().create_timer(0.3).timeout   # a short beat before the results pop up
 	var grid := GridContainer.new()
 	grid.columns = 5
 	grid.add_theme_constant_override("h_separation", 24)
