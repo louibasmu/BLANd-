@@ -253,9 +253,10 @@ unique_name_in_owner = true
 modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
 material = SubResource("ShaderMaterial_5asqp")
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = -1
+anchor_bottom = 4.341
+offset_right = 778.0
+offset_bottom = -12.210999
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -265,9 +266,12 @@ stretch_mode = 6
 
 [node name="CompassCenter" type="CenterContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1829671266]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
+anchors_preset = -1
 anchor_bottom = 1.0
+offset_left = 208.0
+offset_top = 3.0
+offset_right = 553.0
+offset_bottom = 3.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -277,6 +281,60 @@ unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("2_mnkod")
 metadata/_custom_type_script = "uid://do2sxspgf0u2e"
+
+[node name="userHistoryPanel" type="PanelContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=846765798]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 3.0
+offset_right = 308.0
+offset_bottom = 243.0
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="margin/root/MidSlot/Mid/CenterArea/userHistoryPanel" unique_id=202308849]
+layout_mode = 2
+
+[node name="historyTitle" type="Label" parent="margin/root/MidSlot/Mid/CenterArea/userHistoryPanel/VBoxContainer" unique_id=1282359572]
+modulate = Color(1, 1, 0.94385463, 1)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.88, 1)
+theme_override_colors/font_shadow_color = Color(0.37392187, 0.37392187, 0.37392187, 0.7529412)
+text = "User History Log"
+horizontal_alignment = 1
+
+[node name="userLog" type="RichTextLabel" parent="margin/root/MidSlot/Mid/CenterArea/userHistoryPanel/VBoxContainer" unique_id=871354307]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 10
+bbcode_enabled = true
+scroll_following = true
+
+[node name="BotHistoryPanel" type="PanelContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=587869859]
+layout_mode = 0
+offset_left = 467.0
+offset_top = 3.0
+offset_right = 765.0
+offset_bottom = 243.0
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="margin/root/MidSlot/Mid/CenterArea/BotHistoryPanel" unique_id=1287153614]
+layout_mode = 2
+
+[node name="historyTitle" type="Label" parent="margin/root/MidSlot/Mid/CenterArea/BotHistoryPanel/VBoxContainer" unique_id=1231216137]
+modulate = Color(1, 1, 0.94385463, 1)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.88, 1)
+theme_override_colors/font_shadow_color = Color(0.37392187, 0.37392187, 0.37392187, 0.7529412)
+text = "Bot History Log"
+horizontal_alignment = 1
+
+[node name="botLog" type="RichTextLabel" parent="margin/root/MidSlot/Mid/CenterArea/BotHistoryPanel/VBoxContainer" unique_id=206414628]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 10
+bbcode_enabled = true
+scroll_following = true
 
 [node name="Seat3Panel" type="PanelContainer" parent="margin/root/MidSlot/Mid" unique_id=920631560]
 unique_name_in_owner = true

@@ -25,6 +25,7 @@ signal affected(target: int, actor: int, text: String)   # someone's move hit `t
 signal round_over(summary: Array)           # Array of Dictionaries, one per player
 signal game_over(standings: Array)          # players sorted by score
 
+
 ## The phase says what the game is waiting for right now. The table and the bots both
 ## check it to know which actions are currently legal.
 ## IDLE / ARRANGE - before play starts / players are ordering their hands
@@ -635,6 +636,7 @@ func _check_new_pair(p: int, card: BlandCard) -> bool:
 	var other := players[p].find_match_for(card)
 	if other != null:
 		_discard_pair(players[p], card, other)
+		_log("%s makes a pair of %s! (+%d)" % [_n(p), card.rank_plural(), GameSettings.POINTS_PER_PAIR])
 		pair_made.emit(p, card, other)
 		return true
 	return false
