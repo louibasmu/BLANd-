@@ -43,6 +43,12 @@ texture = ExtResource("2_background")
 expand_mode = 1
 stretch_mode = 6
 
+[node name="purple_overlay" type="ColorRect" parent="." unique_id=777040902]
+layout_mode = 0
+offset_right = 1281.0
+offset_bottom = 715.0
+color = Color(0.09803922, 0.003921569, 0.20784314, 0.23529412)
+
 [node name="Center" type="CenterContainer" parent="." unique_id=537732586]
 layout_mode = 1
 anchors_preset = 15
@@ -81,7 +87,7 @@ layout_mode = 2
 unique_name_in_owner = true
 modulate = Color(1, 0.9019608, 0.6, 1)
 layout_mode = 2
-text = "Jokers per round"
+text = "Jokers Per Round"
 horizontal_alignment = 1
 
 [node name="Label" type="Label" parent="Center/box/RoundsRow" unique_id=1458260079]
@@ -159,6 +165,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "How To Play
 "
+
+[node name="Accessibility" type="Button" parent="Center/box" unique_id=65544076]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Accessibility"
 
 [node name="QuitButton" type="Button" parent="Center/box" unique_id=1088980942]
 unique_name_in_owner = true
@@ -270,6 +281,7 @@ text = "Reset to defaults"
 [connection signal="pressed" from="Center/box/SpecialsRow/SpecialsButton" to="." method="_on_specials_pressed"]
 [connection signal="pressed" from="Center/box/StartButton" to="." method="_on_start"]
 [connection signal="pressed" from="Center/box/RulesButton" to="." method="_on_rules_pressed"]
+[connection signal="pressed" from="Center/box/Accessibility" to="." method="_on_accessibility_pressed"]
 [connection signal="pressed" from="Center/box/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="RulesPanel/RulesCenter/RulesBody/RulesColumn/CloseButton" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons/DoneButton" to="." method="_on_done_button_pressed"]
