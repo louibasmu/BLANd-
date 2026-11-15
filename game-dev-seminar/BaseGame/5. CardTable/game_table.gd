@@ -71,6 +71,7 @@ var _paused: bool = false
 @onready var _pair_animation_layer: Control = %PairAnimationLayer
 var _ui_scale: float = 1.0
 var _side_card_size: Vector2 = SIDE_CARD
+@onready var _table_flames: Array[CanvasItem] = [%TableFlame0, %TableFlame1, %TableFlame2, %TableFlame3]
 
 # Last direction shown, so the compass only "pulses" when the direction actually flips.
 var _last_direction: int = 1
@@ -603,6 +604,10 @@ func _refresh() -> void:
 	var dir := "clockwise" if game.direction == 1 else "counter-clockwise"
 	var upcoming := game.upcoming_player()
 	var playing := game.phase in [BlandGame.Phase.PLAY_OR_DRAW, BlandGame.Phase.SPECIAL_DRAWN, BlandGame.Phase.VISION_DECIDE]
+		# The flame points at whoever's turn it is. When nobody is playing, keep the last direction.
+	if playing and game.current >= 0:
+		for s in _table_flames.size():
+			_table_flames[s].visible = (s == game.current)
 	var next_text := ""
 	if playing and upcoming >= 0:
 		next_text = "   •   Next up: %s" % game.players[upcoming].display_name
@@ -610,17 +615,7 @@ func _refresh() -> void:
 		game.round_number, game.total_rounds, game.pairs_left()]
 	_status_label.text = _fit_status_text(base_status, dir, next_text)
 
-	# Flags for the compass: who is safe (out of cards) and who is frozen.
-	var safe_flags := []
-	var frozen_flags := []
-	for pl in game.players:
-		safe_flags.append(pl.finished)
-		frozen_flags.append(pl.frozen_turns > 0)
-	_compass.set_state(game.direction, game.current if playing else -1,
-		upcoming if playing else -1, safe_flags, frozen_flags)
-	if game.direction != _last_direction:
-		_last_direction = game.direction
-		_compass.pulse()
+	
 
 	# True when it is the human's turn and they are free to act.
 	var human_turn := game.current == HUMAN and game.is_turn_of(HUMAN)

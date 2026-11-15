@@ -3,7 +3,10 @@
 [ext_resource type="Script" uid="uid://glnp5crqn7w6" path="res://BaseGame/5. CardTable/game_table.gd" id="1_xanw4"]
 [ext_resource type="Script" uid="uid://do2sxspgf0u2e" path="res://BaseGame/1. CoreMechanics/turn_compass.gd" id="2_mnkod"]
 [ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_wlmaj"]
-[ext_resource type="Texture2D" uid="uid://b7uoqtmi87xk1" path="res://BaseGame/5. CardTable/Wallpaper.jpeg" id="3_g8l5e"]
+[ext_resource type="Texture2D" uid="uid://c0e1lgkaavrxh" path="res://BaseGame/5. CardTable/down_aligned.png" id="3_33ifr"]
+[ext_resource type="Texture2D" uid="uid://cc7abqiwu2fxe" path="res://BaseGame/5. CardTable/left_aligned.png" id="4_i4b7i"]
+[ext_resource type="Texture2D" uid="uid://dh2bxprhspa8t" path="res://BaseGame/5. CardTable/up_aligned.png" id="5_pween"]
+[ext_resource type="Texture2D" uid="uid://dmwywtc2tsiqp" path="res://BaseGame/5. CardTable/right_aligned.png" id="6_4janb"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
@@ -248,7 +251,8 @@ clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TableImage" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1540025419]
+[node name="TableFlame0" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=561914517]
+unique_name_in_owner = true
 modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
 material = SubResource("ShaderMaterial_5asqp")
 layout_mode = 1
@@ -258,19 +262,60 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("3_g8l5e")
+texture = ExtResource("3_33ifr")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Candle" type="Node2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage" unique_id=970094850]
+[node name="TableFlame1" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=396823004]
+unique_name_in_owner = true
+visible = false
+modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
+material = SubResource("ShaderMaterial_5asqp")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_i4b7i")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="CandleBody" type="Sprite2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage/Candle" unique_id=1914588295]
+[node name="TableFlame2" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1879070327]
+unique_name_in_owner = true
+visible = false
+modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
+material = SubResource("ShaderMaterial_5asqp")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_pween")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="FlamePivot" type="Node2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage/Candle" unique_id=133726079]
-
-[node name="Flame" type="Sprite2D" parent="margin/root/MidSlot/Mid/CenterArea/TableImage/Candle/FlamePivot" unique_id=1728108652]
+[node name="TableFlame3" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1540025419]
+unique_name_in_owner = true
+visible = false
+modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
+material = SubResource("ShaderMaterial_5asqp")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_4janb")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="CompassCenter" type="CenterContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1829671266]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -281,6 +326,7 @@ size_flags_horizontal = 3
 
 [node name="TurnCompass" type="Control" parent="margin/root/MidSlot/Mid/CenterArea/CompassCenter" unique_id=1352685893]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 script = ExtResource("2_mnkod")
 metadata/_custom_type_script = "uid://do2sxspgf0u2e"
