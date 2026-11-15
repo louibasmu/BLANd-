@@ -11,7 +11,7 @@ enum BotStyle { RANDOM, BASIC }
 # Number of rounds picked on the menu (clamped to MIN_ROUNDS..MAX_ROUNDS when a game is created).
 # --- Chosen on the main menu (static so they survive the scene change) ---
 static var pair_card_count: int = 40
-static var num_rounds: int = 5
+static var num_rounds: int = 1
 static var bot_style: int = BotStyle.BASIC
 # Delay table for the menu's bot-speed choice, in seconds, so the human can follow what the bots do.
 static var bot_delay: float = 1.4   # seconds between bot actions (set from the menu)
@@ -22,8 +22,8 @@ const FAST_FORWARD_DELAY := 0.2   # bot speed once you're out of cards for the r
 
 # --- Fixed rules from the 10/5 meeting ---
 const NUM_PLAYERS := 4          # always 4, nobody is removed between rounds
-const MIN_ROUNDS := 3
-const MAX_ROUNDS := 7
+const MIN_ROUNDS := 1
+const MAX_ROUNDS := 3
 const JOKER_PENALTY := 4        # points lost per Joker held when a round ends
 # The deck is 40 pair cards: ranks Ace(1) to 10, four suits each.
 const POINTS_PER_PAIR := 1
@@ -107,11 +107,9 @@ static func rarity_name(special: int) -> String:
 # Each list is the number of Jokers for round 1, 2, 3 ... so the game gets harder as it goes on.
 # Copied from the "Difficulty Curve" sheet in likelihood_for_card_nums.xlsx.
 const JOKER_SCHEDULE := {
+	1: [1],
+	2: [1, 2],
 	3: [1, 2, 3],
-	4: [1, 1, 2, 3],
-	5: [1, 1, 2, 2, 3],
-	6: [1, 1, 2, 2, 3, 3],
-	7: [1, 1, 1, 2, 2, 2, 3],
 # Number of Jokers for a given round. A round number past the end of the list reuses the last entry,
 # and an unknown round count falls back to a single Joker.
 }
