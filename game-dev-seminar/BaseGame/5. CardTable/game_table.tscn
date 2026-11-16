@@ -10,6 +10,7 @@
 [ext_resource type="AudioStream" uid="uid://bd1xxh4iyn110" path="res://sound_assets/background_sound_for_the_game.mp3" id="5_aiv48"]
 [ext_resource type="Texture2D" uid="uid://dmwywtc2tsiqp" path="res://BaseGame/5. CardTable/right_aligned.png" id="6_7cqqj"]
 [ext_resource type="AudioStream" uid="uid://dqy37np84k618" path="res://sound_assets/evil_laugh_joker.ogg" id="6_joker_sound"]
+[ext_resource type="AudioStream" uid="uid://bgvc2jxw0o2c3" path="res://sound_assets/positive.ogg" id="7_pair_made_sound"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
@@ -826,11 +827,17 @@ offset_transform_position = Vector2(-50, 0)
 mouse_filter = 2
 
 [node name="BackgroundMusic" type="AudioStreamPlayer" parent="." unique_id=668796053]
+unique_name_in_owner = true
 stream = ExtResource("5_aiv48")
 autoplay = true
 
 [node name="JokerSound" type="AudioStreamPlayer" parent="." unique_id=1856969380]
+unique_name_in_owner = true
 stream = ExtResource("6_joker_sound")
+
+[node name="PairMadeSound" type="AudioStreamPlayer" parent="." unique_id=1717292903]
+unique_name_in_owner = true
+stream = ExtResource("7_pair_made_sound")
 
 [connection signal="timeout" from="BotTimer" to="." method="_on_bot_timer"]
 [connection signal="pressed" from="margin/root/bar/MenuButton" to="." method="_toggle_menu_popup"]
