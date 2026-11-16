@@ -12,7 +12,7 @@
 > 1.3.1. PC, Mac, & Linux. Godot (cross-platform game engine)
 
 ### &nbsp; 1.4. Elevator Pitch:
-> 1.4.1. A play on the card shedding game “Old Maid” mixed with the classic chaos game Uno. The player's goal is to obtain the most points at the end of N rounds. The player obtains points by creating pairs of cards within their own hand. There is a list of special cards that can give the player an advantage. The game plays with a deck that has 13 special cards, 40 pair cards, and a changing number of joker cards. The entire deck is dealt to each player evenly with one person receiving at least one joker card.
+> 1.4.1. A play on the card shedding game “Old Maid” mixed with the classic chaos game Uno. The player can use special cards to give themselves an advantage while trying to obtain the most points(pairs) at the end of N rounds. 
 
 ### &nbsp; 1.5. Target Audience:
 > 1.5.1. The target audience are players of any age who enjoy the thrill of a group game but don’t have the opportunity to play with others. The target audience is the type of player that enjoys a more casual and arcade-like gaming experience.
