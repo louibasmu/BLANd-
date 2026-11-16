@@ -703,7 +703,7 @@ theme_override_constants/separation = 8
 [node name="Accessibility_Scene" parent="MenuPopup/MenuMargin/MenuItems/BotSpeed2" unique_id=1386749437 instance=ExtResource("5_33ifr")]
 layout_mode = 2
 size_flags_horizontal = 3
-offset_transform_position = Vector2(-290, 0)
+offset_transform_position = Vector2(-285, 0)
 
 [node name="BotSpeed" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems" unique_id=578701566]
 custom_minimum_size = Vector2(0, 40)
@@ -715,12 +715,18 @@ theme_override_constants/separation = 8
 
 [node name="Label" type="Label" parent="MenuPopup/MenuMargin/MenuItems/BotSpeed" unique_id=2106691314]
 layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(5, 0)
+offset_transform_visual_only = false
 text = "Bot Speed"
 
 [node name="BotSpeedButton" type="OptionButton" parent="MenuPopup/MenuMargin/MenuItems/BotSpeed" unique_id=229209522]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(5, 0)
+offset_transform_visual_only = false
 
 [node name="MarginContainer" type="MarginContainer" parent="MenuPopup/MenuMargin/MenuItems" unique_id=831279441]
 layout_mode = 2
