@@ -1,5 +1,5 @@
 extends Control
-## Start menu: pick the number of rounds (3-7) and the bot style, then play.
+## Start menu: pick the number of rounds (1-3) and the bot style, then play.
 ##
 ## The whole menu was built in code in _ready() 
 ##Asmus manually created them by node structure instead during week 7 and 8
@@ -18,6 +18,9 @@ const TABLE_SCENE := "res://BaseGame/5. CardTable/game_table.tscn"
 @onready var _start_btn: Button = %StartButton
 @onready var _rules_panel: Control = %RulesPanel     
 @onready var _rules_text: RichTextLabel = %RulesText
+
+#
+
 @onready var _specials_panel: Control = %SpecialsPanel
 @onready var _specials_grid: GridContainer = %SpecialsGrid
 var _special_rows: Dictionary = {}   # special -> {spin, rarity}
@@ -26,7 +29,8 @@ var _special_rows: Dictionary = {}   # special -> {spin, rarity}
 # builds the main menu and assigns functionality to buttons and proper
 # round numbers along with special card customization
 func _ready() -> void:
-	
+	#world_env.environment.adjustment_enabled = true
+
 	#User can choose how many rounds to play number of jokers is based on the number of rounds
 	for r in range(GameSettings.MIN_ROUNDS, GameSettings.MAX_ROUNDS + 1):
 		_rounds_option.add_item("%d rounds" % r, r)

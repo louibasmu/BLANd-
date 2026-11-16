@@ -1,0 +1,102 @@
+[gd_scene format=3 uid="uid://b66112ewa6itc"]
+
+[ext_resource type="Script" uid="uid://cst3knooxu375" path="res://BaseGame/6. Cover_Screen/cover_screen.gd" id="1_alfqk"]
+[ext_resource type="Texture2D" uid="uid://dvlb5n15q74kp" path="res://BaseGame/6. Cover_Screen/game_cover_wo_text.png" id="2_mycte"]
+[ext_resource type="Texture2D" uid="uid://bqy1xoughw2me" path="res://BaseGame/6. Cover_Screen/start_button.png" id="3_4acgg"]
+[ext_resource type="FontFile" uid="uid://coereqhxy3fo4" path="res://Fonts/new_AltarGothicDemo-Regular.otf" id="3_fbbr0"]
+[ext_resource type="Texture2D" uid="uid://cmm75kvwb81s2" path="res://BaseGame/6. Cover_Screen/pressed_start_button.png" id="6_x12iv"]
+[ext_resource type="Texture2D" uid="uid://bb7bgke54snpy" path="res://BaseGame/6. Cover_Screen/hover_start_button.png" id="7_gyto8"]
+[ext_resource type="Script" uid="uid://b5ed8xclvg4x5" path="res://BaseGame/6. Cover_Screen/texture_button.gd" id="8_73r8d"]
+
+[sub_resource type="Theme" id="Theme_fbbr0"]
+default_font = ExtResource("3_fbbr0")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lnmj5"]
+atlas = ExtResource("3_4acgg")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y6nv2"]
+atlas = ExtResource("6_x12iv")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6miji"]
+atlas = ExtResource("7_gyto8")
+
+[node name="Control" type="Control" unique_id=330770923]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_alfqk")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=744288263]
+layout_mode = 0
+offset_left = -2.0
+offset_top = 1.0
+offset_right = 1282.0
+offset_bottom = 722.0
+color = Color(0, 0, 0.06666667, 1)
+metadata/_edit_lock_ = true
+
+[node name="ColorRect2" type="ColorRect" parent="." unique_id=914561057]
+layout_mode = 0
+offset_left = 139.0
+offset_top = 25.0
+offset_right = 1146.0929
+offset_bottom = 689.0
+color = Color(0.6811097, 0.5927598, 0.11191375, 1)
+metadata/_edit_lock_ = true
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1182833176]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 149.0
+offset_top = 35.0
+offset_right = 1095.6238
+offset_bottom = 638.0
+grow_horizontal = 2
+pivot_offset = Vector2(1, 1)
+texture = ExtResource("2_mycte")
+expand_mode = 1
+metadata/_edit_lock_ = true
+
+[node name="RichTextLabel" type="RichTextLabel" parent="." unique_id=2067180992]
+layout_mode = 0
+offset_left = 328.0
+offset_top = 552.0
+offset_right = 1016.0
+offset_bottom = 664.0
+theme = SubResource("Theme_fbbr0")
+theme_override_colors/default_color = Color(0.20784314, 0.21176471, 0.6117647, 1)
+theme_override_font_sizes/normal_font_size = 100
+bbcode_enabled = true
+text = "[wave] DEATH'S DOOR"
+metadata/_edit_group_ = true
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="." unique_id=1230656455]
+layout_mode = 0
+offset_left = 328.0
+offset_top = 560.0
+offset_right = 1016.0
+offset_bottom = 664.0
+theme = SubResource("Theme_fbbr0")
+theme_override_colors/default_color = Color(0.91764706, 0.7490196, 0.08627451, 1)
+theme_override_font_sizes/normal_font_size = 100
+bbcode_enabled = true
+text = "[wave] DEATH'S DOOR"
+metadata/_edit_group_ = true
+
+[node name="TextureButton" type="TextureButton" parent="." unique_id=846219359]
+layout_mode = 0
+offset_left = 477.0
+offset_top = 322.0
+offset_right = 2077.0
+offset_bottom = 1522.0
+scale = Vector2(0.25, 0.25)
+texture_normal = SubResource("AtlasTexture_lnmj5")
+texture_pressed = SubResource("AtlasTexture_y6nv2")
+texture_hover = SubResource("AtlasTexture_6miji")
+ignore_texture_size = true
+script = ExtResource("8_73r8d")
+
+[connection signal="pressed" from="TextureButton" to="TextureButton" method="_on_pressed"]

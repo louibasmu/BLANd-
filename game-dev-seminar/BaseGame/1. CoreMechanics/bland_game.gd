@@ -39,7 +39,7 @@ enum Phase { IDLE, ARRANGE, PLAY_OR_DRAW, SPECIAL_DRAWN, VISION_DECIDE, ROUND_OV
 const SAFETY_TURN_LIMIT := 2000   # ends a round if something loops forever
 
 #------------------------------------------------------------------------ funcs
-var total_rounds: int = 5 # Total rounds picked on the main menu, and which round we are on (1-based once started).
+var total_rounds: int = 1 # Total rounds picked on the main menu, and which round we are on (1-based once started).
 var _rng := RandomNumberGenerator.new() # Our own random number generator (instead of the global one) used for shuffling.
 var players: Array[BlandPlayer] = [] # --- Game state ---
 
@@ -47,7 +47,7 @@ var players: Array[BlandPlayer] = [] # --- Game state ---
 # clamped to the allowed range so a bad value can't break the Joker schedule.
 	#@param p_total_round -> int value that represents total rounds being played, Array -> array of players and bots
 	#@return void
-func _init(p_total_rounds: int = 5, names: Array = ["You", "CPU 1", "CPU 2", "CPU 3"]) -> void: #LEAN
+func _init(p_total_rounds: int = 1, names: Array = ["You", "CPU 1", "CPU 2", "CPU 3"]) -> void: #LEAN
 	total_rounds = clampi(p_total_rounds, GameSettings.MIN_ROUNDS, GameSettings.MAX_ROUNDS)
 	_rng.randomize()
 	for i in GameSettings.NUM_PLAYERS: #const value from 0 - 3 (both values are inclusive)

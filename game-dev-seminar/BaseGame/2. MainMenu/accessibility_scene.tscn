@@ -1,0 +1,139 @@
+[gd_scene format=3 uid="uid://b0cxu34sl3430"]
+
+[ext_resource type="Script" uid="uid://dxl37ah1pctm1" path="res://accessibility.gd" id="1_1a4uy"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1a4uy"]
+content_margin_left = 18.0
+content_margin_top = 18.0
+content_margin_right = 18.0
+content_margin_bottom = 18.0
+bg_color = Color(0.3491902, 0.38109186, 0.4100209, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.9309246, 0.58383155, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="Environment" id="Environment_n43x3"]
+background_mode = 3
+
+[node name="Accessibility_Scene" type="Control" unique_id=1081997537]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = -8.0
+offset_transform_enabled = true
+offset_transform_position = Vector2(400, 0)
+offset_transform_visual_only = false
+script = ExtResource("1_1a4uy")
+
+[node name="Accessibility" type="Button" parent="." unique_id=2055564750]
+unique_name_in_owner = true
+layout_mode = 1
+offset_left = 288.0
+offset_right = 391.0
+offset_bottom = 31.0
+offset_transform_position = Vector2(400, 0)
+offset_transform_visual_only = false
+text = "Accessibility"
+
+[node name="Accessibility_Panel" type="ColorRect" parent="." unique_id=492432004]
+unique_name_in_owner = true
+layout_mode = 1
+offset_left = -192.0
+offset_top = 80.0
+offset_right = -192.0
+offset_bottom = 80.0
+offset_transform_position = Vector2(400, 0)
+offset_transform_visual_only = false
+color = Color(0, 0, 0, 0.7019608)
+
+[node name="Access_Center" type="CenterContainer" parent="Accessibility_Panel" unique_id=272904511]
+propagate_maximum_size = false
+layout_mode = 1
+offset_left = 472.0
+offset_top = -192.0
+offset_right = 1030.0
+offset_bottom = -36.0
+scale = Vector2(0.71, 0.71)
+offset_transform_enabled = true
+offset_transform_visual_only = false
+
+[node name="Access_Body" type="PanelContainer" parent="Accessibility_Panel/Access_Center" unique_id=2067034019]
+layout_mode = 2
+offset_transform_position = Vector2(40, 0)
+offset_transform_visual_only = false
+theme_override_styles/panel = SubResource("StyleBoxFlat_1a4uy")
+
+[node name="Access_Column" type="VBoxContainer" parent="Accessibility_Panel/Access_Center/Access_Body" unique_id=472905742]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+
+[node name="Brightness_Contrast" type="Button" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=1755456802]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_vertical = 4
+text = "Brightness / Contrast"
+
+[node name="Brightness_Slider" type="HBoxContainer" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=860050546]
+layout_mode = 2
+alignment = 1
+
+[node name="Brightness" type="Label" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Slider" unique_id=1461020488]
+layout_mode = 2
+text = "Brightness: "
+
+[node name="B_Num" type="Label" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Slider" unique_id=262719464]
+layout_mode = 2
+text = "1.0"
+
+[node name="B_Slider" type="HSlider" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Slider" unique_id=678888708]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 1.0
+max_value = 2.0
+step = 0.1
+value = 1.0
+
+[node name="Contrast_Slider" type="HBoxContainer" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=1334976016]
+layout_mode = 2
+
+[node name="Contrast" type="Label" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider" unique_id=1930898591]
+layout_mode = 2
+text = "Contrast: "
+
+[node name="C_Num" type="Label" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider" unique_id=2093005375]
+layout_mode = 2
+text = "1.0"
+
+[node name="C_Slider" type="HSlider" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider" unique_id=1490145934]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 1.0
+max_value = 2.0
+step = 0.1
+value = 1.0
+
+[node name="Access_Close" type="Button" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=1757450273]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+text = "Close"
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=15280125]
+environment = SubResource("Environment_n43x3")
+
+[connection signal="pressed" from="Accessibility" to="." method="_on_accessibility_pressed"]
+[connection signal="pressed" from="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Contrast" to="." method="_on_brightness_contrast_pressed"]
+[connection signal="value_changed" from="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Slider/B_Slider" to="." method="_on_b_slider_value_changed"]
+[connection signal="value_changed" from="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider/C_Slider" to="." method="_on_c_slider_value_changed"]
+[connection signal="pressed" from="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Access_Close" to="." method="_on_access_close_pressed"]
