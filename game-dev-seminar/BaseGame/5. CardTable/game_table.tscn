@@ -47,6 +47,10 @@ bg_color = Color(0.42352942, 0, 0.12156863, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wmx4n"]
 bg_color = Color(0.54901963, 0, 0.12156863, 1)
 
+[sub_resource type="Environment" id="Environment_hb7qp"]
+background_mode = 3
+adjustment_enabled = true
+
 [node name="GameTable" type="Control" unique_id=1531637342]
 layout_mode = 3
 anchors_preset = 15
@@ -73,6 +77,12 @@ mouse_filter = 2
 texture = ExtResource("2_wlmaj")
 expand_mode = 1
 stretch_mode = 6
+
+[node name="purple_overlay" type="ColorRect" parent="." unique_id=915609692]
+layout_mode = 0
+offset_right = 1281.0
+offset_bottom = 715.0
+color = Color(0.09803922, 0.003921569, 0.20784314, 0.23529412)
 
 [node name="margin" type="MarginContainer" parent="." unique_id=1359996324]
 layout_mode = 1
@@ -739,11 +749,11 @@ mouse_filter = 2
 stream = ExtResource("5_aiv48")
 autoplay = true
 
-[node name="JokerSound" type="AudioStreamPlayer" parent="." unique_id=501523503]
+[node name="JokerSound" type="AudioStreamPlayer" parent="." unique_id=1856969380]
 stream = ExtResource("6_joker_sound")
 
-[node name="PairMadeSound" type="AudioStreamPlayer" parent="." unique_id=1351988641]
-stream = ExtResource("7_pair_made_sound")
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=869713719]
+environment = SubResource("Environment_hb7qp")
 
 [connection signal="timeout" from="BotTimer" to="." method="_on_bot_timer"]
 [connection signal="pressed" from="margin/root/bar/MenuButton" to="." method="_toggle_menu_popup"]

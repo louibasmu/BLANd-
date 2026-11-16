@@ -21,6 +21,10 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="Environment" id="Environment_lnmj5"]
+background_mode = 3
+adjustment_enabled = true
+
 [node name="MainMenu" type="Control" unique_id=909583755]
 layout_mode = 3
 anchors_preset = 15
@@ -42,6 +46,12 @@ grow_vertical = 2
 texture = ExtResource("2_background")
 expand_mode = 1
 stretch_mode = 6
+
+[node name="purple_overlay" type="ColorRect" parent="." unique_id=777040902]
+layout_mode = 0
+offset_right = 1281.0
+offset_bottom = 715.0
+color = Color(0.09803922, 0.003921569, 0.20784314, 0.23529412)
 
 [node name="Center" type="CenterContainer" parent="." unique_id=537732586]
 layout_mode = 1
@@ -81,7 +91,7 @@ layout_mode = 2
 unique_name_in_owner = true
 modulate = Color(1, 0.9019608, 0.6, 1)
 layout_mode = 2
-text = "Jokers per round"
+text = "Jokers Per Round"
 horizontal_alignment = 1
 
 [node name="Label" type="Label" parent="Center/box/RoundsRow" unique_id=1458260079]
@@ -160,6 +170,11 @@ layout_mode = 2
 text = "How To Play
 "
 
+[node name="Accessibility" type="Button" parent="Center/box" unique_id=65544076]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Accessibility"
+
 [node name="QuitButton" type="Button" parent="Center/box" unique_id=1088980942]
 unique_name_in_owner = true
 layout_mode = 2
@@ -201,6 +216,103 @@ bbcode_enabled = true
 
 [node name="CloseButton" type="Button" parent="RulesPanel/RulesCenter/RulesBody/RulesColumn" unique_id=1662010715]
 unique_name_in_owner = true
+layout_mode = 2
+text = "Close"
+
+[node name="Accessibility_Panel" type="ColorRect" parent="." unique_id=532959513]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7019608)
+
+[node name="Access_Center" type="CenterContainer" parent="Accessibility_Panel" unique_id=1126696959]
+custom_minimum_size = Vector2(400, 0)
+propagate_maximum_size = false
+clip_contents = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 296.0
+offset_top = -464.0
+offset_right = -439.0
+offset_bottom = -252.0
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(1.26, 1.26)
+accessibility_region = true
+
+[node name="Access_Body" type="PanelContainer" parent="Accessibility_Panel/Access_Center" unique_id=128898202]
+texture_filter = 2
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lxlrp")
+accessibility_region = true
+metadata/_edit_lock_ = true
+
+[node name="Access_Column" type="VBoxContainer" parent="Accessibility_Panel/Access_Center/Access_Body" unique_id=1236908074]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+
+[node name="Brightness_Contrast" type="Button" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=883510595]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_vertical = 4
+text = "Brightness / Contrast"
+
+[node name="Brightness_Slider" type="HBoxContainer" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=870112163]
+visible = false
+layout_mode = 2
+alignment = 1
+
+[node name="Brightness" type="Label" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Slider" unique_id=1740304082]
+layout_mode = 2
+text = "Brightness: "
+
+[node name="B_Num" type="Label" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Slider" unique_id=1719597084]
+layout_mode = 2
+text = "1.0"
+
+[node name="B_Slider" type="HSlider" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Slider" unique_id=177692810]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 1.0
+max_value = 2.0
+step = 0.1
+value = 1.0
+
+[node name="Contrast_Slider" type="HBoxContainer" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=2104502815]
+visible = false
+layout_mode = 2
+
+[node name="Contrast" type="Label" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider" unique_id=2138211117]
+layout_mode = 2
+text = "Contrast: "
+
+[node name="C_Num" type="Label" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider" unique_id=578883461]
+layout_mode = 2
+text = "1.0"
+
+[node name="C_Slider" type="HSlider" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider" unique_id=430119951]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 1.0
+max_value = 2.0
+step = 0.1
+value = 1.0
+
+[node name="Access_Close" type="Button" parent="Accessibility_Panel/Access_Center/Access_Body/Access_Column" unique_id=901437337]
+custom_minimum_size = Vector2(400, 0)
 layout_mode = 2
 text = "Close"
 
@@ -267,10 +379,18 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Reset to defaults"
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1328998990]
+environment = SubResource("Environment_lnmj5")
+
 [connection signal="pressed" from="Center/box/SpecialsRow/SpecialsButton" to="." method="_on_specials_pressed"]
 [connection signal="pressed" from="Center/box/StartButton" to="." method="_on_start"]
 [connection signal="pressed" from="Center/box/RulesButton" to="." method="_on_rules_pressed"]
+[connection signal="pressed" from="Center/box/Accessibility" to="." method="_on_accessibility_pressed"]
 [connection signal="pressed" from="Center/box/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="RulesPanel/RulesCenter/RulesBody/RulesColumn/CloseButton" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Contrast" to="." method="_on_brightness_contrast_pressed"]
+[connection signal="value_changed" from="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Slider/B_Slider" to="." method="_on_b_slider_value_changed"]
+[connection signal="value_changed" from="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider/C_Slider" to="." method="_on_c_slider_value_changed"]
+[connection signal="pressed" from="Accessibility_Panel/Access_Center/Access_Body/Access_Column/Access_Close" to="." method="_on_access_close_pressed"]
 [connection signal="pressed" from="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons/DoneButton" to="." method="_on_done_button_pressed"]
 [connection signal="pressed" from="SpecialsPanel/SpecialsCenter/PanelContainer/VBoxContainer/PopupButtons/ResetButton" to="." method="_on_specials_reset"]
