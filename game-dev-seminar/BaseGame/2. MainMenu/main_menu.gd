@@ -19,16 +19,8 @@ const TABLE_SCENE := "res://BaseGame/5. CardTable/game_table.tscn"
 @onready var _rules_panel: Control = %RulesPanel     
 @onready var _rules_text: RichTextLabel = %RulesText
 
-#new Accessibility Panel
-@onready var world_env: WorldEnvironment =$WorldEnvironment
-@onready var _accessibility_panel: Control = %Accessibility_Panel 
-@onready var _brightness_contrast: Button = %Brightness_Contrast
+#
 
-@onready var _brightness_slider: Control = $Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Slider
-@onready var b_num: Label = $Accessibility_Panel/Access_Center/Access_Body/Access_Column/Brightness_Slider/B_Num
-
-@onready var _contrast_slider: Control = $Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider
-@onready var c_num: Label = $Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider/C_Num
 @onready var _specials_panel: Control = %SpecialsPanel
 @onready var _specials_grid: GridContainer = %SpecialsGrid
 var _special_rows: Dictionary = {}   # special -> {spin, rarity}
@@ -37,7 +29,7 @@ var _special_rows: Dictionary = {}   # special -> {spin, rarity}
 # builds the main menu and assigns functionality to buttons and proper
 # round numbers along with special card customization
 func _ready() -> void:
-	world_env.environment.adjustment_enabled = true
+	#world_env.environment.adjustment_enabled = true
 
 	#User can choose how many rounds to play number of jokers is based on the number of rounds
 	for r in range(GameSettings.MIN_ROUNDS, GameSettings.MAX_ROUNDS + 1):
@@ -151,24 +143,3 @@ func _on_close_button_pressed() -> void:
 
 func _on_done_button_pressed() -> void:
 	_specials_panel.visible = false
-
-# -------------------------------Accessibility Menu-------------------------------
-func _on_accessibility_pressed() -> void:
-	_accessibility_panel.visible = true
-
-func _on_access_close_pressed() -> void:
-	_accessibility_panel.visible = false
-
-# Brightness fns
-func _on_brightness_contrast_pressed() -> void:
-	_brightness_slider.visible = true
-	_contrast_slider.visible = true
-
-func _on_b_slider_value_changed(value: float) -> void:
-	b_num.text = str(value)
-	world_env.environment.adjustment_brightness = value
-
-# Contrast fns
-func _on_c_slider_value_changed(value: float) -> void:
-	c_num.text = str(value)
-	world_env.environment.adjustment_contrast = value
