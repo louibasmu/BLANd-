@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://glnp5crqn7w6" path="res://BaseGame/5. CardTable/game_table.gd" id="1_xanw4"]
 [ext_resource type="Script" uid="uid://do2sxspgf0u2e" path="res://BaseGame/1. CoreMechanics/turn_compass.gd" id="2_mnkod"]
 [ext_resource type="Texture2D" uid="uid://37h6sijnvxrs" path="res://Environment Assets/background.jpeg" id="2_wlmaj"]
+[ext_resource type="Texture2D" uid="uid://b1japk5v6daty" path="res://Environment Assets/tableRight.jpeg" id="3_g8l5e"]
+[ext_resource type="PackedScene" uid="uid://b0cxu34sl3430" path="res://BaseGame/2. MainMenu/accessibility_scene.tscn" id="5_33ifr"]
 [ext_resource type="Texture2D" uid="uid://c0e1lgkaavrxh" path="res://BaseGame/5. CardTable/down_aligned.png" id="3_pween"]
 [ext_resource type="Texture2D" uid="uid://cc7abqiwu2fxe" path="res://BaseGame/5. CardTable/left_aligned.png" id="4_4janb"]
 [ext_resource type="Texture2D" uid="uid://dh2bxprhspa8t" path="res://BaseGame/5. CardTable/up_aligned.png" id="5_61iuv"]
@@ -48,10 +50,6 @@ bg_color = Color(0.42352942, 0, 0.12156863, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wmx4n"]
 bg_color = Color(0.54901963, 0, 0.12156863, 1)
-
-[sub_resource type="Environment" id="Environment_hb7qp"]
-background_mode = 3
-adjustment_enabled = true
 
 [node name="GameTable" type="Control" unique_id=1531637342]
 layout_mode = 3
@@ -475,6 +473,9 @@ autowrap_mode = 3
 [node name="CancelButton" type="Button" parent="margin/root/PromptRow" unique_id=2088306667]
 unique_name_in_owner = true
 layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(-150, 0)
+offset_transform_visual_only = false
 text = "Cancel"
 
 [node name="ShuffleButton" type="Button" parent="margin/root/PromptRow" unique_id=1596064961]
@@ -569,7 +570,8 @@ theme_override_constants/separation = -14
 [node name="MenuPopup" type="PopupPanel" parent="." unique_id=53824035]
 unique_name_in_owner = true
 oversampling_override = 1.0
-size = Vector2i(320, 350)
+size = Vector2i(410, 372)
+visible = true
 transient_to_focused = true
 exclude_from_capture = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_g8l5e")
@@ -580,8 +582,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 8.0
 offset_top = 6.0
-offset_right = 312.0
-offset_bottom = 344.0
+offset_right = -8.0
+offset_bottom = -6.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 6
@@ -690,9 +692,30 @@ mouse_filter = 2
 layout_mode = 2
 text = "Special Card Roles"
 
+[node name="MenuSeperator2" type="HSeparator" parent="MenuPopup/MenuMargin/MenuItems" unique_id=1246120831]
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, -7)
+offset_transform_visual_only = false
+
+[node name="BotSpeed2" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems" unique_id=256850756]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, 3)
+offset_transform_visual_only = false
+theme_override_constants/separation = 8
+
+[node name="Accessibility_Scene" parent="MenuPopup/MenuMargin/MenuItems/BotSpeed2" unique_id=1386749437 instance=ExtResource("5_33ifr")]
+layout_mode = 2
+offset_transform_position = Vector2(-290, 0)
+
 [node name="BotSpeed" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems" unique_id=578701566]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, 3)
+offset_transform_visual_only = false
 theme_override_constants/separation = 8
 
 [node name="Label" type="Label" parent="MenuPopup/MenuMargin/MenuItems/BotSpeed" unique_id=2106691314]
@@ -703,6 +726,12 @@ text = "Bot Speed"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuPopup/MenuMargin/MenuItems" unique_id=831279441]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
 
 [node name="MenuSeperator" type="HSeparator" parent="MenuPopup/MenuMargin/MenuItems" unique_id=1948247879]
 layout_mode = 2
@@ -793,6 +822,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+offset_transform_position = Vector2(-50, 0)
 mouse_filter = 2
 
 [node name="BackgroundMusic" type="AudioStreamPlayer" parent="." unique_id=668796053]
@@ -801,9 +831,6 @@ autoplay = true
 
 [node name="JokerSound" type="AudioStreamPlayer" parent="." unique_id=1856969380]
 stream = ExtResource("6_joker_sound")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=869713719]
-environment = SubResource("Environment_hb7qp")
 
 [connection signal="timeout" from="BotTimer" to="." method="_on_bot_timer"]
 [connection signal="pressed" from="margin/root/bar/MenuButton" to="." method="_toggle_menu_popup"]
