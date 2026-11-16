@@ -10,6 +10,7 @@
 [ext_resource type="AudioStream" uid="uid://bd1xxh4iyn110" path="res://sound_assets/background_sound_for_the_game.mp3" id="5_aiv48"]
 [ext_resource type="Texture2D" uid="uid://dmwywtc2tsiqp" path="res://BaseGame/5. CardTable/right_aligned.png" id="6_7cqqj"]
 [ext_resource type="AudioStream" uid="uid://dqy37np84k618" path="res://sound_assets/evil_laugh_joker.ogg" id="6_joker_sound"]
+[ext_resource type="AudioStream" uid="uid://bgvc2jxw0o2c3" path="res://sound_assets/positive.ogg" id="7_pair_made_sound"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
@@ -272,7 +273,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("3_pween")
-expand_mode = 1
 stretch_mode = 6
 
 [node name="TableFlame1" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1034159991]
@@ -288,7 +288,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("4_4janb")
-expand_mode = 1
 stretch_mode = 6
 
 [node name="TableFlame2" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1581143565]
@@ -304,7 +303,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("5_61iuv")
-expand_mode = 1
 stretch_mode = 6
 
 [node name="TableFlame3" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1154315792]
@@ -320,18 +318,16 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("6_7cqqj")
-expand_mode = 1
 stretch_mode = 6
 
 [node name="CompassCenter" type="CenterContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1829671266]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 1.0
-offset_left = 208.0
-offset_top = 3.0
-offset_right = 553.0
-offset_bottom = 3.0
+offset_left = 149.0
+offset_top = -6.0
+offset_right = 494.0
+offset_bottom = -6.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -344,9 +340,9 @@ metadata/_custom_type_script = "uid://do2sxspgf0u2e"
 
 [node name="userHistoryPanel" type="PanelContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=846765798]
 layout_mode = 0
-offset_left = 8.0
+offset_left = 16.0
 offset_top = 3.0
-offset_right = 308.0
+offset_right = 247.0
 offset_bottom = 243.0
 size_flags_horizontal = 3
 
@@ -365,15 +361,15 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/normal_font_size = 7
 bbcode_enabled = true
 scroll_following = true
 
 [node name="BotHistoryPanel" type="PanelContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=587869859]
 layout_mode = 0
-offset_left = 467.0
+offset_left = 403.0
 offset_top = 3.0
-offset_right = 765.0
+offset_right = 634.0
 offset_bottom = 243.0
 size_flags_horizontal = 3
 
@@ -392,7 +388,7 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/normal_font_size = 7
 bbcode_enabled = true
 scroll_following = true
 
@@ -570,7 +566,6 @@ theme_override_constants/separation = -14
 unique_name_in_owner = true
 oversampling_override = 1.0
 size = Vector2i(410, 372)
-visible = true
 transient_to_focused = true
 exclude_from_capture = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_g8l5e")
@@ -581,8 +576,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 8.0
 offset_top = 6.0
-offset_right = -8.0
-offset_bottom = -6.0
+offset_right = 402.0
+offset_bottom = 366.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 6
@@ -826,11 +821,17 @@ offset_transform_position = Vector2(-50, 0)
 mouse_filter = 2
 
 [node name="BackgroundMusic" type="AudioStreamPlayer" parent="." unique_id=668796053]
+unique_name_in_owner = true
 stream = ExtResource("5_aiv48")
 autoplay = true
 
 [node name="JokerSound" type="AudioStreamPlayer" parent="." unique_id=1856969380]
+unique_name_in_owner = true
 stream = ExtResource("6_joker_sound")
+
+[node name="PairMadeSound" type="AudioStreamPlayer" parent="." unique_id=1717292903]
+unique_name_in_owner = true
+stream = ExtResource("7_pair_made_sound")
 
 [connection signal="timeout" from="BotTimer" to="." method="_on_bot_timer"]
 [connection signal="pressed" from="margin/root/bar/MenuButton" to="." method="_toggle_menu_popup"]
