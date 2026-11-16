@@ -1,5 +1,5 @@
 extends Control
-## Start menu: pick the number of rounds (3-7) and the bot style, then play.
+## Start menu: pick the number of rounds (1-3) and the bot style, then play.
 ##
 ## The whole menu was built in code in _ready() 
 ##Asmus manually created them by node structure instead during week 7 and 8
