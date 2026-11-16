@@ -11,6 +11,8 @@ extends Control
 @onready var _contrast_slider: Control = $Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider
 @onready var c_num: Label = $Accessibility_Panel/Access_Center/Access_Body/Access_Column/Contrast_Slider/C_Num
 
+@onready var bg_music: AudioStreamPlayer = $AudioStreamPlayer
 # Called when the node enters the scene tree for the first time.
+
 func _ready() -> void:
-	pass # Replace with function body.
+	bg_music.play()

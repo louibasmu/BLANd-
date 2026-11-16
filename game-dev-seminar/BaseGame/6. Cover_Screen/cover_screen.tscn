@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://cmm75kvwb81s2" path="res://BaseGame/6. Cover_Screen/pressed_start_button.png" id="6_x12iv"]
 [ext_resource type="Texture2D" uid="uid://bb7bgke54snpy" path="res://BaseGame/6. Cover_Screen/hover_start_button.png" id="7_gyto8"]
 [ext_resource type="Script" uid="uid://b5ed8xclvg4x5" path="res://BaseGame/6. Cover_Screen/texture_button.gd" id="8_73r8d"]
+[ext_resource type="AudioStream" uid="uid://c4xmc1jrf3t73" path="res://sound_assets/ScaryMusic2018-10-12_-_It_Is_Coming_-_David_Fesliyan.mp3" id="8_x12iv"]
 
 [sub_resource type="Theme" id="Theme_fbbr0"]
 default_font = ExtResource("3_fbbr0")
@@ -98,5 +99,8 @@ texture_pressed = SubResource("AtlasTexture_y6nv2")
 texture_hover = SubResource("AtlasTexture_6miji")
 ignore_texture_size = true
 script = ExtResource("8_73r8d")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=769065326]
+stream = ExtResource("8_x12iv")
 
 [connection signal="pressed" from="TextureButton" to="TextureButton" method="_on_pressed"]
