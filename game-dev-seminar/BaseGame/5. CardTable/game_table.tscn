@@ -707,6 +707,7 @@ theme_override_constants/separation = 8
 
 [node name="Accessibility_Scene" parent="MenuPopup/MenuMargin/MenuItems/BotSpeed2" unique_id=1386749437 instance=ExtResource("5_33ifr")]
 layout_mode = 2
+size_flags_horizontal = 3
 offset_transform_position = Vector2(-290, 0)
 
 [node name="BotSpeed" type="HBoxContainer" parent="MenuPopup/MenuMargin/MenuItems" unique_id=578701566]

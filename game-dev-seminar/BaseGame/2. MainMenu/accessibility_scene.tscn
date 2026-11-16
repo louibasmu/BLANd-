@@ -42,6 +42,7 @@ offset_bottom = 31.0
 offset_transform_position = Vector2(400, 0)
 offset_transform_visual_only = false
 text = "Accessibility"
+flat = true
 
 [node name="Accessibility_Panel" type="ColorRect" parent="." unique_id=492432004]
 unique_name_in_owner = true
