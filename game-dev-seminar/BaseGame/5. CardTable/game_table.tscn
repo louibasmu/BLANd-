@@ -273,7 +273,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("3_pween")
-expand_mode = 1
 stretch_mode = 6
 
 [node name="TableFlame1" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1034159991]
@@ -289,7 +288,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("4_4janb")
-expand_mode = 1
 stretch_mode = 6
 
 [node name="TableFlame2" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1581143565]
@@ -305,7 +303,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("5_61iuv")
-expand_mode = 1
 stretch_mode = 6
 
 [node name="TableFlame3" type="TextureRect" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1154315792]
@@ -321,7 +318,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("6_7cqqj")
-expand_mode = 1
 stretch_mode = 6
 
 [node name="CompassCenter" type="CenterContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=1829671266]
@@ -344,9 +340,9 @@ metadata/_custom_type_script = "uid://do2sxspgf0u2e"
 
 [node name="userHistoryPanel" type="PanelContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=846765798]
 layout_mode = 0
-offset_left = 8.0
+offset_left = 16.0
 offset_top = 3.0
-offset_right = 308.0
+offset_right = 247.0
 offset_bottom = 243.0
 size_flags_horizontal = 3
 
@@ -365,15 +361,15 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/normal_font_size = 7
 bbcode_enabled = true
 scroll_following = true
 
 [node name="BotHistoryPanel" type="PanelContainer" parent="margin/root/MidSlot/Mid/CenterArea" unique_id=587869859]
 layout_mode = 0
-offset_left = 467.0
+offset_left = 403.0
 offset_top = 3.0
-offset_right = 765.0
+offset_right = 634.0
 offset_bottom = 243.0
 size_flags_horizontal = 3
 
@@ -392,7 +388,7 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/normal_font_size = 7
 bbcode_enabled = true
 scroll_following = true
 
