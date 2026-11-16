@@ -73,6 +73,7 @@ var _paused: bool = false
 @onready var _user_log: RichTextLabel = %userLog
 @onready var _bot_log: RichTextLabel = %botLog
 @onready var _joker_sound: AudioStreamPlayer = $JokerSound
+@onready var _pair_made_sound: AudioStreamPlayer = $PairMadeSound
 var _ui_scale: float = 1.0
 var _side_card_size: Vector2 = SIDE_CARD
 
@@ -515,6 +516,7 @@ func _play_starting_pairs() -> void:
 func _on_pair_made(p: int, a: BlandCard, b: BlandCard) -> void:
 	if p != HUMAN:
 		return
+	_pair_made_sound.play()
 	_toast("You made a pair of %s! (+%d)" % [a.rank_plural(), GameSettings.POINTS_PER_PAIR])
 	_pair_animation_queue.append({
 		"player": p,
@@ -522,13 +524,7 @@ func _on_pair_made(p: int, a: BlandCard, b: BlandCard) -> void:
 		"card_b": b,
 	})
 	_play_next_pair_animation.call_deferred()
-	#SoundManager.play_pair()
-
-
-func _on_turn_ended(_player_index: int) -> void:
-	pass
-	#SoundManager.play_turn_over()
-
+	
 
 func _on_joker_received(player_index: int) -> void:
 	if game.players[player_index].is_human:

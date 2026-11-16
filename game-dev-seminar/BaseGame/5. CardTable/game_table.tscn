@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://b1japk5v6daty" path="res://Environment Assets/tableRight.jpeg" id="3_g8l5e"]
 [ext_resource type="AudioStream" uid="uid://bd1xxh4iyn110" path="res://sound_assets/background_sound_for_the_game.mp3" id="5_aiv48"]
 [ext_resource type="AudioStream" uid="uid://dqy37np84k618" path="res://sound_assets/evil_laugh_joker.ogg" id="6_joker_sound"]
+[ext_resource type="AudioStream" uid="uid://bgvc2jxw0o2c3" path="res://sound_assets/positive.ogg" id="7_pair_made_sound"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5asqp"]
 
