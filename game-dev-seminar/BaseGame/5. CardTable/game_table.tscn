@@ -570,7 +570,6 @@ theme_override_constants/separation = -14
 unique_name_in_owner = true
 oversampling_override = 1.0
 size = Vector2i(410, 372)
-visible = true
 transient_to_focused = true
 exclude_from_capture = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_g8l5e")
